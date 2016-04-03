@@ -7,6 +7,7 @@ void ReadPasswordsFromFile(char *filename);
 
 void CapitalizeRandomLetter(char *password);
 void ChangeRandomLetterToRandomLetter(char *password);
+void BackwardPassword(char *password);
 
 int numberOfArguments;
 int *rules;
@@ -27,6 +28,7 @@ void PrintHelp()
   printf("\nPassword rules: \n");
   printf("  '1' - Change random letter to random letter \n");
   printf("  '2' - Capitalize random letter \n");
+  printf("  '3' - Backward password \n");
 }
 
 void ReadRulesFromArgument(int argc, char *argv[])
@@ -45,6 +47,11 @@ void ReadRulesFromArgument(int argc, char *argv[])
     {
       rules[numberOfArguments] = 2;
     } else
+    if (!strcmp(argv[i], "3"))
+    {
+      rules[numberOfArguments] = 3;
+    }
+    else
     {
       numberOfArguments--;
       wac++;
@@ -74,6 +81,9 @@ void ApplyRules(char *pass)
         break;
       case 2:
         CapitalizeRandomLetter(pass);
+        break;
+      case 3:
+        BackwardPassword(pass);
         break;
       default:
         //printf("ERROR: Applyrules error - %s \n", rules[i]);
@@ -159,5 +169,17 @@ void ChangeRandomLetterToRandomLetter(char *password)
   {
     int newLetter = (rand() % 25) + 97;
     password[letterIndex] = newLetter;
+  }
+}
+
+void BackwardPassword(char *password)
+{
+  int length = StringLength(password);
+  
+  for (int i = 0; i < length / 2; i++)
+  {
+    password[i] ^= password[length - i - 1];
+    password[length - i - 1] ^= password[i];
+    password[i] ^= password[length - i - 1];
   }
 }
