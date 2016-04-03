@@ -8,11 +8,78 @@ void ReadPasswordsFromFile(char *filename);
 void CapitalizeRandomLetter(char *password);
 void ChangeRandomLetterToRandomLetter(char *password);
 
+int numberOfArguments;
+int *rules;
+
 int StringLength(char *string)
 {
   int i;
   for (i = 0; string[i] != '\0'; ++i);
   return i;
+}
+
+void PrintHelp()
+{
+  printf("Arguments: \n");
+  printf("  '.' - write password from keyboardi \n");
+  printf("  'FileName' - load passwords from file \n");
+  
+  printf("\nPassword rules: \n");
+  printf("  '1' - Change random letter to random letter \n");
+  printf("  '2' - Capitalize random letter \n");
+}
+
+void ReadRulesFromArgument(int argc, char *argv[])
+{
+  rules = malloc(sizeof(int) * (argc - 2));
+  
+  int wac = 0;
+
+  for (int i = 2; i < argc; i++)
+  {
+    if (!strcmp(argv[i], "1"))
+    {    
+      rules[numberOfArguments] = 1;
+    } else
+    if (!strcmp(argv[i], "2"))
+    {
+      rules[numberOfArguments] = 2;
+    } else
+    {
+      numberOfArguments--;
+      wac++;
+      printf("ERROR: Wrong argument - %s \n", argv[i]);
+    }
+    
+    numberOfArguments++;
+
+    //printf("CYKLUS \n");
+  }
+
+  if (wac == argc - 2)
+  {
+    printf("All arguments are wrong \n");
+    exit(1);
+  }
+}
+
+void ApplyRules(char *pass)
+{
+  for (int i = 0; i < numberOfArguments; i++)
+  {
+    switch (rules[i])
+    {
+      case 1:
+        ChangeRandomLetterToRandomLetter(pass);
+        break;
+      case 2:
+        CapitalizeRandomLetter(pass);
+        break;
+      default:
+        //printf("ERROR: Applyrules error - %s \n", rules[i]);
+        break;
+    }
+  }
 }
 
 int main(int argc, char *argv[])
@@ -21,28 +88,36 @@ int main(int argc, char *argv[])
 
   if (argc == 2)
   {
+    if (!strcmp(argv[1], "--help"))
+    {
+      PrintHelp();
+      return 0;
+    }
+  } else
+  if (argc >= 2)
+  {
+    ReadRulesFromArgument(argc, argv);
+    
     if (strcmp(argv[1], ".") != 0)
     {
       ReadPasswordsFromFile(argv[1]);
       return 0;
     }
+    //Input from keyboard  
+    char password[50];
+  
+    printf("Input password \n");
+    scanf("%s", &password);
+
+    ApplyRules(password);
+
+    printf("%s \n", password);
+
   } else
-  {  
-    printf("ERROR: Wrong number of arguments \n");
+  {
+    printf("Write --help \n");
     exit(1);
   }
-
-  char password[50];
-  
-  printf("Input password \n");
-  scanf("%s", &password);
-
-  //printf("%s \n", password);
-
-  ChangeRandomLetterToRandomLetter(password);
-  CapitalizeRandomLetter(password);
-
-  printf("%s \n", password);
 }
 
 void ReadPasswordsFromFile(char *filename)
@@ -58,8 +133,10 @@ void ReadPasswordsFromFile(char *filename)
   
   while (fscanf(subor, "%s", &password) == 1)
   {
-    ChangeRandomLetterToRandomLetter(password);
-    CapitalizeRandomLetter(password);
+    ApplyRules(password);
+    
+    //ChangeRandomLetterToRandomLetter(password);
+    //CapitalizeRandomLetter(password);
 
     printf("%s \n", password);
   }
