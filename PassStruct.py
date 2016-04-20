@@ -4,7 +4,7 @@ import re
 #Password structure
 class PassData:
 
-    def __init__(self, password, entropy):
+    def __init__(self, password, entropy, cracklibCheck):
         if (password is not None) and (entropy is not None):
             self.password = password
             if (isinstance(entropy, int)) or (entropy.isdigit()):
@@ -19,6 +19,7 @@ class PassData:
     def SetNoneValues(self):
         self.password = None
         self.entropy = None
+        self.cracklibCheck = None
 
     def Applyl33t(self, table):
         if (self.password is None) or (self.entropy is None):
