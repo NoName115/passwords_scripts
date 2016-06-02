@@ -6,7 +6,7 @@ import PassStruct
 
 #Load l33tTable
 Table = PassStruct.l33tTable("Simple_l33t")
-
+'''
 #Load passwords from file and set entropy(random)
 #with open("Test_Input.txt", "r") as fileInput:
 #    passwords = []
@@ -25,7 +25,7 @@ for i in range(len(passwordList)):
 
     passwordList[i].Applyl33t(Table.table)
     passwordList[i].CapitalizeAllLetters()
-
+'''
 
 #Call cracklib-check
 for i in range(len(passwordList)):
