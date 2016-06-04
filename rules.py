@@ -11,7 +11,7 @@ class Rule(object):
 		pass
 
 	@abstractmethod
-	def transform(self, password):
+	def transform(self, passwordData):
 		pass
 
 

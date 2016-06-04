@@ -1,8 +1,9 @@
 import sys
-import random, subprocess
+
+import subprocess
 
 from passStruct import PassData
-import rules
+import rules, libCheck
 
 
 #Create passwordList and fill it
@@ -15,4 +16,9 @@ for line in sys.stdin:
 rules.CapitalizeAllLetters().transform(passwords)
 rules.LowerAllLetters().transform(passwords)
 
-passwords.printAll()
+#Library-check called
+libCheck.PassWDQC().checkResult(passwords)
+libCheck.CrackLib().checkResult(passwords, ":")
+
+#Print passwordData
+passwords.printData()

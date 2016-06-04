@@ -10,13 +10,21 @@ class Password():
     def __init__(self, password=None, entropy=None, libReasonOutput=None):
         self.password = password
         self.entropy = entropy
-        self.libReasonOutput = libReasonOutput
+        self.libReasonOutput = {}
         self.libCheck = False
 
-    #Output format: Password : Entropy >> LibraryOutput
+    #Output format: Password : Entropy
+    #               LibraryName - LibraryOutput
     def __str__(self):
-        return '{0:12} : {1:.2f}  >>  {2:1}'.format(self.password, self.entropy, self.libReasonOutput)
+        libOutput = '\n'
 
+        for key in self.libReasonOutput:
+            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
+
+        return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + libOutput
+
+    def addLibOutput(self, libraryName, libOutput):
+        self.libReasonOutput.update({libraryName : libOutput})
 
 
 #Class create list of passwords
@@ -42,9 +50,13 @@ class PassData():
 
     #Print all passwords from list
     #Output format: Password : Entropy >> LibraryOutput
-    def printAll(self):
+    def printData(self):
         for x in self.passwordList:
             print x
+
+    def __iter__(self):
+        for x in self.passwordList:
+            yield x
 
     #Method return float number(entropy)
     #Entropy calculated by basic formula
