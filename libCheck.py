@@ -22,8 +22,8 @@ class Library(object):
 			if (delimeter == None):
 				x.addLibOutput(self.__class__.__name__, output)
 			else:
-				#x.libReasonOutput = output.split(": ")[1]
-				x.addLibOutput(self.__class__.__name__, output.split(": ")[1])
+				x.addLibOutput(self.__class__.__name__, output.split(delimeter)[1])
+
 
 
 class CrackLib(Library):
