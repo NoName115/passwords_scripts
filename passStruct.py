@@ -12,16 +12,20 @@ class Password():
         self.entropy = entropy
         self.libReasonOutput = {}
         self.libCheck = False
+        self.transformRules = []
 
     #Output format: Password : Entropy
     #               LibraryName - LibraryOutput
     def __str__(self):
-        libOutput = '\n'
+        transformOutput = ''
+        for element in self.transformRules:
+            transformOutput += '{0:15} : {1:.2f}'.format(element[0], element[1]) + ' --> '
 
+        libOutput = ''
         for key in self.libReasonOutput:
             libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
 
-        return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + libOutput
+        return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + '\n' + transformOutput + '\n' + libOutput
 
     def addLibOutput(self, libraryName, libOutput):
         self.libReasonOutput.update({libraryName : libOutput})
@@ -41,8 +45,8 @@ class PassData():
         if (len(args) == 1):
             self.passwordList.append(Password(args[0], self.generateEntropy(args[0])))
         elif (len(args) == 2):
-            if (isinstance(args[1], int) or args[1].isdigit()):
-                self.passwordList.append(Password(args[0], args[1]))
+            if (isinstance(args[1], int) or (isinstance(args[1], float)) or args[1].isdigit()):
+                self.passwordList.append(Password(args[0], round(args[1], 2)))
             else:
                 print("Wrong second argument - Password not added to list")
         else:
@@ -51,6 +55,10 @@ class PassData():
     #Print all passwords from list
     #Output format: Password : Entropy >> LibraryOutput
     def printData(self):
+        if (len(self.passwordList) == 0):
+            print("PasswordData is empty... Nothing to write")
+            return
+
         for x in self.passwordList:
             print x
 
@@ -66,6 +74,6 @@ class PassData():
     # entropy = n * log(c)  # log - base 2
     def generateEntropy(self, inputPassword):
         if (any(c.isupper() for c in inputPassword) or any(c.isdigit() for c in inputPassword)):
-            return len(inputPassword) * log(62, 2)
+            return round(len(inputPassword) * log(62, 2), 2)
         else:
-            return len(inputPassword) * log(26, 2)
+            return round(len(inputPassword) * log(26, 2), 2)
