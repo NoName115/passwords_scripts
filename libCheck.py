@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from passStruct import PassData, Password
 
-import subprocess
+import subprocess, errorPrinter
 
 class Library(object):
 	
@@ -11,18 +11,23 @@ class Library(object):
 	def __init__(self):
 		pass
 
+	#Method get output of library and store it to passData
+	#Arguments: passwordData(PassData), delimeter(char/string) - optional argument, *args(strings) - arguments for calling library
 	@abstractmethod
 	def checkResult(self, passwordData, delimiter=None, *args):
-		for x in passwordData.passwordList:
-			#Get output from library
-			p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-			output = p.communicate(input = x.password)[0].rstrip('\n')
+		if (isinstance(passwordData, PassData)):
+			for x in passwordData.passwordList:
+				#Get output from library
+				p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+				output = p.communicate(input = x.password)[0].rstrip('\n')
 
-			#Split and save output to PassData
-			if (delimiter == None):
-				x.addLibOutput(self.__class__.__name__, output)
-			else:
-				x.addLibOutput(self.__class__.__name__, output.split(delimiter)[1])
+				#Split and save output to PassData
+				if (delimiter == None):
+					x.addLibOutput(self.__class__.__name__, output)
+				else:
+					x.addLibOutput(self.__class__.__name__, output.split(delimiter)[1])
+		else:
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
 
 
 

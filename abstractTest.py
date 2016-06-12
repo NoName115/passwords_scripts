@@ -1,7 +1,8 @@
 import sys
 
-from passStruct import PassData
+from passStruct import PassData, Password
 import rules, libCheck, loadData
+
 
 ####################################################################
 ####################################################################
@@ -23,4 +24,3 @@ libCheck.CrackLib().checkResult(passwords)
 
 #Print passwordData
 passwords.printData()
-

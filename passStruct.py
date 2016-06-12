@@ -1,5 +1,4 @@
-import random
-import re
+import random,re, errorPrinter
 
 from math import log
 
@@ -20,6 +19,8 @@ class Password():
         transformOutput = ''
         for element in self.transformRules:
             transformOutput += '{0:15} : {1:.2f}'.format(element[0], element[1]) + ' --> '
+        if (len(self.transformRules) == 0):
+            transformOutput = "No password transform"
 
         libOutput = ''
         for key in self.libReasonOutput:
@@ -27,6 +28,8 @@ class Password():
 
         return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + '\n' + transformOutput + '\n' + libOutput
 
+    #Method add library output to dictionary
+    #Arguments: libraryName(String), libOutput(String)
     def addLibOutput(self, libraryName, libOutput):
         self.libReasonOutput.update({libraryName : libOutput})
 
@@ -45,18 +48,18 @@ class PassData():
         if (len(args) == 1):
             self.passwordList.append(Password(args[0], self.generateEntropy(args[0])))
         elif (len(args) == 2):
-            if (isinstance(args[1], int) or (isinstance(args[1], float)) or args[1].isdigit()):
+            if (isinstance(args[1], int) or isinstance(args[1], float)):
                 self.passwordList.append(Password(args[0], round(args[1], 2)))
             else:
-                print("Wrong second argument - Password not added to list")
+                errorPrinter.printWarning("Adding password to passwordData", 'Wrong second argument - password \'{0:1}\' wasn\'t added'.format(args[0]))
         else:
-            print("Wrong number of arguments - Correct: password(String), entropy(Number) - optional argument")
+            errorPrinter.printWarning("Adding password to passwordData", "Wrong number of arguments, Correct: password(String), entropy(Number) - optional argument")
 
     #Print all passwords from list
     #Output format: Password : Entropy >> LibraryOutput
     def printData(self):
         if (len(self.passwordList) == 0):
-            print("PasswordData is empty... Nothing to write")
+            errorPrinter.printWarning("printData", "PasswordData is empty... Nothing to write")
             return
 
         for x in self.passwordList:

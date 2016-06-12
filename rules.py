@@ -1,16 +1,19 @@
 from abc import ABCMeta, abstractmethod
 from passStruct import PassData, Password
 
-import random
+import random, errorPrinter
 
 
 #Decorator for saving transformData to passData
 #TransformData: Name of the class(rule name), new password entropy
 def saveTransformData(fun):
 	def inner(self, passwordData):
-		for x in passwordData:
-			x.transformRules.append([self.__class__.__name__, x.entropy])
-		return fun(self, passwordData)
+		vys = fun(self, passwordData)
+		if (vys != 1):
+			for x in passwordData:
+				x.transformRules.append([self.__class__.__name__, x.entropy])
+		else:
+			errorPrinter.printWarning('transform \'{0:1}\''.format(self.__class__.__name__), "wasn't applied")
 	return inner
 
 
@@ -40,21 +43,30 @@ class l33t(object):
 		pass
 
 	#@abstractmethod
+	#Method load l33t table from file
+	#Return library (key, value is list)
 	def loadToDict(self, fileName):
-		with open(fileName, 'r') as l33tInput:
-			l33t = {}
+		try:
+			with open(fileName, 'r') as l33tInput:
+				l33t = {}
 
-			for line in l33tInput:
-				line = line.strip('\n').split(' ')
+				for line in l33tInput:
+					line = line.strip('\n').split(' ')
 
-				if (line[0] in l33t):
-					for i in range(1, len(line)):
-						l33t[line[0]].append(line[i])
-				else:
-					l33t.update({line[0] : [line[1]]})
-					for i in range(2, len(line)):
-						l33t[line[0]].append(line[i])
-		return l33t
+					if (line[0] in l33t):
+						for i in range(1, len(line)):
+							l33t[line[0]].append(line[i])
+					else:
+						l33t.update({line[0] : [line[1]]})
+						for i in range(2, len(line)):
+							l33t[line[0]].append(line[i])
+			return l33t
+		except IOError:
+			errorPrinter.printWarning(self.__class__.__name__, 'File \'{0:1}\' doesn\'t exist'.format(fileName))
+			return None
+		except IndexError:
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong format of file")
+			return None
 
 
 #Method 'transform' apply simple l33t at passwords
@@ -66,6 +78,8 @@ class ApplySimplel33t(l33t):
 	@saveTransformData
 	def transform(self, passwordData):
 		l33tDict = self.loadToDict("Simple_l33t")
+		if (l33tDict is None):
+			return 1
 
 		if (isinstance(passwordData, PassData)):
 			for x in passwordData.passwordList:
@@ -76,7 +90,8 @@ class ApplySimplel33t(l33t):
 			passwordData.password = passwordData.password.replace(key, l33tDict[key][random.randint(0, len(l33tDict[key]) - 1)])
 
 		else:
-			print("Wrong input passwordData format")
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
+			return 1
 
 
 #Method 'transform' apply advanced l33t at passwords
@@ -88,6 +103,8 @@ class ApplyAdvancedl33t(l33t):
 	@saveTransformData
 	def transform(self, passwordData):
 		l33tDict = self.loadToDict("Advanced_l33t")
+		if (l33tDict is None):
+			return 1
 
 		if (isinstance(passwordData, PassData)):
 			for x in passwordData.passwordList:
@@ -98,8 +115,8 @@ class ApplyAdvancedl33t(l33t):
 			passwordData.password = passwordData.password.replace(key, l33tDict[key][random.randint(0, len(l33tDict[key]) - 1)])
 
 		else:
-			print("Wrong input passwordData format")
-
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
+			return 1
 
 
 #Method 'transform' capitalize all letters in password
@@ -118,7 +135,8 @@ class CapitalizeAllLetters(Rule):
 			passwordData.password = passwordData.password.upper()
 
 		else:
-			print("Wrong input passwordData format")
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
+			return 1
 
 
 #Method 'transform' lower all letters in password
@@ -137,9 +155,11 @@ class LowerAllLetters(Rule):
 			passwordData.password = passwordData.password.lower()
 
 		else:
-			print("Wrong input passwordData format")
+			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
+			return 1
 
 
+######################################################################################################
 #Capitalize one letter from password at certain index
 #Arguments: Index(number)
 class CapitalizeLetterAtIndex(Rule):
