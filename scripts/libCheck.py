@@ -15,7 +15,7 @@ class Library(object):
 	#Arguments: passwordData(PassData), delimeter(char/string) - optional argument, *args(strings) - arguments for calling library
 	@abstractmethod
 	def checkResult(self, passwordData, delimiter=None, *args):
-		if (isinstance(passwordData, PassData)):
+		try:
 			for x in passwordData.passwordList:
 				#Get output from library
 				p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -26,8 +26,10 @@ class Library(object):
 					x.addLibOutput(self.__class__.__name__, output)
 				else:
 					x.addLibOutput(self.__class__.__name__, output.split(delimiter)[1])
-		else:
+		except AttributeError:
 			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
+		except IndexError:
+			errorPrinter.printWarning(self.__class__.__name__, "")
 
 
 

@@ -9,6 +9,7 @@ class Password():
     def __init__(self, password=None, entropy=None):
         self.password = password
         self.entropy = entropy
+        self.actualEntropy = entropy
         self.libReasonOutput = {}
         self.libCheck = False
         self.transformRules = []
@@ -17,8 +18,11 @@ class Password():
     #               LibraryName - LibraryOutput
     def __str__(self):
         transformOutput = ''
+        previousEntropy = self.entropy
         for element in self.transformRules:
-            transformOutput += '{0:15} : {1:.2f}'.format(element[0], element[1]) + ' --> '
+            transformOutput += '{0:15} : {1:.2f} ({2:.2f})'.format(element[0], element[1], float(element[1]) - previousEntropy) + ' --> '
+            previousEntropy = float(element[1])
+
         if (len(self.transformRules) == 0):
             transformOutput = "No password transform"
 
@@ -48,10 +52,10 @@ class PassData():
         if (len(args) == 1):
             self.passwordList.append(Password(args[0], self.generateEntropy(args[0])))
         elif (len(args) == 2):
-            if (isinstance(args[1], int) or isinstance(args[1], float)):
+            try:
                 self.passwordList.append(Password(args[0], round(args[1], 2)))
-            else:
-                errorPrinter.printWarning("Adding password to passwordData", 'Wrong second argument - password \'{0:1}\' wasn\'t added'.format(args[0]))
+            except ValueError:
+                errorPrinter.printWarning("Adding password to passwordData", '\'{0:1}\' is not a number'.format(args[1]))
         else:
             errorPrinter.printWarning("Adding password to passwordData", "Wrong number of arguments, Correct: password(String), entropy(Number) - optional argument")
 
