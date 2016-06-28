@@ -2,11 +2,15 @@ import random,re, errorPrinter
 
 from math import log
 
-#Class Password
+
 class Password():
 
-    #Arguments: password(String), entropy(number, >= 0), libraryOutput(String)
     def __init__(self, password=None, entropy=None):
+        """
+        Arguments:
+        password -- (string)
+        entropy -- (float/integer)
+        """
         self.password = password
         self.entropy = entropy
         self.actualEntropy = entropy
@@ -14,9 +18,14 @@ class Password():
         self.libCheck = False
         self.transformRules = []
 
-    #Output format: Password : Entropy
-    #               LibraryName - LibraryOutput
     def __str__(self):
+        """Return password data
+
+        Return format:
+        Password : Entropy
+        Transform : actualEntropy (entropyChange) --> NextTransform
+        LibraryName - LibraryOutput
+        """
         transformOutput = ''
         previousEntropy = self.entropy
         for element in self.transformRules:
@@ -32,23 +41,30 @@ class Password():
 
         return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + '\n' + transformOutput + '\n' + libOutput
 
-    #Method add library output to dictionary
-    #Arguments: libraryName(String), libOutput(String)
     def addLibOutput(self, libraryName, libOutput):
+        """Add library output to dictionary
+
+        Arguments:
+        libraryName -- name of the library
+        libOutput -- output of the library
+        """
         self.libReasonOutput.update({libraryName : libOutput})
 
 
-#Class create list of passwords
 class PassData():
 
-    #Initialize list(list of objects of type Password)
     def __init__(self):
+        """Initialize list(list of objects of type Password)
+        """
         self.passwordList = []
 
-    #Add new password to list
-    #Arguments: password(string), entropy(number >= 0)
-    #entropy is optional argument
     def add(self, *args):
+        """Add new password to list
+
+        Arguments:
+        password -- (string)
+        entropy -- value of entropy(float/integer) - optional argument
+        """
         if (len(args) == 1):
             self.passwordList.append(Password(args[0], self.generateEntropy(args[0])))
         elif (len(args) == 2):
@@ -59,12 +75,17 @@ class PassData():
         else:
             errorPrinter.printWarning("Adding password to passwordData", "Wrong number of arguments, Correct: password(String), entropy(Number) - optional argument")
 
-    #Print all passwords from list
-    #Output format: Password : Entropy >> LibraryOutput
     def printData(self):
+        """Print every password data from list
+
+        Output format:
+        Password : Entropy
+        Transform : actualEntropy (entropyChange) --> NextTransform
+        LibraryName - LibraryOutput
+        """
         if (len(self.passwordList) == 0):
             errorPrinter.printWarning("printData", "PasswordData is empty... Nothing to write")
-            return
+            return None
 
         for x in self.passwordList:
             print x
@@ -73,13 +94,21 @@ class PassData():
         for x in self.passwordList:
             yield x
 
-    #Method return float number(entropy)
-    #Entropy calculated by basic formula
-    # n: password length
-    # c: password cardinality: the size of the symbol space
-    #    (26 for lowercase letters only, 62 for a mix of lower+upper+numbers)
-    # entropy = n * log(c)  # log - base 2
     def generateEntropy(self, inputPassword):
+        """Method calculate password entropy
+
+        Arguments:
+        inputPassword -- password
+
+        Entropy calculated by basic formula
+        n: password length
+        c: password cardinality: the size of the symbol space
+            (26 for lowercase letters only, 62 for a mix of lower+upper+numbers)
+        entropy = n * log(c)  # log - base 2
+
+        Return value:
+        entropy -- float number
+        """
         if (any(c.isupper() for c in inputPassword) or any(c.isdigit() for c in inputPassword)):
             return round(len(inputPassword) * log(62, 2), 2)
         else:

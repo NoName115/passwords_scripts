@@ -16,14 +16,18 @@ class Load(object):
 		pass
 
 
-#Method 'loadData' load passwords from stdin (without entropy)
-#Method arguments: passwordData (PassData)
 class LoadFromStdin(Load):
 
 	def __init__(self):
 		super(LoadFromStdin, self).__init__()
 
 	def loadData(self):
+		"""Load passwords and entropy from stdin
+
+		Input format -- password(string), space, entropy(float, integer)
+
+		Method return -- passwordData of type PassData
+		"""
 		passwordData = PassData()
 
 		for line in sys.stdin:
@@ -41,14 +45,18 @@ class LoadFromStdin(Load):
 		return passwordData
 
 
-#Method 'loadData' load passwords from file (with/without entropy)
-#Method arguments: passwordData (PassData)
 class LoadFromFile(Load):
 
 	def __init__(self, fileName=None):
 		self.fileName = fileName
 
 	def loadData(self):
+		"""Load passwords and entropy from file
+
+		Input format -- password(string), space, entropy(float, integer)
+
+		Method return -- passwordData of type PassData
+		"""
 		passwordData = PassData()
 
 		try:

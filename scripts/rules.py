@@ -23,10 +23,16 @@ class Rule(object):
 
 class l33t(Rule):
 
-	#Method load l33t table from file
-	#Return library (key, value is list)
 	#@abstractmethod
 	def loadToDict(self, fileName):
+		"""Load l33t table from file
+
+		Arguments:
+		fileName -- file from which data are loaded
+
+		Return value:
+		dictionary -- key(char), value(list)
+		"""
 		try:
 			with open(fileName, 'r') as l33tInput:
 				l33tDict = {}
@@ -50,14 +56,16 @@ class l33t(Rule):
 			return None
 
 
-
-#Method 'transform' apply simple l33t at passwords
-#Method arguments: passwordData (Type is PassData or Password)
 class ApplySimplel33t(l33t):
 	def __init__(self):
 		super(ApplySimplel33t, self).__init__()
 
 	def transform(self, passwordData):
+		"""Apply simple l33t at passwords
+
+		Arguments:
+		passwordData -- type of PassData
+		"""
 		try:
 			l33tDict = self.loadToDict("Simple_l33t")
 
@@ -71,9 +79,9 @@ class ApplySimplel33t(l33t):
 				self.estimateNewEntropyAndSaveTransformData(occur, x)
 
 		except TypeError:
-			errorPrinter.printWarning(self.__class__.__name__, "l33t table is empty", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "l33t table is empty")
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 
 	#Change entropy - 1
 	def estimateNewEntropyAndSaveTransformData(self, occurCount, password):
@@ -85,14 +93,16 @@ class ApplySimplel33t(l33t):
 		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
 
 
-
-#Method 'transform' apply advanced l33t at passwords
-#Method arguments: passwordData (Type is PassData or Password)
 class ApplyAdvancedl33t(l33t):
 	def __init__(self):
 		super(ApplyAdvancedl33t, self).__init__()
 
 	def transform(self, passwordData):
+		"""Apply advanced l33t at passwords
+
+		Arguments:
+		passwordData -- (PassData)
+		"""
 		try:
 			l33tDict = self.loadToDict("Advanced_l33t")
 
@@ -106,9 +116,9 @@ class ApplyAdvancedl33t(l33t):
 				self.estimateNewEntropyAndSaveTransformData(occur, x)
 
 		except TypeError:
-			errorPrinter.printWarning(self.__class__.__name__, "l33t table is empty", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "l33t table is empty")
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 
 	#Change entropy - 2
 	def estimateNewEntropyAndSaveTransformData(self, occurCount, password):
@@ -120,13 +130,16 @@ class ApplyAdvancedl33t(l33t):
 		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
 
 
-#Method 'transform' capitalize all letters in password
-#Method arguments: passwordData (Type is PassData or Password)
 class CapitalizeAllLetters(Rule):
 	def __init__(self):
 		super(CapitalizeAllLetters, self).__init__()
 
 	def transform(self, passwordData):
+		"""Capitalize all letters in password
+
+		Arguments:
+		passwordData -- (PassData)
+		"""
 		try:
 			for x in passwordData.passwordList:
 				transformedPassword = x.password.upper()
@@ -134,7 +147,7 @@ class CapitalizeAllLetters(Rule):
 				x.password = transformedPassword
 
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 
 	#Change entropy - 1
 	def estimateNewEntropyAndSaveTransformData(self, transformedPassword, password):
@@ -146,13 +159,16 @@ class CapitalizeAllLetters(Rule):
 		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
 
 
-#Method 'transform' lower all letters in password
-#Method arguments: passwordData (Type is PassData or Password)
 class LowerAllLetters(Rule):
 	def __init__(self):
 		super(LowerAllLetters, self).__init__()
 
 	def transform(self, passwordData):
+		"""Lower all letters in password
+
+		Arguments:
+		passwordData -- (PassData)
+		"""
 		try:
 			for x in passwordData.passwordList:
 				transformedPassword = x.password.lower()
@@ -160,7 +176,7 @@ class LowerAllLetters(Rule):
 				x.password = transformedPassword
 
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance", True)
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 
 	#Change entropy - 1
 	def estimateNewEntropyAndSaveTransformData(self, transformedPassword, password):
@@ -172,49 +188,71 @@ class LowerAllLetters(Rule):
 		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
 
 
-##############################################################################################################
-#TODO... errorHandle --> transformList
-#Capitalize one letter from password at certain index
-#Arguments: Index(number)
 class CapitalizeLetterAtIndex(Rule):
  	def __init__(self, indx=None):
+ 		"""
+ 		Arguments:
+ 		indx -- Index of letter to which the rule is applied
+ 		"""
  		self.indx = indx
 
- 	#@saveTransformData
  	def transform(self, passwordData):
+ 		"""Capitalize one letter in password at certain index
+
+		Arguments:
+		passwordData -- (PassData)
+		"""
  		try:
 			for x in passwordData.passwordList:
 				try:
 					x.password = x.password[:self.indx] + x.password[self.indx].upper() + x.password[self.indx + 1:]
+					estimateNewEntropyAndSaveTransformData()
 				except IndexError:
-					errorPrinter.printWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
+					errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
 
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
-			return 1
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 		except TypeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
-			return 1
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
+
+	#Change entropy - 1
+	def estimateNewEntropyAndSaveTransformData(self):
+		entropyChange = 1
+
+		password.actualEntropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
 
 
-#Delete letter at index from password
-#Arguments: Index(number)
 class DeleteLetter(Rule):
 	def __init__(self, indx):
+		"""
+ 		Arguments:
+ 		indx -- Index of letter to which the rule is applied
+ 		"""
 		self.indx = indx
 
-	#@saveTransformData
 	def transform(self, passwordData):
+		"""Delete one letter in password at certain index
+
+		Arguments:
+		passwordData -- (PassData)
+		"""
 		try:
 			for x in passwordData.passwordList:
 				try:
 					x.password = re.sub(x.password[self.indx], '', x.password)
+					estimateNewEntropyAndSaveTransformData()
 				except IndexError:
-					errorPrinter.printWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
+					errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
 
 		except AttributeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
-			return 1
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 		except TypeError:
-			errorPrinter.printWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
-			return 1
+			errorPrinter.printRuleWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
+
+	#Change entropy - 1
+	def estimateNewEntropyAndSaveTransformData(self):
+		entropyChange = 1
+
+		password.actualEntropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, password.actualEntropy])

@@ -11,14 +11,18 @@ class Library(object):
 	def __init__(self):
 		pass
 
-	#Method get output of library and store it to passData
-	#Arguments: passwordData(PassData), delimeter(char/string) - optional argument, *args(strings) - arguments for calling library
 	@abstractmethod
 	def checkResult(self, passwordData, delimiter=None, *args):
+		"""Get output of library and save it to passwordData
+
+		passwordData -- type PassData
+		delimiter -- optional argument, if is necessary to split library output
+		*args -- arguments for run/call library
+		"""
 		try:
 			for x in passwordData.passwordList:
 				#Get output from library
-				p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+				p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE,stderr = subprocess.PIPE)
 				output = p.communicate(input = x.password)[0].rstrip('\n')
 
 				#Split and save output to PassData
