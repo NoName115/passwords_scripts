@@ -89,8 +89,8 @@ class ApplySimplel33t(l33t):
 		if (occurCount > 0):
 			entropyChange = 1
 
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
 class ApplyAdvancedl33t(l33t):
@@ -126,8 +126,8 @@ class ApplyAdvancedl33t(l33t):
 		if (occurCount > 0):
 			entropyChange = 2
 
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
 class CapitalizeAllLetters(Rule):
@@ -155,8 +155,8 @@ class CapitalizeAllLetters(Rule):
 		if (any(c.islower() for c in password.password) and transformedPassword.isupper()):
 			entropyChange = 1
 
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
 class LowerAllLetters(Rule):
@@ -184,8 +184,8 @@ class LowerAllLetters(Rule):
 		if (any(c.isupper() for c in password.password) and transformedPassword.islower()):
 			entropyChange = 1
 		
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
 class CapitalizeLetterAtIndex(Rule):
@@ -219,8 +219,8 @@ class CapitalizeLetterAtIndex(Rule):
 	def estimateNewEntropyAndSaveTransformData(self):
 		entropyChange = 1
 
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
 class DeleteLetter(Rule):
@@ -254,5 +254,5 @@ class DeleteLetter(Rule):
 	def estimateNewEntropyAndSaveTransformData(self):
 		entropyChange = 1
 
-		password.actualEntropy += entropyChange
-		password.transformRules.append([self.__class__.__name__, password.actualEntropy])
+		password.entropy += entropyChange
+		password.transformRules.append([self.__class__.__name__, entropyChange])

@@ -13,7 +13,6 @@ class Password():
         """
         self.password = password
         self.entropy = entropy
-        self.actualEntropy = entropy
         self.libReasonOutput = {}
         self.libCheck = False
         self.transformRules = []
@@ -27,10 +26,11 @@ class Password():
         LibraryName - LibraryOutput
         """
         transformOutput = ''
-        previousEntropy = self.entropy
-        for element in self.transformRules:
-            transformOutput += '{0:15} : {1:.2f} ({2:.2f})'.format(element[0], element[1], float(element[1]) - previousEntropy) + ' --> '
-            previousEntropy = float(element[1])
+        startEntropy = self.entropy
+
+        for element in reversed(self.transformRules):
+            transformOutput = '{0:15} : {1:.2f}, '.format(element[0], startEntropy) + transformOutput
+            startEntropy -= int(element[1])
 
         if (len(self.transformRules) == 0):
             transformOutput = "No password transform"
@@ -39,7 +39,7 @@ class Password():
         for key in self.libReasonOutput:
             libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
 
-        return '{0:15} : {1:.2f}'.format(self.password, self.entropy) + '\n' + transformOutput + '\n' + libOutput
+        return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + '\n' + transformOutput + '\n' + libOutput
 
     def addLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
