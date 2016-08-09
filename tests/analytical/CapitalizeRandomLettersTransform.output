@@ -1,0 +1,408 @@
+aA5484s5       
+PassWDQC - OK                  
+CrackLib - OK                  
+
+aSs582e"/fdfe5 
+PassWDQC - OK                  
+CrackLib - OK                  
+
+123456         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too simplistic/systematic
+
+pAssword       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+12345678       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is too simplistic/systematic
+
+qWerty         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+123456789      
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is too simplistic/systematic
+
+12345          
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+1234           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+111111         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+1234567        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is too simplistic/systematic
+
+dRagon         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+123123         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+bAseball       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+aBc123         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too simplistic/systematic
+
+fOotball       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+mOnkey         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+lEtmein        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+696969         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+sHadow         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+mAster         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+666666         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+qWertyuiop     
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+123321         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+mUstang        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+1234567890     
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is too simplistic/systematic
+
+mIchael        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+654321         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too simplistic/systematic
+
+pUssy          
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+sUperman       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+1Qaz2wsx       
+PassWDQC - Bad passphrase (based on a common sequence of characters and not a passphrase)
+CrackLib - OK                  
+
+7777777        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it does not contain enough DIFFERENT characters
+
+fUckyou        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+121212         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+000000         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+qAzwsx         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+123qwe         
+PassWDQC - Bad passphrase (too short)
+CrackLib - OK                  
+
+kIller         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+tRustno1       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+jOrdan         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+jEnnifer       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+zXcvbnm        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+aSdfgh         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+hUnter         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+bUster         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+sOccer         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+hArley         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+bAtman         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+aNdrew         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+tIgger         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+sUnshine       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+iLoveyou       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+fUckme         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+2000           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+cHarlie        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+rObert         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on your username
+
+tHomas         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+hOckey         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+rAnger         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+dAniel         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+sTarwars       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+kLaster        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+112233         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+gEorge         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+aSshole        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+cOmputer       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+mIchelle       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+jEssica        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+pEpper         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+1111           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+zXcvbn         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+555555         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+11111111       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it does not contain enough DIFFERENT characters
+
+131313         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+fReedom        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+777777         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+pAss           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+fUck           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+mAggie         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+159753         
+PassWDQC - Bad passphrase (too short)
+CrackLib - OK                  
+
+aAaaaa         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+gInger         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+pRincess       
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+jOshua         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+cHeese         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+aManda         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it does not contain enough DIFFERENT characters
+
+sUmmer         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+lOve           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+aShley         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+6969           
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is too short     
+
+nIcole         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+cHelsea        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+bIteme         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+mAtthew        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+aCcess         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+yAnkees        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+987654321      
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is too simplistic/systematic
+
+dAllas         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+aUstin         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+tHunder        
+PassWDQC - Bad passphrase (not enough different characters or classes for this length)
+CrackLib - it is based on a dictionary word
+
+tAylor         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+
+mAtrix         
+PassWDQC - Bad passphrase (too short)
+CrackLib - it is based on a dictionary word
+

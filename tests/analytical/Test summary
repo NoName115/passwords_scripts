@@ -1,0 +1,10 @@
+Vstupný súbor 'analyticInput'
+Všetky testy prechádzali cez 2 kontrolne knižnice PassWDQC a CrackLib
+-------------------------------------------------------------------------
+Pri neaplikovaní žiadnych transformácií bol 1 výsledok ktorý uspešne prešiel cez obydve knižnice a 4 ktoré prešli cez jednu knižnicu (pre všetky 4 to bol CrackLib)
+
+Pri aplikovaní transformácií ktoré prevádzali malé pismena na veľke a naopak, boli výsledky takmer totožné ako pri neplikovaní transformácií. Ani "zvačsovanie/zmenšovanie" náhodných znakov v heslách neprinieslo lepšie výsledky.
+
+Avšak pri aplikovaní jednoduchej l33t tabuľky, prešlo cez CrackLib asi 70% vstupných hesiel, zatial čo na PassWDQC to nemalo efekt. Pri aplikovaní zložitejšej l33t tabuľky prešlo cez CrackLib asi 90% hesiel a taktiež to výrazne zvýšilo počet úspešných hesiel aj pri PassWDQC knižnici. Hlavná chyba neúspechu pri PassWDQC pri aplikovaní l33t tabuliek bola "Bad passphrase (not enough different characters or classes for this length)"
+
+Ako záver usudzujem neaplikovať rovnaké transformácie na každý znak hesla (na celé heslo), ale aplikovať náhodne resp. vhodný výber transformácií samostatne na každý znak hesla.

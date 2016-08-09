@@ -206,7 +206,7 @@ class CapitalizeLetterAtIndex(Rule):
 			for x in passwordData.passwordList:
 				try:
 					x.password = x.password[:self.indx] + x.password[self.indx].upper() + x.password[self.indx + 1:]
-					estimateNewEntropyAndSaveTransformData()
+					self.estimateNewEntropyAndSaveTransformData(x)
 				except IndexError:
 					errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
 
@@ -216,7 +216,7 @@ class CapitalizeLetterAtIndex(Rule):
 			errorPrinter.printRuleWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
 
 	#Change entropy - 1
-	def estimateNewEntropyAndSaveTransformData(self):
+	def estimateNewEntropyAndSaveTransformData(self, password):
 		entropyChange = 1
 
 		password.entropy += entropyChange
@@ -241,7 +241,7 @@ class DeleteLetter(Rule):
 			for x in passwordData.passwordList:
 				try:
 					x.password = re.sub(x.password[self.indx], '', x.password)
-					estimateNewEntropyAndSaveTransformData()
+					self.estimateNewEntropyAndSaveTransformData(x)
 				except IndexError:
 					errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(x.password))
 
@@ -251,7 +251,7 @@ class DeleteLetter(Rule):
 			errorPrinter.printRuleWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
 
 	#Change entropy - 1
-	def estimateNewEntropyAndSaveTransformData(self):
+	def estimateNewEntropyAndSaveTransformData(self, password):
 		entropyChange = 1
 
 		password.entropy += entropyChange

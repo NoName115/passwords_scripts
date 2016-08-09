@@ -41,6 +41,20 @@ class Password():
 
         return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + '\n' + transformOutput + '\n' + libOutput
 
+    def libCheckData(self):
+        """Return library output
+        
+        Return format:
+        Password
+        LibraryName - LibraryOutput
+        """
+
+        libOutput = ''
+        for key in self.libReasonOutput:
+            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
+
+        return '{0:15}'.format(self.password) + '\n' + libOutput
+
     def addLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
 
@@ -89,6 +103,17 @@ class PassData():
 
         for x in self.passwordList:
             print x
+
+    def printLibCheckData(self):
+        """Print only password and library output
+
+        Output format:
+        Password
+        LibraryName - LibraryOutput
+        """
+
+        for x in self.passwordList:
+            print x.libCheckData()
 
     def __iter__(self):
         for x in self.passwordList:
