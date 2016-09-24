@@ -17,6 +17,8 @@ class Password():
         self.libCheck = False
         self.transformRules = []
 
+        self.tags = []
+
     def __str__(self):
         """Return password data
 
