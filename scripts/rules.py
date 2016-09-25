@@ -199,22 +199,25 @@ class CapitalizeLetterAtIndex(Rule):
 		passwordData -- (PassData)
 		"""
 		try:
-			xPassword.password = xPassword.password[:self.indx] + \
+			transformedPassword = xPassword.password[:self.indx] + \
 								xPassword.password[self.indx].upper() + \
 								xPassword.password[self.indx + 1:]
-			self.estimateNewEntropyAndSaveTransformData(xPassword)
+			self.estimateNewEntropyAndSaveTransformData(transformedPassword, xPassword)
+			xPassword.password = transformedPassword
 		except IndexError:
 			errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(xPassword.password))
 
 	#Change entropy - 1
-	def estimateNewEntropyAndSaveTransformData(self, password):
-		entropyChange = 1
+	def estimateNewEntropyAndSaveTransformData(self, transformedPassword, password):
+		entropyChange = 0
+		if (transformedPassword[self.indx].isupper() and password.password[self.indx].islower()):
+			entropyChange = 1
 
 		password.entropy += entropyChange
 		password.transformRules.append([self.__class__.__name__, entropyChange])
 
 
-class DeleteLetter(Rule):
+class DeleteLetterAtIndex(Rule):
 	def __init__(self, indx):
 		"""
  		Arguments:
@@ -223,7 +226,7 @@ class DeleteLetter(Rule):
 		self.indx = indx
 
 	def transform(self, passwordData):
-		super(DeleteLetter, self).transform(passwordData)
+		super(DeleteLetterAtIndex, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword):
 		"""Delete one letter in password at certain index
@@ -232,14 +235,17 @@ class DeleteLetter(Rule):
 		passwordData -- (PassData)
 		"""
 		try:
-			xPassword.password = re.sub(xPassword.password[self.indx], '', xPassword.password)
-			self.estimateNewEntropyAndSaveTransformData(xPassword)
+			transformedPassword = xPassword.password[:self.indx] + xPassword.password[(self.indx+1):]
+			self.estimateNewEntropyAndSaveTransformData(transformedPassword, xPassword)
+			xPassword.password = transformedPassword
 		except IndexError:
 			errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(xPassword.password))
 
 	#Change entropy - 1
-	def estimateNewEntropyAndSaveTransformData(self, password):
-		entropyChange = 1
+	def estimateNewEntropyAndSaveTransformData(self, transformedPassword, password):
+		entropyChange = 0
+		if (len(transformedPassword) < len(password.password)):
+			entropyChange = 1
 
 		password.entropy += entropyChange
 		password.transformRules.append([self.__class__.__name__, entropyChange])

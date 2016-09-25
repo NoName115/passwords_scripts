@@ -38,7 +38,7 @@ rules.ApplyAdvancedl33t().transform(passwordData)
 rules.CapitalizeAllLetters().transform(passwordData)
 rules.LowerAllLetters().transform(passwordData)
 rules.CapitalizeLetterAtIndex("index").transform(passwordData)
-rules.DeleteLetter("index").transform(passwordData)
+rules.DeleteLetterAtIndex("index").transform(passwordData)
 ```
 
 #### Implemented password checking libraries
