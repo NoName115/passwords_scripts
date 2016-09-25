@@ -37,6 +37,8 @@ class Tager(object):
 					self.addTag(xPassword, "Symbols", 2)
 					continue
 
+		passwordData.isTagged = True
+
 	def addTag(self, xPassword, tag, value):
 		xPassword.tags.append([tag, value])
 
@@ -51,11 +53,14 @@ class Analyzer(object):
 		pass
 
 	def simpleAnalyze(self, passwordData):
+		if (passwordData.isTagged == False):
+			Tager().tagPasswords(passwordData)
+
 		interStrongPasswords = []
 		interWeakPasswords = []
 
 		for xPassword in passwordData:
-			
+				
 			#Calculate password rating
 			passwordRating = 0
 			for tag in xPassword.tags:
@@ -93,6 +98,7 @@ class Analyzer(object):
 												key,
 												weakPassword.libReasonOutput[key]
 												) + '\n'
+
 
 	def addInterestPassword(self, xPassword, listToAdd, isOK):
 		for key, value in xPassword.libReasonOutput.items():

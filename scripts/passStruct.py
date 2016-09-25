@@ -16,7 +16,6 @@ class Password():
         self.libReasonOutput = {}
         self.libCheck = False
         self.transformRules = []
-
         self.tags = []
 
     def __str__(self):
@@ -73,6 +72,7 @@ class PassData():
         """Initialize list(list of objects of type Password)
         """
         self.passwordList = []
+        self.isTagged = False
 
     def add(self, *args):
         """Add new password to list

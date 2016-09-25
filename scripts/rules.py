@@ -90,6 +90,9 @@ class l33t(Rule):
 		except AttributeError:
 			errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 
+	def uniqueTransform(self, passwordData):
+		pass
+
 class ApplySimplel33t(l33t):
 	def __init__(self):
 		super(ApplySimplel33t, self).__init__()
