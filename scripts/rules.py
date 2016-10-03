@@ -27,7 +27,10 @@ class Rule(object):
 	def transform(self, passwordData):
 		try:
 			for xPassword in passwordData.passwordList:
-				self.uniqueTransform(xPassword)
+				transformedPassword = self.uniqueTransform(xPassword)
+
+				self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
+				xPassword.password = transformedPassword
 
 		except AttributeError:
 			raise
@@ -38,12 +41,17 @@ class Rule(object):
 			#errorPrinter.printRuleWarning(self.__class__.__name__, "l33t table is empty")
 
 	@abstractmethod
-	def uniqueTransform(self, passwordData):
+	def uniqueTransform(self, xPassword):
+		'''
+		Return:
+		zip(transformedPassword -- String, xPassword -- passStruct.Password)
+		'''
 		pass
 
 	@abstractmethod
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
 		entropyChange = ruleEntropyValue[self.__class__.__name__] if self.entropyCondition(transformedPassword, xPassword) else 0
+
 		xPassword.entropy += entropyChange
 		xPassword.transformRules.append([self.__class__.__name__, entropyChange])
 
@@ -52,7 +60,35 @@ class Rule(object):
 		pass
 
 
+class RuleFromIndexToIndex(Rule):
+
+	__metaclass__ = ABCMeta
+
+	@abstractmethod
+	def __init__(self, fromIndex, toIndex):
+		self.fromIndex = fromIndex
+		self.toIndex = toIndex
+
+	@abstractmethod
+	def transform(self, passwordData):
+		super(RuleFromIndexToIndex, self).transform(passwordData)
+
+	@abstractmethod
+	def uniqueTransform(self, xPassword):
+		pass
+
+	@abstractmethod
+	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
+		super(RuleFromIndexToIndex, self).estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
+
+	@abstractmethod
+	def entropyCondition(self, transformedPassword, xPassword):
+		super(RuleFromIndexToIndex, self).entropyCondition(transformedPassword, xPassword)
+		
+
 class l33t(Rule):
+
+	__metaclass__ = ABCMeta
 
 	@abstractmethod
 	def __init__(self, fileName):
@@ -91,18 +127,7 @@ class l33t(Rule):
 
 	@abstractmethod
 	def uniqueTransform(self, xPassword):
-		"""Apply l33t at passwords
-
-		Arguments:
-		passwordData -- type of PassData
-		tableName -- name of l33tTable to be loaded
-		"""
-		transformedPassword = xPassword.password
-		for key in self.l33tDict:
-			transformedPassword = transformedPassword.replace(key, self.l33tDict[key][random.randint(0, len(self.l33tDict[key]) - 1)])
-
-		self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
-		xPassword.password = transformedPassword
+		pass
 
 	@abstractmethod
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
@@ -123,7 +148,17 @@ class ApplySimplel33t(l33t):
 		super(ApplySimplel33t, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword):
-		super(ApplySimplel33t, self).uniqueTransform(xPassword)
+		"""Apply simple l33t at passwords
+
+		Arguments:
+		passwordData -- type of PassData
+		tableName -- name of l33tTable to be loaded
+		"""
+		transformedPassword = xPassword.password
+		for key in self.l33tDict:
+			transformedPassword = transformedPassword.replace(key, self.l33tDict[key][random.randint(0, len(self.l33tDict[key]) - 1)])
+
+		return transformedPassword
 		
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
 		super(ApplySimplel33t, self).estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
@@ -143,7 +178,17 @@ class ApplyAdvancedl33t(l33t):
 		super(ApplyAdvancedl33t, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword):
-		super(ApplyAdvancedl33t, self).uniqueTransform(xPassword)
+		"""Apply advanced l33t at passwords
+
+		Arguments:
+		passwordData -- type of PassData
+		tableName -- name of l33tTable to be loaded
+		"""
+		transformedPassword = xPassword.password
+		for key in self.l33tDict:
+			transformedPassword = transformedPassword.replace(key, self.l33tDict[key][random.randint(0, len(self.l33tDict[key]) - 1)])
+
+		return transformedPassword
 
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
 		super(ApplyAdvancedl33t, self).estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
@@ -161,7 +206,7 @@ class CapitalizeAllLetters(Rule):
 
 	def transform(self, passwordData):
 		super(CapitalizeAllLetters, self).transform(passwordData)
-		
+	
 	def uniqueTransform(self, xPassword):
 		"""Capitalize all letters in password
 
@@ -169,8 +214,8 @@ class CapitalizeAllLetters(Rule):
 		passwordData -- (PassData)
 		"""
 		transformedPassword = xPassword.password.upper()
-		self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
-		xPassword.password = transformedPassword
+
+		return transformedPassword
 
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
 		super(CapitalizeAllLetters, self).estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
@@ -196,8 +241,8 @@ class LowerAllLetters(Rule):
 		passwordData -- (PassData)
 		"""
 		transformedPassword = xPassword.password.lower()
-		self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
-		xPassword.password = transformedPassword
+
+		return transformedPassword
 
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
 		super(LowerAllLetters, self).estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
@@ -230,8 +275,8 @@ class CapitalizeLetterAtIndex(Rule):
 			transformedPassword = xPassword.password[:self.indx] + \
 								xPassword.password[self.indx].upper() + \
 								xPassword.password[self.indx + 1:]
-			self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
-			xPassword.password = transformedPassword
+
+			return transformedPassword
 		except IndexError:
 			errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(xPassword.password))
 
@@ -264,8 +309,8 @@ class DeleteLetterAtIndex(Rule):
 		"""
 		try:
 			transformedPassword = xPassword.password[:self.indx] + xPassword.password[(self.indx + 1):]
-			self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
-			xPassword.password = transformedPassword
+
+			return transformedPassword
 		except IndexError:
 			errorPrinter.printRuleWarning(self.__class__.__name__, '\'{0:1}\' - Index out of range'.format(xPassword.password))
 
