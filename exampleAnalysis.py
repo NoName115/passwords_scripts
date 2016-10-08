@@ -5,11 +5,16 @@ import scripts.libCheck as libCheck
 import scripts.loadData as loadData
 import scripts.analyzer as analyzer
 
-passwordList = loadData.LoadFromFile("10_million_password_list_top_1000.txt").loadData()
+passwordList = loadData.LoadFromFile("tests/unit/simpleInput").loadData()
 
-rules.CapitalizeAllLetters().transform(passwordList)
-rules.ApplySimplel33t().transform(passwordList)
+rules.ApplySimplel33tFromIndexToIndex(0, 2).transform(passwordList)
+rules.ApplyAdvancedl33tFromIndexToIndex(0, 0).transform(passwordList)
+rules.CapitalizeFromIndexToIndex(0, 0).transform(passwordList)
+rules.LowerFromIndexToIndex(0, 0).transform(passwordList)
+
+passwordList.printData()
 
 libCheck.CrackLib().checkResult(passwordList)
+libCheck.PassWDQC().checkResult(passwordList)
 
 analyzer.Analyzer().simpleAnalyze(passwordList)
