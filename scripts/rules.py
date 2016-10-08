@@ -4,6 +4,7 @@ from passStruct import PassData
 import random, errorPrinter, config
 import re
 
+import sys
 
 class Rule(object):
 
@@ -21,18 +22,33 @@ class Rule(object):
 				fromIndex = self.inputFromIndex if self.inputFromIndex != -1 else (len(xPassword.password) - 1)
 				toIndex = self.inputToIndex if self.inputToIndex != -1 else (len(xPassword.password) - 1)
 
+				#Error
+				if (fromIndex > toIndex):
+					passwordData.errorLog.addError(self.__class__.__name__,
+												"Wrong value of input data. " + \
+												'\n' + \
+												"'fromIndex' must be same or lower then 'toIndex'"
+												)
+					continue
+
 				transformedPassword = self.uniqueTransform(xPassword, fromIndex, toIndex)
 
 				self.estimateEntropyChangeAndSaveTransformData(transformedPassword, xPassword)
 				xPassword.password = transformedPassword
 
-		except AttributeError:
-			raise
-			#errorPrinter.printRuleWarning(self.__class__.__name__, "Wrong input data instance")
 		except TypeError:
-			raise
-			#errorPrinter.printRuleWarning(self.__class__.__name__, "Arguemnt 'indx' in contructor is Empty or is not a number")
-			#errorPrinter.printRuleWarning(self.__class__.__name__, "l33t table is empty")
+			passwordData.errorLog.addError(self.__class__.__name__,
+										"Argument 'fromIndex' or 'toIndex' is not a number. " + \
+										'\n ' + \
+										"Input format: rules.rule_name(fromIndex, toIndex).transform(passwordData)"
+										)
+
+		except AttributeError:
+			errorPrinter.addMainError(self.__class__.__name__,
+									"Wrong input type of data. " + \
+									'\n' + \
+									"Input must be of type 'passStruct.PassData'"
+									)
 
 	@abstractmethod
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):

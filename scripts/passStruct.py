@@ -74,6 +74,8 @@ class PassData():
         self.passwordList = []
         self.isTagged = False
 
+        self.errorLog = errorPrinter.RuleError()
+
     def add(self, *args):
         """Add new password to list
 
@@ -104,7 +106,7 @@ class PassData():
             return None
 
         for x in self.passwordList:
-            print x
+            print (x)
 
     def printLibCheckData(self):
         """Print only password and library output

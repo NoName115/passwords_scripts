@@ -1,6 +1,23 @@
 from sys import exit
 from termcolor import colored
 
+
+mainError = {}
+
+def addMainError(className, errorText):
+	mainError.update({className : errorText})
+
+class RuleError():
+	def __init__(self):
+		self.errorLog = {} #'self.class.name' - "reason"
+
+	def addError(self, className, errorText):
+		self.errorLog.update({className : errorText})
+
+	def getData(self):
+		return self.errorLog
+
+
 def printError(className, errorText):
 	"""Print error message and terminate program
 
