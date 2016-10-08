@@ -1,3 +1,12 @@
+"""Configuration file
+
+File obtain:
+ruleEntropyValue -- value of entropy that is added
+					when rule is applied
+simpleL33tTable -- dictionary of simple l33t table rules
+advancedL33tTable -- dictionary of advanced l33t table rules
+"""
+
 ruleEntropyValue = {
 	'ApplySimplel33tFromIndexToIndex' : 1,
 	'ApplyAdvancedl33tFromIndexToIndex' : 2,

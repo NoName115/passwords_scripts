@@ -17,12 +17,17 @@ class Rule(object):
 
 	@abstractmethod
 	def transform(self, passwordData):
+		"""Main method for password transformation
+
+		Method catch errors, calculate indexes,
+		call uniqueTransform method and
+		estimateEntropyChangeAndSaveTransformData method
+		"""
 		try:
 			for xPassword in passwordData.passwordList:
 				fromIndex = self.inputFromIndex if self.inputFromIndex != -1 else (len(xPassword.password) - 1)
 				toIndex = self.inputToIndex if self.inputToIndex != -1 else (len(xPassword.password) - 1)
 
-				#Error
 				if (fromIndex > toIndex):
 					passwordData.errorLog.addError(self.__class__.__name__,
 												"Wrong value of input data. " + \
@@ -52,14 +57,19 @@ class Rule(object):
 
 	@abstractmethod
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):
-		'''
+		"""
 		Return:
 		transformedPassword -- string
-		'''
+		"""
 		pass
 
 	@abstractmethod
 	def estimateEntropyChangeAndSaveTransformData(self, transformedPassword, xPassword):
+		"""By result of entropyCondition method
+		estimate entropy change.
+
+		Entropy values are store in config.py file
+		"""
 		entropyChange = config.ruleEntropyValue[self.__class__.__name__] if self.entropyCondition(transformedPassword, xPassword) else 0
 
 		xPassword.entropy += entropyChange
@@ -67,6 +77,10 @@ class Rule(object):
 
 	@abstractmethod
 	def entropyCondition(self, transformedPassword, xPassword):
+		"""
+		Return:
+		condition result -- boolean
+		"""
 		pass
 
 
@@ -80,11 +94,12 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 		super(ApplySimplel33tFromIndexToIndex, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):
-		"""Apply simple l33t at passwords
+		"""Apply simple l33t table at X letters in password
 
 		Arguments:
-		passwordData -- type of PassData
-		tableName -- name of l33tTable to be loaded
+		xPassword -- type of passStruct.Password
+		fromIndex -- start index of applying the rule
+		toIndex -- last index of applying the rule
 		"""
 		transformedPassword = xPassword.password
 		for key in config.simpleL33tTable:
@@ -112,11 +127,12 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 		super(ApplyAdvancedl33tFromIndexToIndex, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):
-		"""Apply advanced l33t at passwords
+		"""Apply advanced l33t table at X letters in password
 
 		Arguments:
-		passwordData -- type of PassData
-		tableName -- name of l33tTable to be loaded
+		xPassword -- type of passStruct.Password
+		fromIndex -- start index of applying the rule
+		toIndex -- last index of applying the rule
 		"""
 		transformedPassword = xPassword.password
 		for key in config.advancedL33tTable:
@@ -144,10 +160,12 @@ class CapitalizeFromIndexToIndex(Rule):
 		super(CapitalizeFromIndexToIndex, self).transform(passwordData)
 	
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):
-		"""Capitalize all letters in password
+		"""Captalize X letters in password
 
 		Arguments:
-		passwordData -- (PassData)
+		xPassword -- type of passStruct.Password
+		fromIndex -- start index of applying the rule
+		toIndex -- last index of applying the rule
 		"""
 		transformedPassword = xPassword.password[ : fromIndex] + \
 							xPassword.password[fromIndex : toIndex + 1].upper() + \
@@ -173,10 +191,12 @@ class LowerFromIndexToIndex(Rule):
 		super(LowerFromIndexToIndex, self).transform(passwordData)
 
 	def uniqueTransform(self, xPassword, fromIndex, toIndex):
-		"""Lower all letters in password
+		"""Lower X letters in password
 
 		Arguments:
-		passwordData -- (PassData)
+		xPassword -- type of passStruct.Password
+		fromIndex -- start index of applying the rule
+		toIndex -- last index of applying the rule
 		"""
 		transformedPassword = xPassword.password[ : fromIndex] + \
 							xPassword.password[fromIndex : toIndex + 1].lower() + \

@@ -2,20 +2,38 @@ from sys import exit
 from termcolor import colored
 
 
+"""Dictionary that store main errors
+
+Especcialy, wrong type of input data
+"""
 mainError = {}
 
 def addMainError(className, errorText):
+	"""Store mainError message
+
+	Arguments:
+		className -- name of the class in which error occured
+		errorText -- details about error
+	"""
 	mainError.update({className : errorText})
 
 class RuleError():
 	def __init__(self):
-		self.errorLog = {} #'self.class.name' - "reason"
+		"""Iniatialize class for storing errors
+
+		Self:
+		errorLog -- dictionary of errors ({className : errorDetails})
+		"""
+		self.errorLog = {}
 
 	def addError(self, className, errorText):
-		self.errorLog.update({className : errorText})
+		"""Store error message
 
-	def getData(self):
-		return self.errorLog
+		Arguments:
+		className -- name of the class in which error occured
+		errorText -- details about error
+		"""
+		self.errorLog.update({className : errorText})
 
 
 def printError(className, errorText):
