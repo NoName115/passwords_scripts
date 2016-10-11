@@ -117,7 +117,7 @@ class PassData():
         """
 
         for x in self.passwordList:
-            print x.libCheckData()
+            print (x.libCheckData())
 
     def __iter__(self):
         for x in self.passwordList:
@@ -138,7 +138,33 @@ class PassData():
         Return value:
         entropy -- float number
         """
-        if (any(c.isupper() for c in inputPassword) or any(c.isdigit() for c in inputPassword)):
-            return round(len(inputPassword) * log(62, 2), 2)
-        else:
-            return round(len(inputPassword) * log(26, 2), 2)
+        entropy = 0
+
+        #Lowercase character in password
+        if (any(c.islower() for c in inputPassword)):
+            entropy += 26
+
+        #Uppercase character in password
+        if (any(c.isupper() for c in inputPassword)):
+            entropy += 26
+
+        #Digit character in password
+        if (any(c.isdigit() for c in inputPassword)):
+            entropy += 10
+
+        #Special
+        if (any((c in '!@#$%^&*()') for c in inputPassword)):
+            entropy += 10
+
+        if (any((c in "`~-_=+[{]}\\|;:'\",<.>/?") for c in inputPassword)):
+            entropy += 20
+
+        if (any((c in ' ') for c in inputPassword)):
+            entropy += 1
+
+        if (any(((c > '~' or c < ' ')) for c in inputPassword)):
+            entropy += 180
+
+        print (len(inputPassword))
+        print (entropy)
+        return round(len(inputPassword) / 1.5 * log(entropy, 2), 2)
