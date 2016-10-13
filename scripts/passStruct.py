@@ -1,4 +1,5 @@
-import random,re, errorPrinter
+import scripts.errorPrinter as errorPrinter
+import random, re
 
 from math import log
 
@@ -38,7 +39,7 @@ class Password():
 
         libOutput = ''
         for key in self.libReasonOutput:
-            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
+            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key].decode('UTF-8')) + '\n'
 
         return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + '\n' + transformOutput + '\n' + libOutput
 
@@ -165,6 +166,4 @@ class PassData():
         if (any(((c > '~' or c < ' ')) for c in inputPassword)):
             entropy += 180
 
-        print (len(inputPassword))
-        print (entropy)
         return round(len(inputPassword) / 1.5 * log(entropy, 2), 2)

@@ -1,10 +1,9 @@
 from abc import ABCMeta, abstractmethod
-from passStruct import PassData
+from scripts.passStruct import PassData
 
-import random, errorPrinter, config
-import re
-
-import sys
+import scripts.errorPrinter as errorPrinter
+import scripts.config as config
+import random, re, sys
 
 class Rule(object):
 

@@ -45,7 +45,7 @@ class Tager(object):
 	#DEBUG method
 	def printTags(self, passwordData):
 		for xPassword in passwordData:
-			print xPassword.tags
+			print (xPassword.tags)
 
 class Analyzer(object):
 
@@ -74,30 +74,30 @@ class Analyzer(object):
 
 		#Print analyze output
 		#Print strong passwords with not OK libCheck output
-		print colored("Strong passwords: ", "yellow")
+		print (colored("Strong passwords: ", "yellow"))
 
 		for strongPassword in interStrongPasswords:
-			print strongPassword.password
+			print (strongPassword.password)
 
 			for key in strongPassword.libReasonOutput:
 				if (strongPassword.libReasonOutput[key] != "OK"):
-					print '{0:8} - {1:2}'.format(
+					print ('{0:8} - {1:2}'.format(
 												key,
-												strongPassword.libReasonOutput[key]
-												) + '\n'
+												strongPassword.libReasonOutput[key].decode('UTF-8')
+												) + '\n')
 
 		#Print weak passwords with OK libCheck output
-		print colored("Weak passwords: ", "yellow")
+		print (colored("Weak passwords: ", "yellow"))
 
 		for weakPassword in interWeakPasswords:
-			print weakPassword.password
+			print (weakPassword.password)
 
 			for key in weakPassword.libReasonOutput:
 				if (weakPassword.libReasonOutput[key] == "OK"):
-					print '{0:8} - {1:2}'.format(
+					print ('{0:8} - {1:2}'.format(
 												key,
-												weakPassword.libReasonOutput[key]
-												) + '\n'
+												weakPassword.libReasonOutput[key].decode('UTF-8')
+												) + '\n')
 
 
 	def addInterestPassword(self, xPassword, listToAdd, isOK):

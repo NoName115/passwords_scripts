@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from passStruct import PassData, Password
+from scripts.passStruct import PassData, Password
 
-import subprocess, errorPrinter
+import scripts.errorPrinter as errorPrinter
+import subprocess
 
 class Library(object):
 	
@@ -23,13 +24,13 @@ class Library(object):
 			for x in passwordData.passwordList:
 				#Get output from library
 				p = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE,stderr = subprocess.PIPE)
-				output = p.communicate(input = x.password)[0].rstrip('\n')
+				output = p.communicate(input = bytes(x.password, 'UTF-8'))[0].rstrip(bytes('\n', 'UTF-8'))
 
 				#Split and save output to PassData
 				if (delimiter == None):
 					x.addLibOutput(self.__class__.__name__, output)
 				else:
-					x.addLibOutput(self.__class__.__name__, output.split(delimiter)[1])
+					x.addLibOutput(self.__class__.__name__, output.split(bytes(delimiter, 'UTF-8'))[1])
 		except AttributeError:
 			errorPrinter.printWarning(self.__class__.__name__, "Wrong input data instance")
 		except IndexError:

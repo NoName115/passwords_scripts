@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from passStruct import PassData
+from scripts.passStruct import PassData
 
-import sys, errorPrinter
+import scripts.errorPrinter as errorPrinter
+import sys
 
 class Load(object):
 
