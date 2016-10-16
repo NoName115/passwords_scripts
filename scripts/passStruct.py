@@ -1,5 +1,6 @@
 import scripts.errorPrinter as errorPrinter
-import random, re
+import random
+import re
 
 from math import log
 
@@ -31,7 +32,8 @@ class Password():
         startEntropy = self.entropy
 
         for element in reversed(self.transformRules):
-            transformOutput = '{0:15} : {1:.2f}, '.format(element[0], startEntropy) + transformOutput
+            transformOutput = '{0:15} : {1:.2f}, '.format(
+                element[0], startEntropy) + transformOutput
             startEntropy -= int(element[1])
 
         if (len(self.transformRules) == 0):
@@ -39,13 +41,16 @@ class Password():
 
         libOutput = ''
         for key in self.libReasonOutput:
-            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key].decode('UTF-8')) + '\n'
+            libOutput += '{0:8} - {1:20}'.format(
+                key,
+                self.libReasonOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + '\n' + transformOutput + '\n' + libOutput
+        return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + \
+               '\n' + transformOutput + '\n' + libOutput
 
     def libCheckData(self):
         """Return library output
-        
+
         Return format:
         Password
         LibraryName - LibraryOutput
@@ -53,7 +58,9 @@ class Password():
 
         libOutput = ''
         for key in self.libReasonOutput:
-            libOutput += '{0:8} - {1:20}'.format(key, self.libReasonOutput[key]) + '\n'
+            libOutput += '{0:8} - {1:20}'.format(
+                key,
+                self.libReasonOutput[key]) + '\n'
 
         return '{0:15}'.format(self.password) + '\n' + libOutput
 
@@ -64,7 +71,7 @@ class Password():
         libraryName -- name of the library
         libOutput -- output of the library
         """
-        self.libReasonOutput.update({libraryName : libOutput})
+        self.libReasonOutput.update({libraryName: libOutput})
 
 
 class PassData():
@@ -85,14 +92,20 @@ class PassData():
         entropy -- value of entropy(float/integer) - optional argument
         """
         if (len(args) == 1):
-            self.passwordList.append(Password(args[0], self.generateEntropy(args[0])))
+            self.passwordList.append(
+                Password(args[0], self.generateEntropy(args[0])))
         elif (len(args) == 2):
             try:
                 self.passwordList.append(Password(args[0], round(args[1], 2)))
             except ValueError:
-                errorPrinter.printWarning("Adding password to passwordData", '\'{0:1}\' is not a number'.format(args[1]))
+                errorPrinter.printWarning(
+                    "Adding password to passwordData",
+                    '\'{0:1}\' is not a number'.format(args[1]))
         else:
-            errorPrinter.printWarning("Adding password to passwordData", "Wrong number of arguments, Correct: password(String), entropy(Number) - optional argument")
+            errorPrinter.printWarning(
+                "Adding password to passwordData",
+                "Wrong number of arguments,",
+                "Correct: password(String), entropy(Number) - optional argument")
 
     def printData(self):
         """Print every password data from list
@@ -103,7 +116,9 @@ class PassData():
         LibraryName - LibraryOutput
         """
         if (len(self.passwordList) == 0):
-            errorPrinter.printWarning("printData", "PasswordData is empty... Nothing to write")
+            errorPrinter.printWarning(
+                "printData",
+                "PasswordData is empty... Nothing to write")
             return None
 
         for x in self.passwordList:
@@ -141,28 +156,31 @@ class PassData():
         """
         entropy = 0
 
-        #Lowercase character in password
+        # Lowercase character in password
         if (any(c.islower() for c in inputPassword)):
             entropy += 26
 
-        #Uppercase character in password
+        # Uppercase character in password
         if (any(c.isupper() for c in inputPassword)):
             entropy += 26
 
-        #Digit character in password
+        # Digit character in password
         if (any(c.isdigit() for c in inputPassword)):
             entropy += 10
 
-        #Special
+        # Special
         if (any((c in '!@#$%^&*()') for c in inputPassword)):
             entropy += 10
 
+        # Special2
         if (any((c in "`~-_=+[{]}\\|;:'\",<.>/?") for c in inputPassword)):
             entropy += 20
 
+        # Space contain
         if (any((c in ' ') for c in inputPassword)):
             entropy += 1
 
+        # Other symbols
         if (any(((c > '~' or c < ' ')) for c in inputPassword)):
             entropy += 180
 
