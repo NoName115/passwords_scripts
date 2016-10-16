@@ -43,9 +43,9 @@ class Rule(object):
                 transformedPassword = self.uniqueTransform(
                     xPassword, fromIndex, toIndex)
 
-                self.estimateEntropyChangeAndSaveTransformData(
-                    transformedPassword, xPassword)
-                xPassword.password = transformedPassword
+                xPassword.transformedPassword = transformedPassword
+
+                self.estimateEntropyChangeAndSaveTransformData(xPassword)
 
         except TypeError:
             passwordData.errorLog.addError(self.__class__.__name__,
@@ -70,15 +70,14 @@ class Rule(object):
         pass
 
     @abstractmethod
-    def estimateEntropyChangeAndSaveTransformData(
-            self, transformedPassword, xPassword):
+    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         """By result of entropyCondition method
         estimate entropy change.
 
         Entropy values are store in config.py file
         """
         entropyChange = config.ruleEntropyValue[self.__class__.__name__] \
-            if self.entropyCondition(transformedPassword, xPassword) \
+            if self.entropyCondition(xPassword.transformedPassword, xPassword.originallyPassword) \
             else 0
 
         xPassword.entropy += entropyChange
@@ -86,7 +85,7 @@ class Rule(object):
                                         entropyChange])
 
     @abstractmethod
-    def entropyCondition(self, transformedPassword, xPassword):
+    def entropyCondition(self, transformedPassword, originallyPassword):
         """
         Return:
         condition result -- boolean
@@ -112,7 +111,8 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.password
+        transformedPassword = xPassword.originallyPassword
+
         for key in config.simpleL33tTable:
             transformedPassword = transformedPassword[ : fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1].replace(key, 
@@ -122,15 +122,13 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 
         return transformedPassword
 
-    def estimateEntropyChangeAndSaveTransformData(
-        self, transformedPassword, xPassword):
+    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         super(
             ApplySimplel33tFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(
-                transformedPassword, xPassword)
+            self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
-    def entropyCondition(self, transformedPassword, xPassword):
-        if (transformedPassword == xPassword.password):
+    def entropyCondition(self, transformedPassword, originallyPassword):
+        if (transformedPassword == originallyPassword):
             return False
         else:
             return True
@@ -165,16 +163,13 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
         return transformedPassword
 
-    def estimateEntropyChangeAndSaveTransformData(
-            self, transformedPassword, xPassword):
+    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         super(
             ApplyAdvancedl33tFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(
-                transformedPassword,
-                xPassword)
+            self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
-    def entropyCondition(self, transformedPassword, xPassword):
-        if (transformedPassword == xPassword.password):
+    def entropyCondition(self, transformedPassword, originallyPassword):
+        if (transformedPassword == originallyPassword):
             return False
         else:
             return True
@@ -202,16 +197,13 @@ class CapitalizeFromIndexToIndex(Rule):
 
         return transformedPassword
 
-    def estimateEntropyChangeAndSaveTransformData(
-            self, transformedPassword, xPassword):
+    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         super(
             CapitalizeFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(
-                transformedPassword,
-                xPassword)
+            self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
-    def entropyCondition(self, transformedPassword, xPassword):
-        if (any(c.islower() for c in xPassword.password) and
+    def entropyCondition(self, transformedPassword, originallyPassword):
+        if (any(c.islower() for c in originallyPassword) and
             transformedPassword.isupper()):
             return True
         else:
@@ -240,15 +232,12 @@ class LowerFromIndexToIndex(Rule):
 
         return transformedPassword
 
-    def estimateEntropyChangeAndSaveTransformData(
-        self, transformedPassword, xPassword):
+    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         super(LowerFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(
-                transformedPassword,
-                xPassword)
+            self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
-    def entropyCondition(self, transformedPassword, xPassword):
-        if (any(c.isupper() for c in xPassword.password) and
+    def entropyCondition(self, transformedPassword, originallyPassword):
+        if (any(c.isupper() for c in originallyPassword) and
             transformedPassword.islower()):
             return True
         else:

@@ -29,18 +29,41 @@ class Library(object):
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-                output = p.communicate(
-                    input=bytes(x.password,
+                transformedOutput = p.communicate(
+                    input=bytes(x.transformedPassword,
                                 'UTF-8'))[0].rstrip(bytes('\n',
                                                           'UTF-8'))
 
+                p = subprocess.Popen(
+                    args,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                originallyOutput = p.communicate(
+                    input=bytes(x.originallyPassword,
+                                'UTF-8'))[0].rstrip(bytes('\n',
+                                                          'UTF-8'))
+                                                          
+
                 # Split and save output to PassData
                 if (delimiter is None):
-                    x.addLibOutput(self.__class__.__name__, output)
+                    x.addTransformedLibOutput(
+                        self.__class__.__name__,
+                        transformedOutput)
+                    
+                    x.addOriginallyLibOutput(
+                        self.__class__.__name__,
+                        originallyOutput)
+                        
                 else:
-                    x.addLibOutput(
-                        self.__class__.__name__, output.split(bytes(delimiter,
-                                                                    'UTF-8'))[1])
+                    x.addTransformedLibOutput(
+                        self.__class__.__name__, transformedOutput.split( \
+                            bytes(delimiter, 'UTF-8'))[1])
+                    
+                    x.addOriginallyLibOutput(
+                        self.__class__.__name__, originallyOutput.split( \
+                            bytes(delimiter,'UTF-8'))[1])
+                            
         except AttributeError:
             errorPrinter.printWarning(
                 self.__class__.__name__,

@@ -12,9 +12,9 @@ rules.ApplyAdvancedl33tFromIndexToIndex(0, 0).transform(passwordList)
 rules.CapitalizeFromIndexToIndex(0, 0).transform(passwordList)
 rules.LowerFromIndexToIndex(0, 0).transform(passwordList)
 
-passwordList.printData()
-
 libCheck.CrackLib().checkResult(passwordList)
 libCheck.PassWDQC().checkResult(passwordList)
 
-analyzer.Analyzer().simpleAnalyze(passwordList)
+passwordList.printData()
+
+#analyzer.Analyzer().simpleAnalyze(passwordList)

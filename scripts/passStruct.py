@@ -13,11 +13,14 @@ class Password():
         password -- (string)
         entropy -- (float/integer)
         """
-        self.password = password
+        self.originallyPassword = password
+        self.transformedPassword = "";
         self.entropy = entropy
-        self.libReasonOutput = {}
-        self.libCheck = False
         self.transformRules = []
+
+        self.originallyLibOutput = {}
+        self.transformedLibOutput = {}
+
         self.tags = []
 
     def __str__(self):
@@ -40,12 +43,12 @@ class Password():
             transformOutput = "No password transform"
 
         libOutput = ''
-        for key in self.libReasonOutput:
+        for key in self.originallyLibOutput:
             libOutput += '{0:8} - {1:20}'.format(
                 key,
-                self.libReasonOutput[key].decode('UTF-8')) + '\n'
+                self.originallyLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} : {1:.2f}'.format(self.password, startEntropy) + \
+        return '{0:15} {1:15} : {2:.2f}'.format(self.originallyPassword, self.transformedPassword, startEntropy) + \
                '\n' + transformOutput + '\n' + libOutput
 
     def libCheckData(self):
@@ -57,21 +60,30 @@ class Password():
         """
 
         libOutput = ''
-        for key in self.libReasonOutput:
+        for key in self.originallyLibOutput:
             libOutput += '{0:8} - {1:20}'.format(
                 key,
-                self.libReasonOutput[key]) + '\n'
+                self.originallyLibOutput[key]) + '\n'
 
-        return '{0:15}'.format(self.password) + '\n' + libOutput
+        return '{0:15}'.format(self.transformedPassword) + '\n' + libOutput
 
-    def addLibOutput(self, libraryName, libOutput):
+    def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
 
         Arguments:
         libraryName -- name of the library
         libOutput -- output of the library
         """
-        self.libReasonOutput.update({libraryName: libOutput})
+        self.originallyLibOutput.update({libraryName: libOutput})
+
+    def addTransformedLibOutput(self, libraryName, libOutput):
+        """Add library output to dictionary
+
+        Arguments:
+        libraryName -- name of the library
+        libOutput -- output of the library
+        """
+        self.transformedLibOutput.update({libraryName: libOutput})
 
 
 class PassData():
