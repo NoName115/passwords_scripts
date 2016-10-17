@@ -21,7 +21,8 @@ class Password():
         self.originallyLibOutput = {}
         self.transformedLibOutput = {}
 
-        self.tags = []
+        self.analysisOutput = {}
+        self.analysisRating = 0
 
     def __str__(self):
         """Return password data
@@ -63,9 +64,12 @@ class Password():
         for key in self.originallyLibOutput:
             libOutput += '{0:8} - {1:20}'.format(
                 key,
-                self.originallyLibOutput[key]) + '\n'
+                self.originallyLibOutput[key].decode('UTF-8')) + '\n'
+            libOutput += '{0:8} - {1:20}'.format(
+                key,
+                self.transformedLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15}'.format(self.transformedPassword) + '\n' + libOutput
+        return '{0:15} {1:15}'.format(self.originallyPassword, self.transformedPassword) + '\n' + libOutput
 
     def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
@@ -84,6 +88,22 @@ class Password():
         libOutput -- output of the library
         """
         self.transformedLibOutput.update({libraryName: libOutput})
+
+    def addAnalysisOutput(self, analysisRating, analysisKey, analysisValue):
+        """TODO...
+        """
+        self.analysisOutput.update({analysisKey: analysisValue})
+        self.analysisRating += analysisRating
+
+    def calculateInitialEntropy(self, xPassword):
+        """TODO...
+        """
+        startEntropy = xPassword.entropy
+
+        for element in reversed(xPassword.transformRules):
+            startEntropy -= int(element[1])
+
+        return startEntropy
 
 
 class PassData():

@@ -28,9 +28,9 @@ class Rule(object):
         try:
             for xPassword in passwordData.passwordList:
                 fromIndex = self.inputFromIndex if self.inputFromIndex != -1 \
-                    else (len(xPassword.password) - 1)
+                    else (len(xPassword.originallyPassword) - 1)
                 toIndex = self.inputToIndex if self.inputToIndex != -1 \
-                    else (len(xPassword.password) - 1)
+                    else (len(xPassword.originallyPassword) - 1)
 
                 if (fromIndex > toIndex):
                     passwordData.errorLog.addError(self.__class__.__name__,
@@ -48,13 +48,14 @@ class Rule(object):
                 self.estimateEntropyChangeAndSaveTransformData(xPassword)
 
         except TypeError:
+            raise
             passwordData.errorLog.addError(self.__class__.__name__,
                                            "Argument 'fromIndex' or 'toIndex' is not a number. " +
                                            '\n ' +
                                            "Input format: rules.rule_name(fromIndex, toIndex).transform(passwordData)"
                                            )
-
         except AttributeError:
+            raise
             errorPrinter.addMainError(self.__class__.__name__,
                                       "Wrong input type of data. " +
                                       '\n' +
@@ -153,7 +154,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.password
+        transformedPassword = xPassword.originallyPassword
         for key in config.advancedL33tTable:
             transformedPassword = transformedPassword[ : fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1].replace(key,

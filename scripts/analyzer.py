@@ -1,109 +1,98 @@
 from termcolor import colored
 
 
-class Tager(object):
-
-    def __init__(self):
-        pass
-
-    def tagPasswords(self, passwordData):
-        for xPassword in passwordData:
-
-            # Password length
-            if (len(xPassword.password) <= 8):
-                self.addTag(xPassword, "Password_Length", 2)
-            else:
-                self.addTag(xPassword, "Password_Length", 4)
-
-            # Contain number
-            if (any(c.isdigit() for c in xPassword.password)):
-                self.addTag(xPassword, "Numbers", 2)
-
-            # Contain letters
-            if (any(c.isalpha() for c in xPassword.password)):
-                self.addTag(xPassword, "Letters", 2)
-
-            # Contain uppercase letter
-            if (any(c.isupper() for c in xPassword.password)):
-                self.addTag(xPassword, "Letter_Uppercase", 2)
-
-            # Contain lowercase letter
-            if (any(c.islower() for c in xPassword.password)):
-                self.addTag(xPassword, "Letter_Lowercase", 2)
-
-            # Contain symbols
-            for c in xPassword.password:
-                if ((c.isalpha() == False) and (c.isdigit() == False)):
-                    self.addTag(xPassword, "Symbols", 2)
-                    continue
-
-        passwordData.isTagged = True
-
-    def addTag(self, xPassword, tag, value):
-        xPassword.tags.append([tag, value])
-
-    # DEBUG method
-    def printTags(self, passwordData):
-        for xPassword in passwordData:
-            print (xPassword.tags)
-
-
 class Analyzer(object):
 
     def __init__(self):
         pass
 
-    def simpleAnalyze(self, passwordData):
-        if (passwordData.isTagged is False):
-            Tager().tagPasswords(passwordData)
-
-        interStrongPasswords = []
-        interWeakPasswords = []
-
+    def mainAnalysis(self, passwordData):
         for xPassword in passwordData:
-            # Calculate password rating
-            passwordRating = 0
-            for tag in xPassword.tags:
-                passwordRating += tag[1]
+            self.changedLibOutputAfterTransformation(xPassword)
+            self.lowEntropyPassLibrary(xPassword)
+            #self.highEntropyNotPassLibrary(xPassword)
+            #self.lowEntropyChangePassLibrary(xPassword)
 
-            # Interesting weak password
-            if (passwordRating <= 11):
-                self.addInterestPassword(xPassword, interWeakPasswords, True)
+            # Vypise celkovy vystup z toho, vid. dokument
+            #self.overallCategorySummary(xPassword)
+
+        #for xPassword in passwordData:
+        #    print (xPassword.analysisOutput)
+
+        #Tu vypisuje pre kazde heslo informacie ktore sa zistili
+        #for xPassword in passwordData:
+        #    xPassword.printAnalysisOutput()
+        for xPassword in passwordData:
+            printed = False
+            if (xPassword.analysisRating >= 8):
+                for key in xPassword.analysisOutput:
+                    print (key + xPassword.analysisOutput[key])
+                    print ()
+                    printed = True
+                if (printed):
+                    print ("Rating: " + str(xPassword.analysisRating))
+                    print ("-------------------------------------")
+
+    def changedLibOutputAfterTransformation(self, xPassword):
+        for key in xPassword.originallyLibOutput:
+            # Output of password checking libraries is same at
+            # originally and transformed password
+            if (xPassword.originallyLibOutput[key] == \
+                xPassword.transformedLibOutput[key]):
+                continue;
+            elif (xPassword.originallyLibOutput[key].decode('UTF-8') == "OK"):
+                xPassword.addAnalysisOutput(6,
+                    "Output of password checking library " + key + " changed." + '\n',
+                    "The output for originally password: " + xPassword.originallyPassword + \
+                    '\n' + \
+                    "is OK, but after applying transformations password changed to: " + \
+                    xPassword.transformedPassword + '\n' + \
+                    "And the output changed to: " + \
+                    xPassword.transformedLibOutput[key].decode('UTF-8'))
+            elif (xPassword.transformedLibOutput[key].decode('UTF-8') == "OK"):
+                xPassword.addAnalysisOutput(4,
+                    "Output of password checking library(PCHL) " + key + " changed." + '\n',
+                    "Originally password: " + xPassword.originallyPassword + \
+                    " didn\'t pass through PCHL," + '\n' + "The output is: " + \
+                    xPassword.originallyLibOutput[key].decode('UTF-8') + '\n' + \
+                    "But after applying transformations, password changed to: " + \
+                    xPassword.transformedPassword + '\n' + \
+                    "And it pass through " + key + " PCHL.")
             else:
-                self.addInterestPassword(
-                    xPassword,
-                    interStrongPasswords,
-                    False)
+                xPassword.addAnalysisOutput(2,
+                    "Password " + xPassword.originallyPassword + \
+                    " didn\'t pass through password checking library " + key,
+                    '\n' + "Either before or after applying transformations." + \
+                    '\n' + "But the output has changed, output before transformations: " + \
+                    '\n' + xPassword.originallyLibOutput[key].decode('UTF-8') + \
+                    '\n' + "And the output after transformations: " + '\n' + \
+                    xPassword.transformedLibOutput[key].decode('UTF-8'))
 
-        # Print analyze output
-        # Print strong passwords with not OK libCheck output
-        print (colored("Strong passwords: ", "yellow"))
+    def lowEntropyPassLibrary(self, xPassword):
+        if (xPassword.entropy < 36):
+            for key in xPassword.transformedLibOutput:
+                if (xPassword.transformedLibOutput[key].decode('UTF-8') == "OK"):
+                    xPassword.addAnalysisOutput(1,
+                        "After transformations, password: " + \
+                        xPassword.transformedPassword + '\n' + \
+                        "With low entropy: " + str(xPassword.entropy) + \
+                        " pass through " + key + " PCHL.",
+                        "")
+        if (xPassword.calculateInitialEntropy(xPassword) < 36):
+            for key in xPassword.originallyLibOutput:
+                if (xPassword.originallyLibOutput[key].decode('UTF-8') == "OK"):
+                    xPassword.addAnalysisOutput(2,
+                        "Originally password: " + xPassword.originallyPassword + '\n' + \
+                        "With low entropy: " + str(xPassword.calculateInitialEntropy(xPassword)) + \
+                        " pass through " + key + " PCHL.",
+                        "")
 
-        for strongPassword in interStrongPasswords:
-            print (strongPassword.password)
 
-            for key in strongPassword.libReasonOutput:
-                if (strongPassword.libReasonOutput[key] != "OK"):
-                    print ('{0:8} - {1:2}'.format(
-                        key,
-                        strongPassword.libReasonOutput[key].decode('UTF-8')
-                        ) + '\n')
+    def highEntropyNotPassLibrary(self, xPassword):
+        pass
 
-        # Print weak passwords with OK libCheck output
-        print (colored("Weak passwords: ", "yellow"))
+    def lowEntropyChangePassLibrary(self, xPassword):
+        pass
 
-        for weakPassword in interWeakPasswords:
-            print (weakPassword.password)
-
-            for key in weakPassword.libReasonOutput:
-                if (weakPassword.libReasonOutput[key] == "OK"):
-                    print ('{0:8} - {1:2}'.format(
-                        key,
-                        weakPassword.libReasonOutput[key].decode('UTF-8')
-                        ) + '\n')
-
-    def addInterestPassword(self, xPassword, listToAdd, isOK):
-        for key, value in xPassword.libReasonOutput.items():
-            if ((value == "OK") == isOK):
-                listToAdd.append(xPassword)
-                break
+    def overallCategorySummary(self, xPassword):
+        pass

@@ -22,7 +22,7 @@ class Library(object):
         *args -- arguments for run/call library
         """
         try:
-            for x in passwordData.passwordList:
+            for x in passwordData:
                 # Get output from library
                 p = subprocess.Popen(
                     args,
@@ -33,7 +33,7 @@ class Library(object):
                     input=bytes(x.transformedPassword,
                                 'UTF-8'))[0].rstrip(bytes('\n',
                                                           'UTF-8'))
-
+                                
                 p = subprocess.Popen(
                     args,
                     stdin=subprocess.PIPE,
@@ -43,7 +43,6 @@ class Library(object):
                     input=bytes(x.originallyPassword,
                                 'UTF-8'))[0].rstrip(bytes('\n',
                                                           'UTF-8'))
-                                                          
 
                 # Split and save output to PassData
                 if (delimiter is None):
@@ -54,7 +53,6 @@ class Library(object):
                     x.addOriginallyLibOutput(
                         self.__class__.__name__,
                         originallyOutput)
-                        
                 else:
                     x.addTransformedLibOutput(
                         self.__class__.__name__, transformedOutput.split( \
@@ -65,13 +63,15 @@ class Library(object):
                             bytes(delimiter,'UTF-8'))[1])
                             
         except AttributeError:
+            #raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 "Wrong input data instance")
         except IndexError:
+            #raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
-                "")
+                "Index out of range")
 
 
 class CrackLib(Library):
