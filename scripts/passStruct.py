@@ -14,7 +14,7 @@ class Password():
         entropy -- (float/integer)
         """
         self.originallyPassword = password
-        self.transformedPassword = "";
+        self.transformedPassword = password
         self.entropy = entropy
         self.transformRules = []
 
@@ -95,15 +95,28 @@ class Password():
         self.analysisOutput.update({analysisKey: analysisValue})
         self.analysisRating += analysisRating
 
-    def calculateInitialEntropy(self, xPassword):
+    def calculateInitialEntropy(self):
         """TODO...
         """
-        startEntropy = xPassword.entropy
+        startEntropy = self.entropy
 
-        for element in reversed(xPassword.transformRules):
+        for element in reversed(self.transformRules):
             startEntropy -= int(element[1])
 
         return startEntropy
+
+    def calculateChangedEntropy(self):
+        """TODO...
+        """
+        return self.entropy - self.calculateInitialEntropy()
+
+    def getAppliedTransformations(self):
+        """TODO....
+        """
+        output = ""
+        for x in self.transformRules:
+            output += x[0] + '\n'
+        return output
 
 
 class PassData():
@@ -173,6 +186,7 @@ class PassData():
 
     def generateEntropy(self, inputPassword):
         """Method calculate password entropy
+        TODO....
 
         Arguments:
         inputPassword -- password

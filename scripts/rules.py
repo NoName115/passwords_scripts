@@ -192,9 +192,9 @@ class CapitalizeFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.password[ : fromIndex] + \
-            xPassword.password[fromIndex : toIndex + 1].upper() + \
-            xPassword.password[toIndex + 1:]
+        transformedPassword = xPassword.transformedPassword[ : fromIndex] + \
+            xPassword.transformedPassword[fromIndex : toIndex + 1].upper() + \
+            xPassword.transformedPassword[toIndex + 1:]
 
         return transformedPassword
 
@@ -227,9 +227,9 @@ class LowerFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.password[ : fromIndex] + \
-            xPassword.password[fromIndex : toIndex + 1].lower() + \
-            xPassword.password[toIndex + 1:]
+        transformedPassword = xPassword.transformedPassword[ : fromIndex] + \
+            xPassword.transformedPassword[fromIndex : toIndex + 1].lower() + \
+            xPassword.transformedPassword[toIndex + 1:]
 
         return transformedPassword
 
