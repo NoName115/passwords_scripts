@@ -17,51 +17,27 @@ class Library(object):
     def checkResult(self, passwordData, delimiter=None, *args):
         """Get output of library and save it to passwordData
 
+        Arguments:
         passwordData -- type PassData
         delimiter -- optional argument, if is necessary to split library output
         *args -- arguments for run/call library
         """
         try:
             for x in passwordData:
-                # Get output from library
-                p = subprocess.Popen(
-                    args,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-                transformedOutput = p.communicate(
-                    input=bytes(x.transformedPassword,
-                                'UTF-8'))[0].rstrip(bytes('\n',
-                                                          'UTF-8'))
-                                
-                p = subprocess.Popen(
-                    args,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-                originallyOutput = p.communicate(
-                    input=bytes(x.originallyPassword,
-                                'UTF-8'))[0].rstrip(bytes('\n',
-                                                          'UTF-8'))
-
-                # Split and save output to PassData
-                if (delimiter is None):
-                    x.addTransformedLibOutput(
-                        self.__class__.__name__,
-                        transformedOutput)
-                    
-                    x.addOriginallyLibOutput(
-                        self.__class__.__name__,
-                        originallyOutput)
-                else:
-                    x.addTransformedLibOutput(
-                        self.__class__.__name__, transformedOutput.split( \
-                            bytes(delimiter, 'UTF-8'))[1])
-                    
-                    x.addOriginallyLibOutput(
-                        self.__class__.__name__, originallyOutput.split( \
-                            bytes(delimiter,'UTF-8'))[1])
-                            
+                self.setPCHLOutput(
+                    x.transformedPassword,
+                    x,
+                    x.addTransformedLibOutput,
+                    delimiter,
+                    *args
+                    )
+                self.setPCHLOutput(
+                    x.originallyPassword,
+                    x,
+                    x.addOriginallyLibOutput,
+                    delimiter,
+                    *args
+                    )                           
         except AttributeError:
             #raise
             errorPrinter.printWarning(
@@ -72,6 +48,37 @@ class Library(object):
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 "Index out of range")
+
+    def setPCHLOutput(self, password, xPassword, libraryOutputMethod, delimiter, *args):
+        """Function get output of library and store it to passwordData
+
+        Arguments:
+        password -- input password, type string
+        xPassword -- type passStruct.Password
+        libraryOutputMethod -- method called to store PCHL output
+        delimiter -- split library output
+        *args -- arguments for run/call library
+        """
+        p = subprocess.Popen(
+            args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+            )
+        output = p.communicate(
+            input=bytes(password,
+                        'UTF-8'))[0].rstrip(bytes('\n',
+                                                  'UTF-8'))
+
+        if (delimiter is None):
+            libraryOutputMethod(
+                self.__class__.__name__,
+                output
+                )
+        else:
+            libraryOutputMethod(
+                self.__class__.__name__, output.split( \
+                    bytes(delimiter, 'UTF-8'))[1])
 
 
 class CrackLib(Library):

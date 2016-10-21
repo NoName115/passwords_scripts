@@ -90,13 +90,19 @@ class Password():
         self.transformedLibOutput.update({libraryName: libOutput})
 
     def addAnalysisOutput(self, analysisRating, analysisKey, analysisValue):
-        """TODO...
+        """Add analysis output to dictionary
+
+        Arguments:
+        analysisRating -- rating for certain analysis method
+        analysisKey -- main infromation about analysis output
+        analysisValue -- more detailed infromation about analysis output
         """
         self.analysisOutput.update({analysisKey: analysisValue})
         self.analysisRating += analysisRating
 
     def calculateInitialEntropy(self):
-        """TODO...
+        """Calculate initial entropy, entropy of
+        originally password
         """
         startEntropy = self.entropy
 
@@ -106,12 +112,17 @@ class Password():
         return startEntropy
 
     def calculateChangedEntropy(self):
-        """TODO...
+        """Calculate changed entropy,
+
+        Calculation:
+        Actual entropy (entropy after transformations)
+        minus initial entropy
         """
         return self.entropy - self.calculateInitialEntropy()
 
     def getAppliedTransformations(self):
-        """TODO....
+        """Method return all transformations
+        applied at password
         """
         output = ""
         for x in self.transformRules:
@@ -184,50 +195,55 @@ class PassData():
         for x in self.passwordList:
             yield x
 
+    def __len__(self):
+        counter = 0
+        for x in self:
+            counter += 1
+
+        return counter
+
     def generateEntropy(self, inputPassword):
         """Method calculate password entropy
-        TODO....
 
         Arguments:
         inputPassword -- password
 
-        Entropy calculated by basic formula
-        n: password length
-        c: password cardinality: the size of the symbol space
-            (26 for lowercase letters only, 62 for a mix of lower+upper+numbers)
-        entropy = n * log(c)  # log - base 2
+        Entropy calculated by formula
+        first calculate charEntropy.
+        charEntropy is increased by upperCase characters,
+        digits, special symbols and by symbols out of ASCII table
 
         Return value:
         entropy -- float number
         """
-        entropy = 0
+        charEntropy = 0
 
         # Lowercase character in password
         if (any(c.islower() for c in inputPassword)):
-            entropy += 26
+            charEntropy += 26
 
         # Uppercase character in password
         if (any(c.isupper() for c in inputPassword)):
-            entropy += 26
+            charEntropy += 26
 
         # Digit character in password
         if (any(c.isdigit() for c in inputPassword)):
-            entropy += 10
+            charEntropy += 10
 
         # Special
         if (any((c in '!@#$%^&*()') for c in inputPassword)):
-            entropy += 10
+            charEntropy += 10
 
         # Special2
         if (any((c in "`~-_=+[{]}\\|;:'\",<.>/?") for c in inputPassword)):
-            entropy += 20
+            charEntropy += 20
 
         # Space contain
         if (any((c in ' ') for c in inputPassword)):
-            entropy += 1
+            charEntropy += 1
 
         # Other symbols
         if (any(((c > '~' or c < ' ')) for c in inputPassword)):
-            entropy += 180
+            charEntropy += 180
 
-        return round(len(inputPassword) / 1.5 * log(entropy, 2), 2)
+        return round(len(inputPassword) / 1.5 * log(charEntropy, 2), 2)

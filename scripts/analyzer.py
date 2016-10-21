@@ -7,30 +7,49 @@ class Analyzer(object):
         pass
 
     def mainAnalysis(self, passwordData):
+        """Main analysis of input passwords
+
+        Analysis collect several information:
+            If password, after applying transformations change
+            his password checking library output
+            If password with low entropy pass through PCHL
+            If password with high entropy didnt pass through PCHL
+            If transformation with low entropy-change, change output
+            of password checking library for certain password
+            And overallSummary, how many password didnt pass through
+            PCHL, and after transformation they did.
+        """
         for xPassword in passwordData:
             self.changedLibOutputAfterTransformation(xPassword)
-            #self.lowEntropyPassLibrary(xPassword)
-            #self.highEntropyNotPassLibrary(xPassword)
+            self.lowEntropyPassLibrary(xPassword)
+            self.highEntropyNotPassLibrary(xPassword)
             self.lowEntropyChangePassLibrary(xPassword)
 
-            # Vypise celkovy vystup z toho, vid. dokument
-            #self.overallCategorySummary(xPassword)
+        # Vypise celkovy vystup z toho, vid. dokument
+        self.overallSummary = {}
+        self.overallCategorySummary(passwordData)
 
-        #for xPassword in passwordData:
-        #    print (xPassword.analysisOutput)
 
-        #Tu vypisuje pre kazde heslo informacie ktore sa zistili
-        #for xPassword in passwordData:
-        #    xPassword.printAnalysisOutput()
+        # Print overall information
+        print ("Overall information:")
+        for key in self.overallSummary:
+            print(key + self.overallSummary[key])
+
+        print ("--------------------------------------")
+        print ("--------------------------------------")
+
+        # Print information about password
+        # with rating more then 12
         for xPassword in passwordData:
             printed = False
-            if (xPassword.analysisRating >= 6):
+            if (xPassword.analysisRating > 20):
                 for key in xPassword.analysisOutput:
                     print (key + xPassword.analysisOutput[key])
                     print ()
                     printed = True
                 if (printed):
-                    print ("Rating: " + str(xPassword.analysisRating))
+                    print ("Password-analysis Rating: " + \
+                        str(xPassword.analysisRating))
                     print ("-------------------------------------")
 
     def changedLibOutputAfterTransformation(self, xPassword):
@@ -118,12 +137,38 @@ class Analyzer(object):
 
         for key in xPassword.transformedLibOutput:
             if (outputChanged(xPassword, key) and xPassword.calculateChangedEntropy() < 2):
-                xPassword.addAnalysisOutput(6,
+                xPassword.addAnalysisOutput(8,
                     "Transformed password: " + xPassword.transformedPassword + \
                     '\n' + "Pass through " + key + " PCHL.",
                     " When we applied transformations with low change entropy." + \
                     '\n' + "Transforms applied: " + xPassword.getAppliedTransformations()
                     )
 
-    def overallCategorySummary(self, xPassword):
-        pass
+    def overallCategorySummary(self, passwordData):
+        pchlOkCounter = {}
+        for xPassword in passwordData:
+            for key in xPassword.originallyLibOutput:
+                if (key not in pchlOkCounter):
+                    pchlOkCounter.update({key: 0})
+
+                if (xPassword.originallyLibOutput[key].decode('UTF-8') != "OK" and
+                    xPassword.transformedLibOutput[key].decode('UTF-8') == "OK"):
+                    pchlOkCounter[key] += 1
+
+        for key in pchlOkCounter:
+            percentChange = (pchlOkCounter[key] / len(passwordData) * 100)
+            if (percentChange < 15):
+                self.overallSummary.update({
+                    "Less then 15% of passwords pass through " + key + " PCHL":
+                    '\n' + "After applying the transformations."
+                    })
+            elif (percentChange < 45):
+                self.overallSummary.update({
+                    "Less then 45% of passwords pass through " + key + " PCHL":
+                    '\n' + "After applying the transformations."
+                    })
+            else:
+                self.overallSummary.update({
+                    "More then 45% of passwords pass through " + key + " PCHL":
+                    '\n' + "After applying the transformations."
+                    })
