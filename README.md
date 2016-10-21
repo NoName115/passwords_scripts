@@ -2,6 +2,13 @@
 
 In file *libCheck.py* you can add your own password checking library.
 Create new class with your *checking_library_name*.
+Output of your *checking_library_name* must be in format:
+
+\_password\_ (spaces or tabs) \_checking_library_output\_
+
+or
+
+\_password\_ \_delimiter\_ \_checking_library_output\_
 
 ```python
 class checking_library_name(Library):
@@ -32,13 +39,30 @@ passwordData = loadData.LoadFromStdin().loadData()
 ```
 
 #### Different rules to transform passwordData
+
+You can apply any rule at any range of characters in password.
+
+To apply rule only at one character write same index to both arguments.
 ```python
-rules.ApplySimplel33t().transform(passwordData)
-rules.ApplyAdvancedl33t().transform(passwordData)
-rules.CapitalizeAllLetters().transform(passwordData)
-rules.LowerAllLetters().transform(passwordData)
-rules.CapitalizeLetterAtIndex("index").transform(passwordData)
-rules.DeleteLetterAtIndex("index").transform(passwordData)
+rules.__ruleName__(2, 2).transform(passwordList)
+```
+
+To apply rule at every character in password, set first argument to 0 and second to -1.
+```python
+rules.__ruleName__(0, -1).transform(passwordList)
+```
+
+To apply rule at range of characters in password.
+For example to apply rule from second to fifth character:
+```python
+rules.__ruleName__(2, 5).transform(passwordList)
+```
+
+```python
+rules.ApplySimplel33tFromIndexToIndex("fromIndex", "toIndex").transform(passwordList)
+rules.ApplyAdvancedl33tFromIndexToIndex("fromIndex", "toIndex").transform(passwordList)
+rules.CapitalizeFromIndexToIndex("fromIndex", "toIndex").transform(passwordList)
+rules.LowerFromIndexToIndex("fromIndex", "toIndex").transform(passwordList)
 ```
 
 #### Implemented password checking libraries
@@ -49,5 +73,5 @@ libCheck.PassWDQC().checkResult(passwordList)
 
 #### Run analyzer
 ```python
-analyzer.Analyzer().simpleAnalyze(passwordList)
+analyzer.Analyzer().mainAnalysis(passwordList)
 ```
