@@ -49,8 +49,10 @@ class Password():
                 key,
                 self.originallyLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} {1:15} : {2:.2f}'.format(self.originallyPassword, self.transformedPassword, startEntropy) + \
-               '\n' + transformOutput + '\n' + libOutput
+        return '{0:15} {1:15} : {2:.2f}'.format(self.originallyPassword,
+                                                self.transformedPassword,
+                                                startEntropy) +
+        '\n' + transformOutput + '\n' + libOutput
 
     def libCheckData(self):
         """Return library output
@@ -69,7 +71,9 @@ class Password():
                 key,
                 self.transformedLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} {1:15}'.format(self.originallyPassword, self.transformedPassword) + '\n' + libOutput
+        return '{0:15} {1:15}'.format(self.originallyPassword,
+                                      self.transformedPassword) +
+        '\n' + libOutput
 
     def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
@@ -161,7 +165,8 @@ class PassData():
             errorPrinter.printWarning(
                 "Adding password to passwordData",
                 "Wrong number of arguments,",
-                "Correct: password(String), entropy(Number) - optional argument")
+                "Correct: password(String)," +
+                " entropy(Number) - optional argument")
 
     def printData(self):
         """Print every password data from list
@@ -178,7 +183,7 @@ class PassData():
             return None
 
         for x in self.passwordList:
-            print (x)
+            print(x)
 
     def printLibCheckData(self):
         """Print only password and library output
@@ -189,7 +194,7 @@ class PassData():
         """
 
         for x in self.passwordList:
-            print (x.libCheckData())
+            print(x.libCheckData())
 
     def __iter__(self):
         for x in self.passwordList:

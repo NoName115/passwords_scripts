@@ -40,11 +40,15 @@ class LoadFromStdin(Load):
                 elif (len(data) == 1):
                     passwordData.add(data[0])
                 else:
-                    errorPrinter.printWarning(self.__class__.__name__,
-                        "Invalid line in input file: Too many items at line")
+                    errorPrinter.
+                    printWarning(self.__class__.__name__,
+                                 "Invalid line in input file:" +
+                                 "Too many items at line")
             except ValueError:
-                errorPrinter.printWarning(self.__class__.__name__,
-                    'Wrong input \'{0:1}\' have to be number'.format(data[1]))
+                errorPrinter.
+                printWarning(self.__class__.__name__,
+                             'Wrong input \'{0:1}\' have to be number'.
+                             format(data[1]))
 
         return passwordData
 
@@ -73,13 +77,18 @@ class LoadFromFile(Load):
                         elif (len(data) == 1):
                             passwordData.add(data[0])
                         else:
-                            errorPrinter.printWarning(self.__class__.__name__,
-                                "Invalid line in input file: Too many items at line")
+                            errorPrinter.
+                            printWarning(self.__class__.__name__,
+                                         "Invalid line in input file:" +
+                                         " Too many items at line")
                     except ValueError:
-                        errorPrinter.printWarning(self.__class__.__name__,
-                            'Wrong input \'{0:1}\' have to be number'.format(data[1]))
+                        errorPrinter.
+                        printWarning(self.__class__.__name__,
+                                     'Wrong input \'{0:1}\' have to be number'.
+                                     format(data[1]))
         except IOError:
-            errorPrinter.printError(self.__class__.__name__,
-                'File \'{0:1}\' doesn\'t exist'.format(self.fileName))
+            errorPrinter.
+            printError(self.__class__.__name__,
+                       'File \'{0:1}\' doesn\'t exist'.format(self.fileName))
 
         return passwordData

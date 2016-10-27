@@ -33,11 +33,11 @@ class Rule(object):
                     else (len(xPassword.originallyPassword) - 1)
 
                 if (fromIndex > toIndex):
-                    passwordData.errorLog.addError(self.__class__.__name__,
-                                                   "Wrong value of input data. " +
-                                                   '\n' +
-                                                   "'fromIndex' must be same or lower then 'toIndex'"
-                                                   )
+                    passwordData.errorLog.
+                    addError(self.__class__.__name__,
+                             "Wrong value of input data. " + '\n' +
+                             "'fromIndex' must be same or lower then" +
+                             " 'toIndex'")
                     continue
 
                 transformedPassword = self.uniqueTransform(
@@ -48,19 +48,17 @@ class Rule(object):
                 self.estimateEntropyChangeAndSaveTransformData(xPassword)
 
         except TypeError:
-            raise
-            passwordData.errorLog.addError(self.__class__.__name__,
-                                           "Argument 'fromIndex' or 'toIndex' is not a number. " +
-                                           '\n ' +
-                                           "Input format: rules.rule_name(fromIndex, toIndex).transform(passwordData)"
-                                           )
+            passwordData.errorLog.
+            addError(self.__class__.__name__,
+                     "Argument 'fromIndex' or 'toIndex' is not a number. " +
+                     '\n ' +
+                     "Input format: rules.rule_name(fromIndex, toIndex)." +
+                     "transform(passwordData)")
         except AttributeError:
-            raise
-            errorPrinter.addMainError(self.__class__.__name__,
-                                      "Wrong input type of data. " +
-                                      '\n' +
-                                      "Input must be of type 'passStruct.PassData'"
-                                      )
+            errorPrinter.
+            addMainError(self.__class__.__name__,
+                         "Wrong input type of data. " + '\n' +
+                         "Input must be of type 'passStruct.PassData'")
 
     @abstractmethod
     def uniqueTransform(self, xPassword, fromIndex, toIndex):
@@ -78,7 +76,8 @@ class Rule(object):
         Entropy values are store in config.py file
         """
         entropyChange = config.ruleEntropyValue[self.__class__.__name__] \
-            if self.entropyCondition(xPassword.transformedPassword, xPassword.originallyPassword) \
+            if self.entropyCondition(xPassword.transformedPassword,
+                                     xPassword.originallyPassword) \
             else 0
 
         xPassword.entropy += entropyChange
@@ -98,8 +97,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 
     def __init__(self, fromIndex, toIndex):
         super(ApplySimplel33tFromIndexToIndex,
-            self).__init__(fromIndex,
-                           toIndex)
+              self).__init__(fromIndex, toIndex)
 
     def transform(self, passwordData):
         super(ApplySimplel33tFromIndexToIndex, self).transform(passwordData)
@@ -115,18 +113,20 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         transformedPassword = xPassword.originallyPassword
 
         for key in config.simpleL33tTable:
-            transformedPassword = transformedPassword[ : fromIndex] + \
-                transformedPassword[fromIndex: toIndex + 1].replace(key, 
-                    config.simpleL33tTable[key][random.randint(0,
-                        len(config.simpleL33tTable[key]) - 1)]) + \
+            transformedPassword = transformedPassword[: fromIndex] + \
+                transformedPassword[fromIndex: toIndex + 1]. \
+                replace(key,
+                        config.
+                        simpleL33tTable[key][random.
+                        randint(0,
+                                len(config.simpleL33tTable[key]) - 1)]) + \
                 transformedPassword[toIndex + 1:]
 
         return transformedPassword
 
     def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        super(
-            ApplySimplel33tFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(xPassword)
+        super(ApplySimplel33tFromIndexToIndex,
+              self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (transformedPassword == originallyPassword):
@@ -138,10 +138,8 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
     def __init__(self, fromIndex, toIndex):
-        super(
-            ApplyAdvancedl33tFromIndexToIndex,
-            self).__init__(fromIndex,
-                           toIndex)
+        super(ApplyAdvancedl33tFromIndexToIndex,
+              self).__init__(fromIndex, toIndex)
 
     def transform(self, passwordData):
         super(ApplyAdvancedl33tFromIndexToIndex, self).transform(passwordData)
@@ -156,10 +154,12 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         """
         transformedPassword = xPassword.originallyPassword
         for key in config.advancedL33tTable:
-            transformedPassword = transformedPassword[ : fromIndex] + \
-                transformedPassword[fromIndex: toIndex + 1].replace(key,
-                    config.advancedL33tTable[key][random.randint(0,
-                        len(config.advancedL33tTable[key]) - 1)]) + \
+            transformedPassword = transformedPassword[: fromIndex] + \
+                transformedPassword[fromIndex: toIndex + 1]. \
+                replace(key,
+                        config.advancedL33tTable[key][random.
+                        randint(0,
+                                len(config.advancedL33tTable[key]) - 1)]) + \
                 transformedPassword[toIndex + 1:]
 
         return transformedPassword
@@ -192,8 +192,8 @@ class CapitalizeFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.transformedPassword[ : fromIndex] + \
-            xPassword.transformedPassword[fromIndex : toIndex + 1].upper() + \
+        transformedPassword = xPassword.transformedPassword[: fromIndex] + \
+            xPassword.transformedPassword[fromIndex: toIndex + 1].upper() + \
             xPassword.transformedPassword[toIndex + 1:]
 
         return transformedPassword
@@ -205,7 +205,7 @@ class CapitalizeFromIndexToIndex(Rule):
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (any(c.islower() for c in originallyPassword) and
-            transformedPassword.isupper()):
+           transformedPassword.isupper()):
             return True
         else:
             return False
@@ -227,19 +227,19 @@ class LowerFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.transformedPassword[ : fromIndex] + \
-            xPassword.transformedPassword[fromIndex : toIndex + 1].lower() + \
+        transformedPassword = xPassword.transformedPassword[: fromIndex] + \
+            xPassword.transformedPassword[fromIndex: toIndex + 1].lower() + \
             xPassword.transformedPassword[toIndex + 1:]
 
         return transformedPassword
 
     def estimateEntropyChangeAndSaveTransformData(self, xPassword):
         super(LowerFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(xPassword)
+              self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (any(c.isupper() for c in originallyPassword) and
-            transformedPassword.islower()):
+           transformedPassword.islower()):
             return True
         else:
             return False

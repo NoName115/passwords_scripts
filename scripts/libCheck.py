@@ -37,19 +37,18 @@ class Library(object):
                     x.addOriginallyLibOutput,
                     delimiter,
                     *args
-                    )                           
+                    )
         except AttributeError:
-            #raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 "Wrong input data instance")
         except IndexError:
-            #raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 "Index out of range")
 
-    def setPCHLOutput(self, password, xPassword, libraryOutputMethod, delimiter, *args):
+    def setPCHLOutput(self, password, xPassword,
+                      libraryOutputMethod, delimiter, *args):
         """Function get output of library and store it to passwordData
 
         Arguments:
@@ -77,7 +76,7 @@ class Library(object):
                 )
         else:
             libraryOutputMethod(
-                self.__class__.__name__, output.split( \
+                self.__class__.__name__, output.split(
                     bytes(delimiter, 'UTF-8'))[1])
 
 
