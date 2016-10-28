@@ -33,11 +33,12 @@ class Rule(object):
                     else (len(xPassword.originallyPassword) - 1)
 
                 if (fromIndex > toIndex):
-                    passwordData.errorLog.
-                    addError(self.__class__.__name__,
-                             "Wrong value of input data. " + '\n' +
-                             "'fromIndex' must be same or lower then" +
-                             " 'toIndex'")
+                    passwordData.errorLog.addError(self.__class__.__name__,
+                                                   "Wrong value of input" +
+                                                   " data. " + '\n' +
+                                                   "'fromIndex' must be " +
+                                                   "same or lower then" +
+                                                   " 'toIndex'")
                     continue
 
                 transformedPassword = self.uniqueTransform(
@@ -48,17 +49,17 @@ class Rule(object):
                 self.estimateEntropyChangeAndSaveTransformData(xPassword)
 
         except TypeError:
-            passwordData.errorLog.
-            addError(self.__class__.__name__,
-                     "Argument 'fromIndex' or 'toIndex' is not a number. " +
-                     '\n ' +
-                     "Input format: rules.rule_name(fromIndex, toIndex)." +
-                     "transform(passwordData)")
+            passwordData.errorLog.addError(self.__class__.__name__,
+                                           "Argument 'fromIndex' or " +
+                                           "'toIndex' is not a number. " +
+                                           '\n ' + "Input format: rules." +
+                                           "rule_name(fromIndex, toIndex)." +
+                                           "transform(passwordData)")
         except AttributeError:
-            errorPrinter.
-            addMainError(self.__class__.__name__,
-                         "Wrong input type of data. " + '\n' +
-                         "Input must be of type 'passStruct.PassData'")
+            errorPrinter.addMainError(self.__class__.__name__,
+                                      "Wrong input type of data. " + '\n' +
+                                      "Input must be of type " +
+                                      "'passStruct.PassData'")
 
     @abstractmethod
     def uniqueTransform(self, xPassword, fromIndex, toIndex):

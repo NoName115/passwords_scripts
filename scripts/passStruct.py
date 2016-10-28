@@ -51,8 +51,8 @@ class Password():
 
         return '{0:15} {1:15} : {2:.2f}'.format(self.originallyPassword,
                                                 self.transformedPassword,
-                                                startEntropy) +
-        '\n' + transformOutput + '\n' + libOutput
+                                                startEntropy) + '\n'
+        + transformOutput + '\n' + libOutput
 
     def libCheckData(self):
         """Return library output
@@ -72,8 +72,8 @@ class Password():
                 self.transformedLibOutput[key].decode('UTF-8')) + '\n'
 
         return '{0:15} {1:15}'.format(self.originallyPassword,
-                                      self.transformedPassword) +
-        '\n' + libOutput
+                                      self.transformedPassword) + '\n'
+        + libOutput
 
     def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
