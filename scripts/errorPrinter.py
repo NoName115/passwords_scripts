@@ -48,7 +48,7 @@ def printError(className, errorText):
     """
     print(colored("Error: ", "red"),
           '{0:13} - {1:30}'.format(className, errorText))
-    exit(0)
+    exit(-1)
 
 
 def printWarning(className, errorText):

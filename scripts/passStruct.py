@@ -49,10 +49,11 @@ class Password():
                 key,
                 self.originallyLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} {1:15} : {2:.2f}'.format(self.originallyPassword,
-                                                self.transformedPassword,
-                                                startEntropy) + '\n'
-        + transformOutput + '\n' + libOutput
+        return '{0:15} {1:15} : {2:.2f}'.format(
+            self.originallyPassword,
+            self.transformedPassword,
+            startEntropy
+            ) + '\n' + transformOutput + '\n' + libOutput
 
     def libCheckData(self):
         """Return library output
@@ -71,9 +72,10 @@ class Password():
                 key,
                 self.transformedLibOutput[key].decode('UTF-8')) + '\n'
 
-        return '{0:15} {1:15}'.format(self.originallyPassword,
-                                      self.transformedPassword) + '\n'
-        + libOutput
+        return '{0:15} {1:15}'.format(
+            self.originallyPassword,
+            self.transformedPassword
+            ) + '\n' + libOutput
 
     def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
@@ -160,13 +162,15 @@ class PassData():
             except ValueError:
                 errorPrinter.printWarning(
                     "Adding password to passwordData",
-                    '\'{0:1}\' is not a number'.format(args[1]))
+                    '\'{0:1}\' is not a number'.format(args[1])
+                    )
         else:
             errorPrinter.printWarning(
                 "Adding password to passwordData",
                 "Wrong number of arguments,",
                 "Correct: password(String)," +
-                " entropy(Number) - optional argument")
+                " entropy(Number) - optional argument"
+                )
 
     def printData(self):
         """Print every password data from list

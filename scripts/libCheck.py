@@ -47,13 +47,13 @@ class Library(object):
                 self.__class__.__name__,
                 "Index out of range")
 
-    def setPCHLOutput(self, password, xPassword,
+    def setPCHLOutput(self, password, passInfo,
                       libraryOutputMethod, delimiter, *args):
         """Function get output of library and store it to passwordData
 
         Arguments:
         password -- input password, type string
-        xPassword -- type passStruct.Password
+        passInfo -- type passStruct.Password
         libraryOutputMethod -- method called to store PCHL output
         delimiter -- split library output
         *args -- arguments for run/call library

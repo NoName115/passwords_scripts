@@ -19,11 +19,11 @@ class Analyzer(object):
             And overallSummary, how many password didnt pass through
             PCHL, and after transformation they did.
         """
-        for xPassword in passwordData:
-            self.changedLibOutputAfterTransformation(xPassword)
-            self.lowEntropyPassLibrary(xPassword)
-            self.highEntropyNotPassLibrary(xPassword)
-            self.lowEntropyChangePassLibrary(xPassword)
+        for passInfo in passwordData:
+            self.changedLibOutputAfterTransformation(passInfo)
+            self.lowEntropyPassLibrary(passInfo)
+            self.highEntropyNotPassLibrary(passInfo)
+            self.lowEntropyChangePassLibrary(passInfo)
 
         # Vypise celkovy vystup z toho, vid. dokument
         self.overallSummary = {}
@@ -39,174 +39,144 @@ class Analyzer(object):
 
         # Print information about password
         # with rating more then 12
-        for xPassword in passwordData:
+        for passInfo in passwordData:
             printed = False
-            if (xPassword.analysisRating > 20):
-                for key in xPassword.analysisOutput:
-                    print(key + xPassword.analysisOutput[key])
+            if (passInfo.analysisRating > 20):
+                for key in passInfo.analysisOutput:
+                    print(key + passInfo.analysisOutput[key])
                     print()
                     printed = True
                 if (printed):
                     print("Password-analysis Rating: " +
-                          str(xPassword.analysisRating))
+                          str(passInfo.analysisRating))
                     print("-------------------------------------")
 
-    def changedLibOutputAfterTransformation(self, xPassword):
-        for key in xPassword.originallyLibOutput:
+    def changedLibOutputAfterTransformation(self, passInfo):
+        for key in passInfo.originallyLibOutput:
             # Output of password checking libraries is same at
             # originally and transformed password
-            if (xPassword.originallyLibOutput[key] ==
-               xPassword.transformedLibOutput[key]):
+            if (passInfo.originallyLibOutput[key] ==
+               passInfo.transformedLibOutput[key]):
                 continue
-            elif (xPassword.originallyLibOutput[key].decode('UTF-8') == "OK"):
-                xPassword.addAnalysisOutput(6,
-                                            "Output of PCHL " + key +
-                                            " changed." + '\n',
-                                            "The output for" +
-                                            " originally password: " +
-                                            xPassword.originallyPassword +
-                                            '\n' +
-                                            "is OK, but after applying " +
-                                            "transformations password " +
-                                            "changed to: " +
-                                            xPassword.transformedPassword +
-                                            '\n' +
-                                            "And the output changed to: " +
-                                            xPassword.
-                                            transformedLibOutput[key].
-                                            decode('UTF-8'))
-            elif (xPassword.transformedLibOutput[key].decode('UTF-8') == "OK"):
-                xPassword.addAnalysisOutput(4,
-                                            "Output of PCHL " +
-                                            key + " changed." + '\n',
-                                            "Originally password: " +
-                                            xPassword.originallyPassword +
-                                            " didn\'t pass through PCHL," +
-                                            '\n' +
-                                            "The output is: " +
-                                            xPassword.originallyLibOutput[key].
-                                            decode('UTF-8') +
-                                            '\n' +
-                                            "But after applying " +
-                                            "transformations," +
-                                            " password changed to: " +
-                                            xPassword.transformedPassword +
-                                            '\n' +
-                                            "And it pass through " +
-                                            key + " PCHL.")
+            elif (passInfo.originallyLibOutput[key].decode('UTF-8') == "OK"):
+                passInfo.addAnalysisOutput(
+                    6,
+                    "Output of PCHL " + key + " changed." + '\n',
+                    "The output for originally password: " +
+                    passInfo.originallyPassword + '\n' +
+                    "is OK, but after applying transformations password " +
+                    "changed to: " + passInfo.transformedPassword + '\n' +
+                    "And the output changed to: " +
+                    passInfo.transformedLibOutput[key].decode('UTF-8')
+                    )
+            elif (passInfo.transformedLibOutput[key].decode('UTF-8') == "OK"):
+                passInfo.addAnalysisOutput(
+                    4,
+                    "Output of PCHL " + key + " changed." + '\n',
+                    "Originally password: " + passInfo.originallyPassword +
+                    " didn\'t pass through PCHL," + '\n' + "The output is: " +
+                    passInfo.originallyLibOutput[key].decode('UTF-8') +
+                    '\n' + "But after applying transformations," +
+                    " password changed to: " + passInfo.transformedPassword +
+                    '\n' + "And it pass through " + key + " PCHL."
+                    )
             else:
-                xPassword.addAnalysisOutput(2,
-                                            "Password " +
-                                            xPassword.originallyPassword +
-                                            " didn\'t pass through " +
-                                            "password checking library " +
-                                            key,
-                                            '\n' + "Either before or after " +
-                                            "applying transformations." +
-                                            '\n' +
-                                            "But the output has changed," +
-                                            " output before" +
-                                            " transformations: " + '\n' +
-                                            xPassword.originallyLibOutput[key].
-                                            decode('UTF-8') +
-                                            '\n' + "And the output after " +
-                                            "transformations: " + '\n' +
-                                            xPassword.
-                                            transformedLibOutput[key].
-                                            decode('UTF-8'))
+                passInfo.addAnalysisOutput(
+                    2,
+                    "Password " + passInfo.originallyPassword +
+                    " didn\'t pass through password checking library " + key,
+                    '\n' + "Either before or after applying transformations." +
+                    '\n' + "But the output has changed, output before" +
+                    " transformations: " + '\n' +
+                    passInfo.originallyLibOutput[key].decode('UTF-8') +
+                    '\n' + "And the output after transformations: " + '\n' +
+                    passInfo.transformedLibOutput[key].decode('UTF-8')
+                    )
 
-    def lowEntropyPassLibrary(self, xPassword):
-        if (xPassword.entropy < 36):
-            for key in xPassword.transformedLibOutput:
-                if (xPassword.transformedLibOutput[key].decode('UTF-8') ==
+    def lowEntropyPassLibrary(self, passInfo):
+        if (passInfo.entropy < 36):
+            for key in passInfo.transformedLibOutput:
+                if (passInfo.transformedLibOutput[key].decode('UTF-8') ==
                    "OK"):
-                    xPassword.addAnalysisOutput(1,
-                                                "After transformations, " +
-                                                "password: " +
-                                                xPassword.transformedPassword +
-                                                '\n' +
-                                                "With low entropy: " +
-                                                str(xPassword.entropy) +
-                                                " pass through " + key +
-                                                " PCHL.", "")
-        if (xPassword.calculateInitialEntropy() < 36):
-            for key in xPassword.originallyLibOutput:
-                if (xPassword.originallyLibOutput[key].decode('UTF-8') ==
+                    passInfo.addAnalysisOutput(
+                        1,
+                        "After transformations, password: " +
+                        passInfo.transformedPassword + '\n' +
+                        "With low entropy: " + str(passInfo.entropy) +
+                        " pass through " + key + " PCHL.",
+                        ""
+                        )
+        if (passInfo.calculateInitialEntropy() < 36):
+            for key in passInfo.originallyLibOutput:
+                if (passInfo.originallyLibOutput[key].decode('UTF-8') ==
                    "OK"):
-                    xPassword.addAnalysisOutput(2,
-                                                "Originally password: " +
-                                                xPassword.originallyPassword +
-                                                '\n' +
-                                                "With low entropy: " +
-                                                str(xPassword.
-                                                    calculateInitialEntropy()
-                                                    ) +
-                                                " pass through " + key +
-                                                " PCHL.", "")
+                    passInfo.addAnalysisOutput(
+                        2,
+                        "Originally password: " + passInfo.originallyPassword +
+                        '\n' + "With low entropy: " +
+                        str(passInfo.calculateInitialEntropy()) +
+                        " pass through " + key + " PCHL.",
+                        ""
+                        )
 
-    def highEntropyNotPassLibrary(self, xPassword):
-        if (xPassword.entropy > 60):
-            for key in xPassword.transformedLibOutput:
-                if (xPassword.transformedLibOutput[key].decode('UTF-8') !=
+    def highEntropyNotPassLibrary(self, passInfo):
+        if (passInfo.entropy > 60):
+            for key in passInfo.transformedLibOutput:
+                if (passInfo.transformedLibOutput[key].decode('UTF-8') !=
                    "OK"):
-                    xPassword.addAnalysisOutput(2,
-                                                "Password: " +
-                                                xPassword.transformedPassword +
-                                                '\n' +
-                                                "After transformations and " +
-                                                "with high entropy " +
-                                                xPassword.entropy + '\n' +
-                                                "Didn\'t pass through " + key +
-                                                " PCHL.", "")
+                    passInfo.addAnalysisOutput(
+                        2,
+                        "Password: " + passInfo.transformedPassword +
+                        '\n' + "After transformations and with high entropy " +
+                        passInfo.entropy + '\n' + "Didn\'t pass through " +
+                        key + " PCHL.",
+                        ""
+                        )
 
-        if (xPassword.calculateInitialEntropy() > 60):
-            for key in xPassword.originallyLibOutput:
-                if (xPassword.originallyLibOutput[key].decode('UTF-8') !=
+        if (passInfo.calculateInitialEntropy() > 60):
+            for key in passInfo.originallyLibOutput:
+                if (passInfo.originallyLibOutput[key].decode('UTF-8') !=
                    "OK"):
-                    xPassword.addAnalysisOutput(1,
-                                                "Password: " +
-                                                xPassword.originallyPassword +
-                                                '\n' +
-                                                "With no transformations " +
-                                                "and high entropy " +
-                                                xPassword.entropy + '\n' +
-                                                "Didn\'t pass through " + key +
-                                                " PCHL.", "")
+                    passInfo.addAnalysisOutput(
+                        1,
+                        "Password: " + passInfo.originallyPassword +
+                        '\n' + "With no transformations and high entropy " +
+                        passInfo.entropy + '\n' + "Didn\'t pass through " +
+                        key + " PCHL.",
+                        ""
+                        )
 
-    def lowEntropyChangePassLibrary(self, xPassword):
-        def outputChanged(xPassword, pchl):
-            for key in xPassword.analysisOutput:
+    def lowEntropyChangePassLibrary(self, passInfo):
+        def outputChanged(passInfo, pchl):
+            for key in passInfo.analysisOutput:
                 if (key ==
                    ("Output of password checking library " + pchl +
                     " changed." + '\n')):
                     return True
             return False
 
-        for key in xPassword.transformedLibOutput:
-            if (outputChanged(xPassword, key) and
-               xPassword.calculateChangedEntropy() < 2):
-                xPassword.addAnalysisOutput(8,
-                                            "Transformed password: " +
-                                            xPassword.transformedPassword +
-                                            '\n' + "Pass through " + key +
-                                            " PCHL.",
-                                            " When we applied " +
-                                            "transformations with " +
-                                            "low change entropy." +
-                                            '\n' + "Transforms applied: " +
-                                            xPassword.
-                                            getAppliedTransformations())
+        for key in passInfo.transformedLibOutput:
+            if (outputChanged(passInfo, key) and
+               passInfo.calculateChangedEntropy() < 2):
+                passInfo.addAnalysisOutput(
+                    8,
+                    "Transformed password: " + passInfo.transformedPassword +
+                    '\n' + "Pass through " + key + " PCHL.",
+                    "When we applied transformations with " +
+                    "low change entropy." + '\n' + "Transforms applied: " +
+                    passInfo.getAppliedTransformations()
+                    )
 
     def overallCategorySummary(self, passwordData):
         pchlOkCounter = {}
-        for xPassword in passwordData:
-            for key in xPassword.originallyLibOutput:
+        for passInfo in passwordData:
+            for key in passInfo.originallyLibOutput:
                 if (key not in pchlOkCounter):
                     pchlOkCounter.update({key: 0})
 
-                if (xPassword.originallyLibOutput[key].decode('UTF-8') !=
+                if (passInfo.originallyLibOutput[key].decode('UTF-8') !=
                     "OK" and
-                    xPassword.transformedLibOutput[key].decode('UTF-8') ==
+                    passInfo.transformedLibOutput[key].decode('UTF-8') ==
                    "OK"):
                     pchlOkCounter[key] += 1
 

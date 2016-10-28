@@ -2,10 +2,18 @@ from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassData
 
 import scripts.errorPrinter as errorPrinter
-import scripts.config as config
 import random
 import re
 import sys
+
+
+# Value of entropy that is added when rule is applied
+ruleEntropyValue = {
+        'ApplySimplel33tFromIndexToIndex': 1,
+        'ApplyAdvancedl33tFromIndexToIndex': 2,
+        'CapitalizeFromIndexToIndex': 1,
+        'LowerFromIndexToIndex': 1,
+}
 
 
 class Rule(object):
@@ -17,7 +25,6 @@ class Rule(object):
         self.inputFromIndex = inputFromIndex
         self.inputToIndex = inputToIndex
 
-    @abstractmethod
     def transform(self, passwordData):
         """Main method for password transformation
 
@@ -26,9 +33,13 @@ class Rule(object):
         estimateEntropyChangeAndSaveTransformData method
         """
         try:
-            for xPassword in passwordData.passwordList:
-                fromIndex = self.calculateFromIndex(xPassword.originallyPassword)
-                toIndex = self.calculateToIndex(xPassword.originallyPassword)
+            for passInfo in passwordData.passwordList:
+                fromIndex = self.calculateFromIndex(
+                    passInfo.originallyPassword
+                    )
+                toIndex = self.calculateToIndex(
+                    passInfo.originallyPassword
+                    )
 
                 if (fromIndex > toIndex):
                     passwordData.errorLog.addError(self.__class__.__name__,
@@ -40,14 +51,22 @@ class Rule(object):
                     continue
 
                 transformedPassword = self.uniqueTransform(
-                    xPassword, fromIndex, toIndex)
+                    passInfo, fromIndex, toIndex)
 
-                xPassword.transformedPassword = transformedPassword
+                passInfo.transformedPassword = transformedPassword
 
-                self.estimateEntropyChangeAndSaveTransformData(xPassword)
+                # By result of entropyCondition method estimate entropy change
+                entropyChange = ruleEntropyValue[self.__class__.__name__] \
+                    if self.entropyCondition(
+                        passInfo.transformedPassword,
+                        passInfo.originallyPassword
+                        ) else 0
+
+                passInfo.entropy += entropyChange
+                passInfo.transformRules.append([self.__class__.__name__,
+                                                entropyChange])
 
         except TypeError:
-            raise
             passwordData.errorLog.addError(self.__class__.__name__,
                                            "Argument 'fromIndex' or " +
                                            "'toIndex' is not a number. " +
@@ -55,35 +74,18 @@ class Rule(object):
                                            "rule_name(fromIndex, toIndex)." +
                                            "transform(passwordData)")
         except AttributeError:
-            raise
             errorPrinter.addMainError(self.__class__.__name__,
                                       "Wrong input type of data. " + '\n' +
                                       "Input must be of type " +
                                       "'passStruct.PassData'")
 
     @abstractmethod
-    def uniqueTransform(self, xPassword, fromIndex, toIndex):
+    def uniqueTransform(self, passInfo, fromIndex, toIndex):
         """
         Return:
         transformedPassword -- string
         """
         pass
-
-    @abstractmethod
-    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        """By result of entropyCondition method
-        estimate entropy change.
-
-        Entropy values are store in config.py file
-        """
-        entropyChange = config.ruleEntropyValue[self.__class__.__name__] \
-            if self.entropyCondition(xPassword.transformedPassword,
-                                     xPassword.originallyPassword) \
-            else 0
-
-        xPassword.entropy += entropyChange
-        xPassword.transformRules.append([self.__class__.__name__,
-                                        entropyChange])
 
     @abstractmethod
     def entropyCondition(self, transformedPassword, originallyPassword):
@@ -121,18 +123,15 @@ class ApplySimplel33tFromIndexToIndex(Rule):
                 'z': ['2'],
         }
 
-    def transform(self, passwordData):
-        super(ApplySimplel33tFromIndexToIndex, self).transform(passwordData)
-
-    def uniqueTransform(self, xPassword, fromIndex, toIndex):
+    def uniqueTransform(self, passInfo, fromIndex, toIndex):
         """Apply simple l33t table at X letters in password
 
         Arguments:
-        xPassword -- type of passStruct.Password
+        passInfo -- type of passStruct.Password
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.originallyPassword
+        transformedPassword = passInfo.originallyPassword
 
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
@@ -142,10 +141,6 @@ class ApplySimplel33tFromIndexToIndex(Rule):
                 transformedPassword[toIndex + 1:]
 
         return transformedPassword
-
-    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        super(ApplySimplel33tFromIndexToIndex,
-              self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (transformedPassword == originallyPassword):
@@ -188,18 +183,15 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
                 'e': ['3', 'ii'],
         }
 
-    def transform(self, passwordData):
-        super(ApplyAdvancedl33tFromIndexToIndex, self).transform(passwordData)
-
-    def uniqueTransform(self, xPassword, fromIndex, toIndex):
+    def uniqueTransform(self, passInfo, fromIndex, toIndex):
         """Apply advanced l33t table at X letters in password
 
         Arguments:
-        xPassword -- type of passStruct.Password
+        passInfo -- type of passStruct.Password
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.originallyPassword
+        transformedPassword = passInfo.originallyPassword
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
@@ -214,11 +206,6 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
         return transformedPassword
 
-    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        super(
-            ApplyAdvancedl33tFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(xPassword)
-
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (transformedPassword == originallyPassword):
             return False
@@ -231,27 +218,19 @@ class CapitalizeFromIndexToIndex(Rule):
     def __init__(self, fromIndex, toIndex):
         super(CapitalizeFromIndexToIndex, self).__init__(fromIndex, toIndex)
 
-    def transform(self, passwordData):
-        super(CapitalizeFromIndexToIndex, self).transform(passwordData)
-
-    def uniqueTransform(self, xPassword, fromIndex, toIndex):
+    def uniqueTransform(self, passInfo, fromIndex, toIndex):
         """Captalize X letters in password
 
         Arguments:
-        xPassword -- type of passStruct.Password
+        passInfo -- type of passStruct.Password
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.transformedPassword[: fromIndex] + \
-            xPassword.transformedPassword[fromIndex: toIndex + 1].upper() + \
-            xPassword.transformedPassword[toIndex + 1:]
+        transformedPassword = passInfo.transformedPassword[: fromIndex] + \
+            passInfo.transformedPassword[fromIndex: toIndex + 1].upper() + \
+            passInfo.transformedPassword[toIndex + 1:]
 
         return transformedPassword
-
-    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        super(
-            CapitalizeFromIndexToIndex,
-            self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (any(c.islower() for c in originallyPassword) and
@@ -266,26 +245,19 @@ class LowerFromIndexToIndex(Rule):
     def __init__(self, fromIndex, toIndex):
         super(LowerFromIndexToIndex, self).__init__(fromIndex, toIndex)
 
-    def transform(self, passwordData):
-        super(LowerFromIndexToIndex, self).transform(passwordData)
-
-    def uniqueTransform(self, xPassword, fromIndex, toIndex):
+    def uniqueTransform(self, passInfo, fromIndex, toIndex):
         """Lower X letters in password
 
         Arguments:
-        xPassword -- type of passStruct.Password
+        passInfo -- type of passStruct.Password
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = xPassword.transformedPassword[: fromIndex] + \
-            xPassword.transformedPassword[fromIndex: toIndex + 1].lower() + \
-            xPassword.transformedPassword[toIndex + 1:]
+        transformedPassword = passInfo.transformedPassword[: fromIndex] + \
+            passInfo.transformedPassword[fromIndex: toIndex + 1].lower() + \
+            passInfo.transformedPassword[toIndex + 1:]
 
         return transformedPassword
-
-    def estimateEntropyChangeAndSaveTransformData(self, xPassword):
-        super(LowerFromIndexToIndex,
-              self).estimateEntropyChangeAndSaveTransformData(xPassword)
 
     def entropyCondition(self, transformedPassword, originallyPassword):
         if (any(c.isupper() for c in originallyPassword) and

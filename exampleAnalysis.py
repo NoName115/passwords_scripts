@@ -15,4 +15,6 @@ rules.LowerFromIndexToIndex(0, -1).transform(passwordList)
 libCheck.CrackLib().checkResult(passwordList)
 libCheck.PassWDQC().checkResult(passwordList)
 
-analyzer.Analyzer().mainAnalysis(passwordList)
+passwordList.printData()
+
+#analyzer.Analyzer().mainAnalysis(passwordList)
