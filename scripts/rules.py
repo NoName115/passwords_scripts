@@ -27,10 +27,8 @@ class Rule(object):
         """
         try:
             for xPassword in passwordData.passwordList:
-                fromIndex = self.inputFromIndex if self.inputFromIndex != -1 \
-                    else (len(xPassword.originallyPassword) - 1)
-                toIndex = self.inputToIndex if self.inputToIndex != -1 \
-                    else (len(xPassword.originallyPassword) - 1)
+                fromIndex = self.calculateFromIndex(xPassword.originallyPassword)
+                toIndex = self.calculateToIndex(xPassword.originallyPassword)
 
                 if (fromIndex > toIndex):
                     passwordData.errorLog.addError(self.__class__.__name__,
@@ -49,6 +47,7 @@ class Rule(object):
                 self.estimateEntropyChangeAndSaveTransformData(xPassword)
 
         except TypeError:
+            raise
             passwordData.errorLog.addError(self.__class__.__name__,
                                            "Argument 'fromIndex' or " +
                                            "'toIndex' is not a number. " +
@@ -56,6 +55,7 @@ class Rule(object):
                                            "rule_name(fromIndex, toIndex)." +
                                            "transform(passwordData)")
         except AttributeError:
+            raise
             errorPrinter.addMainError(self.__class__.__name__,
                                       "Wrong input type of data. " + '\n' +
                                       "Input must be of type " +
@@ -93,12 +93,33 @@ class Rule(object):
         """
         pass
 
+    def calculateFromIndex(self, inputPassword):
+        return self.inputFromIndex if self.inputFromIndex != -1 \
+               else (len(inputPassword) - 1)
+
+    def calculateToIndex(self, inputPassword):
+        return self.inputToIndex if self.inputToIndex != -1 \
+               else (len(inputPassword) - 1)
+
 
 class ApplySimplel33tFromIndexToIndex(Rule):
 
     def __init__(self, fromIndex, toIndex):
         super(ApplySimplel33tFromIndexToIndex,
               self).__init__(fromIndex, toIndex)
+        self.l33tTable = {
+                'a': ['4', '@'],
+                'b': ['8'],
+                'e': ['3'],
+                'g': ['6', '9', '&'],
+                'h': ['#'],
+                'i': ['1', '!', '|'],
+                'l': ['1', '|'],
+                'o': ['0'],
+                's': ['5', '$'],
+                't': ['7'],
+                'z': ['2'],
+        }
 
     def transform(self, passwordData):
         super(ApplySimplel33tFromIndexToIndex, self).transform(passwordData)
@@ -113,14 +134,11 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         """
         transformedPassword = xPassword.originallyPassword
 
-        for key in config.simpleL33tTable:
+        for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
-                replace(key,
-                        config.
-                        simpleL33tTable[key][random.
-                        randint(0,
-                                len(config.simpleL33tTable[key]) - 1)]) + \
+                replace(key, self.l33tTable[key][random.
+                    randint(0, len(self.l33tTable[key]) - 1)]) + \
                 transformedPassword[toIndex + 1:]
 
         return transformedPassword
@@ -141,6 +159,34 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
     def __init__(self, fromIndex, toIndex):
         super(ApplyAdvancedl33tFromIndexToIndex,
               self).__init__(fromIndex, toIndex)
+        self.l33tTable = {
+                'a': ['4', '/-\\', '@', '^'],
+                'b': ['8', ']3', '13'],
+                'c': ['(', '{', '[[', '<'],
+                'd': [')', '|)'],
+                'g': ['6', '9', '&'],
+                'h': ['#', '|-|', ')-(', '/-/', '|~|'],
+                'i': ['1', '!', '|'],
+                'j': ['_|', 'u|'],
+                'k': ['|<', '|{'],
+                'l': ['|', '1', '|_'],
+                'm': ['/\\/\\', '|\\/|', '[\\/]'],
+                'n': ['/\\/', '|\\|', '~'],
+                'o': ['0', '()'],
+                'p': ['|D', '|*', '|>'],
+                'q': ['(,)', '0,', 'O,', 'O\\'],
+                'r': ['|2', '|?', '|-'],
+                's': ['5', '$'],
+                't': ['7', '+', '7`', "']['"],
+                'u': ['|_|', '\\_\\', '/_/', '(_)'],
+                'v': ['\\/'],
+                'w': ['\\/\\/', '|/\\|', 'VV', '///', '\\^/'],
+                'x': ['><'],
+                'y': ["'/", '%', '`/', 'j'],
+                'z': ['2', '7_'],
+                'f': ['|=', 'ph'],
+                'e': ['3', 'ii'],
+        }
 
     def transform(self, passwordData):
         super(ApplyAdvancedl33tFromIndexToIndex, self).transform(passwordData)
@@ -154,14 +200,17 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         toIndex -- last index of applying the rule
         """
         transformedPassword = xPassword.originallyPassword
-        for key in config.advancedL33tTable:
+        for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
-                replace(key,
-                        config.advancedL33tTable[key][random.
-                        randint(0,
-                                len(config.advancedL33tTable[key]) - 1)]) + \
+                replace(key, self.l33tTable[key][random.
+                    randint(0, len(self.l33tTable[key]) - 1)]) + \
                 transformedPassword[toIndex + 1:]
+
+            # Calculate new fromIndex and toIndex value,
+            # password can be longer after transformation
+            fromIndex = self.calculateFromIndex(transformedPassword)
+            toIndex = self.calculateToIndex(transformedPassword)
 
         return transformedPassword
 
