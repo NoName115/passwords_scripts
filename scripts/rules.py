@@ -136,8 +136,10 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
-                replace(key, self.l33tTable[key][random.
-                    randint(0, len(self.l33tTable[key]) - 1)]) + \
+                replace(key, self.l33tTable[key][random.randint(
+                    0,
+                    len(self.l33tTable[key]) - 1)]
+                    ) + \
                 transformedPassword[toIndex + 1:]
 
         return transformedPassword
@@ -195,8 +197,10 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
-                replace(key, self.l33tTable[key][random.
-                    randint(0, len(self.l33tTable[key]) - 1)]) + \
+                replace(key, self.l33tTable[key][random.randint(
+                    0,
+                    len(self.l33tTable[key]) - 1)]
+                    ) + \
                 transformedPassword[toIndex + 1:]
 
             # Calculate new fromIndex and toIndex value,

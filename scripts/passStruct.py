@@ -218,8 +218,9 @@ class PassData():
         inputPassword -- password
 
         Entropy calculated by formula
-        first calculate charEntropy.
-        charEntropy is increased by upperCase characters,
+            len(inputPassword) / 1.5 * log(charEntropy, 2), 2
+        First calculate charEntropy,
+        'charEntropy' is increased by upperCase characters,
         digits, special symbols and by symbols out of ASCII table
 
         Return value:

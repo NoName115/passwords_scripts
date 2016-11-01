@@ -149,9 +149,9 @@ class Analyzer(object):
     def lowEntropyChangePassLibrary(self, passInfo):
         def outputChanged(passInfo, pchl):
             for key in passInfo.analysisOutput:
-                if (key ==
-                   ("Output of password checking library " + pchl +
-                    " changed." + '\n')):
+                if (key == (
+                        "Output of password checking library " + pchl +
+                        " changed." + '\n')):
                     return True
             return False
 
