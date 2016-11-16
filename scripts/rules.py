@@ -13,6 +13,15 @@ ruleEntropyValue = {
         'ApplyAdvancedl33tFromIndexToIndex': 2,
         'CapitalizeFromIndexToIndex': 1,
         'LowerFromIndexToIndex': 1,
+
+        'ApplySimplel33tTable' : 1,
+        'ApplyAdvancedl33tTable' : 2,
+        'CapitalizeAllLetters' : 1,
+        'CapitalizeFirstLetter' : 1,
+        'CapitalizeLastLetter' : 1,
+        'LowerAllLetters' : 1,
+        'LowerFirstLetter' : 1,
+        'LowerLastLetter' : 1,
 }
 
 
@@ -50,23 +59,23 @@ class Rule(object):
                                                    " 'toIndex'")
                     continue
 
-                transformedPassword = self.uniqueTransform(
+                transformOutput = self.uniqueTransform(
                     passInfo, fromIndex, toIndex)
 
-                passInfo.transformedPassword = transformedPassword
+                passInfo.transformedPassword = transformOutput[0]
 
                 # By result of entropyCondition method estimate entropy change
                 entropyChange = ruleEntropyValue[self.__class__.__name__] \
-                    if self.entropyCondition(
-                        passInfo.transformedPassword,
-                        passInfo.originallyPassword
-                        ) else 0
+                    if transformOutput[1] else 0
 
                 passInfo.entropy += entropyChange
                 passInfo.transformRules.append([self.__class__.__name__,
                                                 entropyChange])
 
+                print(transformOutput)
+
         except TypeError:
+            raise
             passwordData.errorLog.addError(self.__class__.__name__,
                                            "Argument 'fromIndex' or " +
                                            "'toIndex' is not a number. " +
@@ -74,6 +83,7 @@ class Rule(object):
                                            "rule_name(fromIndex, toIndex)." +
                                            "transform(passwordData)")
         except AttributeError:
+            raise
             errorPrinter.addMainError(self.__class__.__name__,
                                       "Wrong input type of data. " + '\n' +
                                       "Input must be of type " +
@@ -84,14 +94,6 @@ class Rule(object):
         """
         Return:
         transformedPassword -- string
-        """
-        pass
-
-    @abstractmethod
-    def entropyCondition(self, transformedPassword, originallyPassword):
-        """
-        Return:
-        condition result -- boolean
         """
         pass
 
@@ -142,13 +144,12 @@ class ApplySimplel33tFromIndexToIndex(Rule):
                     ) + \
                 transformedPassword[toIndex + 1:]
 
-        return transformedPassword
+        # Check if transformation changed the password
+        entropyCondition = True
+        if (transformedPassword == passInfo.originallyPassword):
+            entropyCondition = False
 
-    def entropyCondition(self, transformedPassword, originallyPassword):
-        if (transformedPassword == originallyPassword):
-            return False
-        else:
-            return True
+        return [transformedPassword, entropyCondition]
 
 
 class ApplyAdvancedl33tFromIndexToIndex(Rule):
@@ -208,13 +209,12 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
             fromIndex = self.calculateFromIndex(transformedPassword)
             toIndex = self.calculateToIndex(transformedPassword)
 
-        return transformedPassword
+        # Check if transformation changed the password
+        entropyCondition = True
+        if (transformedPassword == passInfo.originallyPassword):
+            entropyCondition = False
 
-    def entropyCondition(self, transformedPassword, originallyPassword):
-        if (transformedPassword == originallyPassword):
-            return False
-        else:
-            return True
+        return [transformedPassword, entropyCondition]
 
 
 class CapitalizeFromIndexToIndex(Rule):
@@ -234,14 +234,12 @@ class CapitalizeFromIndexToIndex(Rule):
             passInfo.transformedPassword[fromIndex: toIndex + 1].upper() + \
             passInfo.transformedPassword[toIndex + 1:]
 
-        return transformedPassword
+        # Check if transformation changed the password
+        entropyCondition = False
+        if (passInfo.originallyPassword != transformedPassword):
+            entropyCondition = True
 
-    def entropyCondition(self, transformedPassword, originallyPassword):
-        if (any(c.islower() for c in originallyPassword) and
-           transformedPassword.isupper()):
-            return True
-        else:
-            return False
+        return [transformedPassword, entropyCondition]
 
 
 class LowerFromIndexToIndex(Rule):
@@ -261,11 +259,57 @@ class LowerFromIndexToIndex(Rule):
             passInfo.transformedPassword[fromIndex: toIndex + 1].lower() + \
             passInfo.transformedPassword[toIndex + 1:]
 
-        return transformedPassword
+        # Check if transformation changed the password
+        entropyCondition = False
+        if (passInfo.originallyPassword != transformedPassword):
+            entropyCondition = True
 
-    def entropyCondition(self, transformedPassword, originallyPassword):
-        if (any(c.isupper() for c in originallyPassword) and
-           transformedPassword.islower()):
-            return True
-        else:
-            return False
+        return [transformedPassword, entropyCondition]
+
+
+class CapitalizeAllLetters(CapitalizeFromIndexToIndex):
+
+    def __init__(self):
+        super(CapitalizeAllLetters, self).__init__(0, -1)
+
+
+class CapitalizeFirstLetter(CapitalizeFromIndexToIndex):
+
+    def __init__(self):
+        super(CapitalizeFirstLetter, self).__init__(0, 0)
+
+
+class CapitalizeLastLetter(CapitalizeFromIndexToIndex):
+
+    def __init__(self):
+        super(CapitalizeLastLetter, self).__init__(-1, -1)
+
+
+class LowerAllLetters(LowerFromIndexToIndex):
+
+    def __init__(self):
+        super(LowerAllLetters, self).__init__(0, -1)
+
+
+class LowerFirstLetter(LowerFromIndexToIndex):
+
+    def __init__(self):
+        super(LowerFirstLetter, self).__init__(0, 0)
+
+
+class LowerLastLetter(LowerFromIndexToIndex):
+
+    def __init__(self):
+        super(LowerLastLetter, self).__init__(-1, -1)
+
+
+class ApplySimplel33tTable(ApplySimplel33tFromIndexToIndex):
+
+    def __init__(self):
+        super(ApplySimplel33tTable, self).__init__(0, -1)
+
+
+class ApplyAdvancedl33tTable(ApplyAdvancedl33tFromIndexToIndex):
+
+    def __init__(self):
+        super(ApplyAdvancedl33tTable, self).__init__(0, -1)

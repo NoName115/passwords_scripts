@@ -65,9 +65,9 @@ class Library(object):
             stderr=subprocess.PIPE
             )
         output = p.communicate(
-            input=bytes(password,
-                        'UTF-8'))[0].rstrip(bytes('\n',
-                                                  'UTF-8'))
+            input=bytes(
+                password,
+                'UTF-8'))[0].rstrip(bytes('\n', 'UTF-8'))
 
         if (delimiter is None):
             libraryOutputMethod(
@@ -76,8 +76,9 @@ class Library(object):
                 )
         else:
             libraryOutputMethod(
-                self.__class__.__name__, output.split(
-                    bytes(delimiter, 'UTF-8'))[1])
+                self.__class__.__name__,
+                output.split(bytes(delimiter, 'UTF-8'))[1]
+                )
 
 
 class CrackLib(Library):
