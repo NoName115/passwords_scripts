@@ -72,10 +72,7 @@ class Rule(object):
                 passInfo.transformRules.append([self.__class__.__name__,
                                                 entropyChange])
 
-                print(transformOutput)
-
         except TypeError:
-            raise
             passwordData.errorLog.addError(self.__class__.__name__,
                                            "Argument 'fromIndex' or " +
                                            "'toIndex' is not a number. " +
@@ -83,7 +80,6 @@ class Rule(object):
                                            "rule_name(fromIndex, toIndex)." +
                                            "transform(passwordData)")
         except AttributeError:
-            raise
             errorPrinter.addMainError(self.__class__.__name__,
                                       "Wrong input type of data. " + '\n' +
                                       "Input must be of type " +
