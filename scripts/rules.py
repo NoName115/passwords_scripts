@@ -141,9 +141,9 @@ class ApplySimplel33tFromIndexToIndex(Rule):
                 transformedPassword[toIndex + 1:]
 
         # Check if transformation changed the password
-        entropyCondition = True
-        if (transformedPassword == passInfo.originallyPassword):
-            entropyCondition = False
+        entropyCondition = False
+        if (passInfo.originallyPassword != transformedPassword):
+            entropyCondition = True
 
         return [transformedPassword, entropyCondition]
 
@@ -206,9 +206,9 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
             toIndex = self.calculateToIndex(transformedPassword)
 
         # Check if transformation changed the password
-        entropyCondition = True
-        if (transformedPassword == passInfo.originallyPassword):
-            entropyCondition = False
+        entropyCondition = False
+        if (passInfo.originallyPassword != transformedPassword):
+            entropyCondition = True
 
         return [transformedPassword, entropyCondition]
 

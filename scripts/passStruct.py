@@ -21,16 +21,14 @@ class Password():
         self.originallyLibOutput = {}
         self.transformedLibOutput = {}
 
-        self.analysisOutput = {}
-        self.analysisRating = 0
+    def debugData(self):
+        """Return all password data
 
-    def __str__(self):
-        """Return password data
-
-        Return format:
-        Password : Entropy
-        Transform : actualEntropy (entropyChange) --> NextTransform
-        LibraryName - LibraryOutput
+        Output format:
+        Originally password   Transformed password : Entropy
+        Transform : actualEntropy --> NextTransform
+        LibraryName - OriginallyPassword_LibraryOutput
+        LibraryName - TransformedPassword_LibraryOutput
         """
         transformOutput = ''
         startEntropy = self.entropy
@@ -48,26 +46,6 @@ class Password():
             libOutput += '{0:8} - {1:20}'.format(
                 key,
                 self.originallyLibOutput[key].decode('UTF-8')) + '\n'
-
-        return '{0:15} {1:15} : {2:.2f}'.format(
-            self.originallyPassword,
-            self.transformedPassword,
-            startEntropy
-            ) + '\n' + transformOutput + '\n' + libOutput
-
-    def libCheckData(self):
-        """Return library output
-
-        Return format:
-        Password
-        LibraryName - LibraryOutput
-        """
-
-        libOutput = ''
-        for key in self.originallyLibOutput:
-            libOutput += '{0:8} - {1:20}'.format(
-                key,
-                self.originallyLibOutput[key].decode('UTF-8')) + '\n'
             libOutput += '{0:8} - {1:20}'.format(
                 key,
                 self.transformedLibOutput[key].decode('UTF-8')) + '\n'
@@ -75,7 +53,21 @@ class Password():
         return '{0:15} {1:15}'.format(
             self.originallyPassword,
             self.transformedPassword
-            ) + '\n' + libOutput
+            ) + '\n' + transformOutput + '\n' + libOutput
+
+    def __str__(self):
+        """Return password data
+
+        Return format:
+        Password : Entropy
+        Transform : actualEntropy (entropyChange) --> NextTransform
+        LibraryName - LibraryOutput
+        """
+        return '{0:20} {1:25} {2:.2f}'.format(
+            self.originallyPassword,
+            self.transformedPassword,
+            self.entropy
+            )
 
     def addOriginallyLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
@@ -94,17 +86,6 @@ class Password():
         libOutput -- output of the library
         """
         self.transformedLibOutput.update({libraryName: libOutput})
-
-    def addAnalysisOutput(self, analysisRating, analysisKey, analysisValue):
-        """Add analysis output to dictionary
-
-        Arguments:
-        analysisRating -- rating for certain analysis method
-        analysisKey -- main infromation about analysis output
-        analysisValue -- more detailed infromation about analysis output
-        """
-        self.analysisOutput.update({analysisKey: analysisValue})
-        self.analysisRating += analysisRating
 
     def calculateInitialEntropy(self):
         """Calculate initial entropy, entropy of
@@ -146,6 +127,23 @@ class PassData():
 
         self.errorLog = errorPrinter.RuleError()
 
+    def __str__(self):
+        output = '\n'
+        for x in self.passwordList:
+            output += str(x) + "\n"
+        return output
+
+    def __iter__(self):
+        for x in self.passwordList:
+            yield x
+
+    def __len__(self):
+        counter = 0
+        for x in self:
+            counter += 1
+
+        return counter
+
     def add(self, *args):
         """Add new password to list
 
@@ -172,13 +170,14 @@ class PassData():
                 " entropy(Number) - optional argument"
                 )
 
-    def printData(self):
+    def printDebugData(self):
         """Print every password data from list
 
         Output format:
-        Password : Entropy
-        Transform : actualEntropy (entropyChange) --> NextTransform
-        LibraryName - LibraryOutput
+        Originally password   Transformed password : Entropy
+        Transform : actualEntropy --> NextTransform
+        LibraryName - OriginallyPassword_LibraryOutput
+        LibraryName - TransformedPassword_LibraryOutput
         """
         if (len(self.passwordList) == 0):
             errorPrinter.printWarning(
@@ -187,29 +186,7 @@ class PassData():
             return None
 
         for x in self.passwordList:
-            print(x)
-
-    def printLibCheckData(self):
-        """Print only password and library output
-
-        Output format:
-        Password
-        LibraryName - LibraryOutput
-        """
-
-        for x in self.passwordList:
-            print(x.libCheckData())
-
-    def __iter__(self):
-        for x in self.passwordList:
-            yield x
-
-    def __len__(self):
-        counter = 0
-        for x in self:
-            counter += 1
-
-        return counter
+            print(x.debugData())
 
     def generateEntropy(self, inputPassword):
         """Method calculate password entropy
