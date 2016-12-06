@@ -39,7 +39,7 @@ class AnalysisOutput(object):
                 output += '   '
             counter += 1
 
-            if (not getShortOutput and counter == 5):
+            if (not getShortOutput and counter > 4):
                 output += "..."
                 return output
 
@@ -57,7 +57,7 @@ class AnalysisOutput(object):
                 output += '   '
             counter += 1
 
-            if (not getShortOutput and counter == 5):
+            if (not getShortOutput and counter > 4):
                 output += "..."
                 return output
 
@@ -75,7 +75,7 @@ class AnalysisOutput(object):
                 output += '   '
             counter += 1
 
-            if (not getShortOutput and counter == 5):
+            if (not getShortOutput and counter > 4):
                 output += "..."
                 return output
 
@@ -93,7 +93,7 @@ class AnalysisOutput(object):
                 output += '   '
             counter += 1
 
-            if (not getShortOutput and counter == 5):
+            if (not getShortOutput and counter > 4):
                 output += "..."
                 return output
 
@@ -211,32 +211,26 @@ class Analyzer(object):
                 outputFile.write(
                     self.get_HighEntropyPassLib_2_output(key, PCHL, True)
                     )
-        '''
+        
         # lowEntropyChangePassLibrary1
         elif (key == analysisFunctions[7]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    "Transformed passwords: " + '\n' +
-                    self.analysisDic[key].getTransformedPasswords(PCHL) +
-                    '\n' + "with low entopy-change." + '\n' +
-                    "Pass through " + PCHL + " ." +
-                    '\n'
+                    self.get_LowEntropyChPassLib_1_output(key, PCHL, False)
+                    )
+                outputFile.write(
+                    self.get_LowEntropyChPassLib_1_output(key, PCHL, True)
                     )
 
         # Summary analisis
         elif (key == analysisFunctions[8]):
             for PCHL in self.analysisDic[key].libraryPassword:
-                percentChange = (
-                    len(self.analysisDic[key].libraryPassword[PCHL]) / \
-                    len(passwordData) * 100
-                    )
                 print(
-                    str(round(percentChange, 2)) +
-                    "% of transformed passwords pass through " +
-                    PCHL + " ." +
-                    "\n"
+                    self.get_OverallCategSummary_1_output(key, PCHL, passwordData)
                     )
-                    '''
+                outputFile.write(
+                    self.get_OverallCategSummary_1_output(key, PCHL, passwordData)
+                    )
 
     def changedLibOutputAfterTransformation(self, passInfo):
         for key in passInfo.originallyLibOutput:
@@ -279,7 +273,7 @@ class Analyzer(object):
                 PCHL,
                 getShortOutput
                 ) +
-            '\n' + "And output of " + PCHL + "is not OK" +
+            '\n' + "And output of " + PCHL + " is not OK" +
             '\n' + '\n'
             )
 
@@ -440,6 +434,18 @@ class Analyzer(object):
                         passInfo
                         )
 
+    def get_LowEntropyChPassLib_1_output(self, key, PCHL, getShortOutput):
+        return(
+            "Transformed passwords: " + '\n' +
+            self.analysisDic[key].getTransformedPasswords(
+                PCHL,
+                getShortOutput
+                ) +
+            '\n' + "with low entopy-change." + '\n' +
+            "Pass through " + PCHL + " ." +
+            '\n' + '\n'
+            )
+
     def overallCategorySummary(self, passInfo):
         for key in passInfo.transformedLibOutput:
             if (passInfo.transformedLibOutput[key].decode('UTF-8') == "OK"):
@@ -448,3 +454,15 @@ class Analyzer(object):
                     key,
                     passInfo
                     )
+
+    def get_OverallCategSummary_1_output(self, key, PCHL, passwordData):
+        percentChange = (
+            len(self.analysisDic[key].libraryPassword[PCHL]) / \
+            len(passwordData) * 100
+            )
+        return(
+            str(round(percentChange, 2)) +
+            "% of transformed passwords pass through " +
+            PCHL + " ." +
+            '\n' + '\n'
+            )
