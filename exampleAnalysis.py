@@ -5,7 +5,7 @@ import scripts.libCheck as libCheck
 import scripts.loadData as loadData
 import scripts.analyzer as analyzer
 
-passwordList = loadData.LoadFromFile("tests/unit/simpleInput").loadData()	#tests/unit/simpleInput #10_million_password_list_top_1000.txt
+passwordList = loadData.LoadFromFile("inputs/10_million_password_list_top_1000.txt").loadData()	#tests/unit/simpleInput #10_million_password_list_top_1000.txt
 #passwordList = loadData.LoadFromStdin().loadData()
 
 rules.CapitalizeAllLetters().transform(passwordList)

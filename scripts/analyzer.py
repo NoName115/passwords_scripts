@@ -1,3 +1,4 @@
+import datetime
 from termcolor import colored
 
 
@@ -132,8 +133,13 @@ class Analyzer(object):
             self.lowEntropyChangePassLibrary(passInfo)
             self.overallCategorySummary(passInfo)
 
+        # Create outputFile name by current time and date
+        now = datetime.datetime.now()
+        filename = now.strftime("%Y-%m-%d_%H:%M:%S")
+        filename = "outputs/analysis_" + filename + ".output"
+
         # Open file to store analisis output
-        outputFile = open("analisis.output", "w")
+        outputFile = open(filename, "w")
 
         for key in self.analysisDic:
             self.printData(key, passwordData, outputFile)
