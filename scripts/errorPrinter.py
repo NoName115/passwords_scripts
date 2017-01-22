@@ -1,5 +1,4 @@
 from sys import exit
-from termcolor import colored
 
 
 """Dictionary that store main errors
@@ -46,8 +45,7 @@ def printError(className, errorText):
     className -- name of the class that called this method
     errorText -- details about error
     """
-    print(colored("Error: ", "red"),
-          '{0:13} - {1:30}'.format(className, errorText))
+    print('{0:13} - {1:30}'.format(className, errorText))
     exit(-1)
 
 
@@ -58,8 +56,7 @@ def printWarning(className, errorText):
     className -- name of the class that called this method
     errorText -- details about error
     """
-    print(colored("Warning: ", "yellow"),
-          '{0:13} - {1:30}'.format(className, errorText))
+    print('{0:13} - {1:30}'.format(className, errorText))
 
 
 def printRuleWarning(className, errorText):

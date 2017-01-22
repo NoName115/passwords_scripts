@@ -38,14 +38,25 @@ class Library(object):
                     delimiter,
                     *args
                     )
+
+            # Store PCHL name to PassData class
+            passwordData.usedPCHL.append(self.__class__.__name__)
+
         except AttributeError:
             errorPrinter.printWarning(
                 self.__class__.__name__,
-                "Wrong input data instance")
+                "Wrong input data instance"
+                )
         except IndexError:
             errorPrinter.printWarning(
                 self.__class__.__name__,
-                "Index out of range")
+                "Index out of range"
+                )
+        except Exception:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                "Password checking library is missing"
+                )
 
     def setPCHLOutput(self, password, passInfo,
                       libraryOutputMethod, delimiter, *args):
@@ -64,10 +75,8 @@ class Library(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
             )
-        output = p.communicate(
-            input=bytes(
-                password,
-                'UTF-8'))[0].rstrip(bytes('\n', 'UTF-8'))
+
+        output = p.communicate(input=bytes(password, 'UTF-8'))[0].decode('UTF-8').rstrip('\n')
 
         if (delimiter is None):
             libraryOutputMethod(
@@ -77,7 +86,7 @@ class Library(object):
         else:
             libraryOutputMethod(
                 self.__class__.__name__,
-                output.split(bytes(delimiter, 'UTF-8'))[1]
+                output.split(delimiter)[1]
                 )
 
 

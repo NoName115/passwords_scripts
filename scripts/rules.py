@@ -14,14 +14,14 @@ ruleEntropyValue = {
         'CapitalizeFromIndexToIndex': 1,
         'LowerFromIndexToIndex': 1,
 
-        'ApplySimplel33tTable' : 1,
-        'ApplyAdvancedl33tTable' : 2,
-        'CapitalizeAllLetters' : 1,
-        'CapitalizeFirstLetter' : 1,
-        'CapitalizeLastLetter' : 1,
-        'LowerAllLetters' : 1,
-        'LowerFirstLetter' : 1,
-        'LowerLastLetter' : 1,
+        'ApplySimplel33tTable': 1,
+        'ApplyAdvancedl33tTable': 2,
+        'CapitalizeAllLetters': 1,
+        'CapitalizeFirstLetter': 1,
+        'CapitalizeLastLetter': 1,
+        'LowerAllLetters': 1,
+        'LowerFirstLetter': 1,
+        'LowerLastLetter': 1,
 }
 
 
@@ -51,12 +51,11 @@ class Rule(object):
                     )
 
                 if (fromIndex > toIndex):
-                    passwordData.errorLog.addError(self.__class__.__name__,
-                                                   "Wrong value of input" +
-                                                   " data. " + '\n' +
-                                                   "'fromIndex' must be " +
-                                                   "same or lower then" +
-                                                   " 'toIndex'")
+                    passwordData.errorLog.addError(
+                        self.__class__.__name__,
+                        "Wrong value of input data. " + '\n' +
+                        "'fromIndex' must be same or lower then 'toIndex'"
+                        )
                     continue
 
                 transformOutput = self.uniqueTransform(
@@ -69,21 +68,26 @@ class Rule(object):
                     if transformOutput[1] else 0
 
                 passInfo.entropy += entropyChange
-                passInfo.transformRules.append([self.__class__.__name__,
-                                                entropyChange])
+                passInfo.transformRules.append(
+                    [self.__class__.__name__, entropyChange]
+                    )
+
+            # Store ruleName to PassData class
+            passwordData.transformRules.append(self.__class__.__name__)
 
         except TypeError:
-            passwordData.errorLog.addError(self.__class__.__name__,
-                                           "Argument 'fromIndex' or " +
-                                           "'toIndex' is not a number. " +
-                                           '\n ' + "Input format: rules." +
-                                           "rule_name(fromIndex, toIndex)." +
-                                           "transform(passwordData)")
+            passwordData.errorLog.addError(
+                self.__class__.__name__,
+                "Argument 'fromIndex' or 'toIndex' is not a number. " +
+                '\n ' + "Input format: " +
+                "rules.rule_name(fromIndex, toIndex).transform(passwordData)"
+                )
         except AttributeError:
-            errorPrinter.addMainError(self.__class__.__name__,
-                                      "Wrong input type of data. " + '\n' +
-                                      "Input must be of type " +
-                                      "'passStruct.PassData'")
+            errorPrinter.addMainError(
+                self.__class__.__name__,
+                "Wrong input type of data. " + '\n' +
+                "Input must be of type 'passStruct.PassData'"
+                )
 
     @abstractmethod
     def uniqueTransform(self, passInfo, fromIndex, toIndex):
