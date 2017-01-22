@@ -45,7 +45,7 @@ def printError(className, errorText):
     className -- name of the class that called this method
     errorText -- details about error
     """
-    print('{0:13} - {1:30}'.format(className, errorText))
+    print('Error: {0:13} - {1:30}'.format(className, errorText))
     exit(-1)
 
 
@@ -56,7 +56,7 @@ def printWarning(className, errorText):
     className -- name of the class that called this method
     errorText -- details about error
     """
-    print('{0:13} - {1:30}'.format(className, errorText))
+    print('Warning: {0:13} - {1:30}'.format(className, errorText))
 
 
 def printRuleWarning(className, errorText):

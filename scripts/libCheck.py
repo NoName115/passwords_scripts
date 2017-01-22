@@ -32,9 +32,9 @@ class Library(object):
                     *args
                     )
                 self.setPCHLOutput(
-                    x.originallyPassword,
+                    x.originalPassword,
                     x,
-                    x.addOriginallyLibOutput,
+                    x.addOriginalLibOutput,
                     delimiter,
                     *args
                     )
@@ -76,7 +76,9 @@ class Library(object):
             stderr=subprocess.PIPE
             )
 
-        output = p.communicate(input=bytes(password, 'UTF-8'))[0].decode('UTF-8').rstrip('\n')
+        output = p.communicate(
+            input=bytes(password, 'UTF-8')
+            )[0].decode('UTF-8').rstrip('\n')
 
         if (delimiter is None):
             libraryOutputMethod(

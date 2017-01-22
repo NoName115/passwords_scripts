@@ -14,21 +14,21 @@ class Password():
         password -- (string)
         entropy -- (float/integer)
         """
-        self.originallyPassword = password
+        self.originalPassword = password
         self.transformedPassword = password
         self.entropy = entropy
         self.transformRules = []
 
-        self.originallyLibOutput = {}
+        self.originalLibOutput = {}
         self.transformedLibOutput = {}
 
     def debugData(self):
         """Return all password data
 
         Output format:
-        Originally password   Transformed password : Entropy
+        Original password   Transformed password : Entropy
         Transform : actualEntropy --> NextTransform
-        LibraryName - OriginallyPassword_LibraryOutput
+        LibraryName - OriginalPassword_LibraryOutput
         LibraryName - TransformedPassword_LibraryOutput
         """
         transformations = ''
@@ -43,18 +43,18 @@ class Password():
             transformations = "No password transform"
 
         libOutput = ''
-        for key in self.originallyLibOutput:
+        for key in self.originalLibOutput:
             libOutput += '{0:8} - {1:20}'.format(
                 key,
-                self.originallyLibOutput[key] #.decode('UTF-8')
+                self.originalLibOutput[key]
                 ) + '\n'
             libOutput += '{0:8} - {1:20}'.format(
                 key,
-                self.transformedLibOutput[key] #.decode('UTF-8')
+                self.transformedLibOutput[key]
                 ) + '\n'
 
         return '{0:15} {1:15}'.format(
-            self.originallyPassword,
+            self.originalPassword,
             self.transformedPassword
             ) + '\n' + transformations + '\n' + libOutput
 
@@ -68,17 +68,17 @@ class Password():
         """
 
         originalPCHLOutputs = ""
-        for key in self.originallyLibOutput:
+        for key in self.originalLibOutput:
             originalPCHLOutputs += '{0:8}: {1:20}   '.format(
                 key,
-                self.originallyLibOutput[key] #.decode('UTF-8')
+                self.originalLibOutput[key]
                 )
 
         transformedPCHLOutputs = ""
         for key in self.transformedLibOutput:
             transformedPCHLOutputs += '{0:8}: {1:20}   '.format(
                 key,
-                self.transformedLibOutput[key] #.decode('UTF-8')
+                self.transformedLibOutput[key]
                 )
 
         errorOutput = ""
@@ -88,7 +88,7 @@ class Password():
                 errorOutput += "Transformation  " + trans[0] + \
                     "  wasn\'t applied" + '\n'
 
-        return self.originallyPassword + " (" + \
+        return self.originalPassword + " (" + \
             '{0:.2f}'.format(self.calculateInitialEntropy()) + \
             ") " + originalPCHLOutputs + '\n' + \
             self.transformedPassword + " (" + \
@@ -96,14 +96,14 @@ class Password():
             transformedPCHLOutputs + '\n' + \
             errorOutput + '\n'
 
-    def addOriginallyLibOutput(self, libraryName, libOutput):
+    def addOriginalLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
 
         Arguments:
         libraryName -- name of the library
         libOutput -- output of the library
         """
-        self.originallyLibOutput.update({libraryName: libOutput})
+        self.originalLibOutput.update({libraryName: libOutput})
 
     def addTransformedLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
@@ -116,7 +116,7 @@ class Password():
 
     def calculateInitialEntropy(self):
         """Calculate initial entropy, entropy of
-        originally password
+        original password
         """
         startEntropy = self.entropy
 
@@ -164,14 +164,12 @@ class PassData():
         """
         if (len(args) == 1):
             self.passwordList.append(
-                Password(args[0],
-                self.generateEntropy(args[0]))
+                Password(args[0], self.generateEntropy(args[0]))
                 )
         elif (len(args) == 2):
             try:
                 self.passwordList.append(
-                    Password(args[0],
-                    round(args[1], 2))
+                    Password(args[0], round(args[1], 2))
                     )
             except ValueError:
                 errorPrinter.printWarning(
@@ -195,27 +193,26 @@ class PassData():
 
         passwordJsonList = []
         for passInfo in self:
-            passwordJsonList.append(
-                    {
-                    'originalPassword': passInfo.originallyPassword,
-                    'transformedPassword': passInfo.transformedPassword,
-                    'entropy': passInfo.entropy,
-                    'transformRules': passInfo.transformRules,
-                    'originalLibOutput': passInfo.originallyLibOutput,
-                    'transformedLibOutput': passInfo.transformedLibOutput
-                    }
-            )
+            passwordJsonList.append({
+                'originalPassword': passInfo.originalPassword,
+                'transformedPassword': passInfo.transformedPassword,
+                'entropy': passInfo.entropy,
+                'transformRules': passInfo.transformRules,
+                'originalLibOutput': passInfo.originalLibOutput,
+                'transformedLibOutput': passInfo.transformedLibOutput
+            })
 
-        outputFile.write(json.dumps(
-            {
-                'passwordList': passwordJsonList,
-                'transformRules': self.transformRules,
-                'usedPCHL': self.usedPCHL,
-                'errorLog': self.errorLog.errorLog
-            },
-            sort_keys=True,
-            indent = 4,
-            separators = (',', ': ')
+        outputFile.write(
+            json.dumps(
+                {
+                    'passwordList': passwordJsonList,
+                    'transformRules': self.transformRules,
+                    'usedPCHL': self.usedPCHL,
+                    'errorLog': self.errorLog.errorLog
+                },
+                sort_keys=True,
+                indent=4,
+                separators=(',', ': ')
             )
         )
 
@@ -225,9 +222,9 @@ class PassData():
         """Print every password data from list
 
         Output format:
-        Originally password   Transformed password : Entropy
+        Original password   Transformed password : Entropy
         Transform : actualEntropy --> NextTransform
-        LibraryName - OriginallyPassword_LibraryOutput
+        LibraryName - OriginalPassword_LibraryOutput
         LibraryName - TransformedPassword_LibraryOutput
         """
         if (len(self) == 0):

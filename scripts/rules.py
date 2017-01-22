@@ -7,24 +7,6 @@ import re
 import sys
 
 
-# Value of entropy that is added when rule is applied
-ruleEntropyValue = {
-        'ApplySimplel33tFromIndexToIndex': 1,
-        'ApplyAdvancedl33tFromIndexToIndex': 2,
-        'CapitalizeFromIndexToIndex': 1,
-        'LowerFromIndexToIndex': 1,
-
-        'ApplySimplel33tTable': 1,
-        'ApplyAdvancedl33tTable': 2,
-        'CapitalizeAllLetters': 1,
-        'CapitalizeFirstLetter': 1,
-        'CapitalizeLastLetter': 1,
-        'LowerAllLetters': 1,
-        'LowerFirstLetter': 1,
-        'LowerLastLetter': 1,
-}
-
-
 class Rule(object):
 
     __metaclass__ = ABCMeta
@@ -44,10 +26,10 @@ class Rule(object):
         try:
             for passInfo in passwordData.passwordList:
                 fromIndex = self.calculateFromIndex(
-                    passInfo.originallyPassword
+                    passInfo.originalPassword
                     )
                 toIndex = self.calculateToIndex(
-                    passInfo.originallyPassword
+                    passInfo.originalPassword
                     )
 
                 if (fromIndex > toIndex):
@@ -58,18 +40,16 @@ class Rule(object):
                         )
                     continue
 
+                # transformOutput obtain transformedPassword and entropyChange
                 transformOutput = self.uniqueTransform(
-                    passInfo, fromIndex, toIndex)
+                    passInfo, fromIndex, toIndex
+                    )
 
                 passInfo.transformedPassword = transformOutput[0]
+                passInfo.entropy += transformOutput[1]
 
-                # By result of entropyCondition method estimate entropy change
-                entropyChange = ruleEntropyValue[self.__class__.__name__] \
-                    if transformOutput[1] else 0
-
-                passInfo.entropy += entropyChange
                 passInfo.transformRules.append(
-                    [self.__class__.__name__, entropyChange]
+                    [self.__class__.__name__, transformOutput[1]]
                     )
 
             # Store ruleName to PassData class
@@ -94,6 +74,7 @@ class Rule(object):
         """
         Return:
         transformedPassword -- string
+        entropyChange -- float number
         """
         pass
 
@@ -133,7 +114,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.originallyPassword
+        transformedPassword = passInfo.originalPassword
 
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
@@ -145,11 +126,11 @@ class ApplySimplel33tFromIndexToIndex(Rule):
                 transformedPassword[toIndex + 1:]
 
         # Check if transformation changed the password
-        entropyCondition = False
-        if (passInfo.originallyPassword != transformedPassword):
-            entropyCondition = True
+        entropyChange = 0.0
+        if (passInfo.originalPassword != transformedPassword):
+            entropyChange = 1.0
 
-        return [transformedPassword, entropyCondition]
+        return [transformedPassword, entropyChange]
 
 
 class ApplyAdvancedl33tFromIndexToIndex(Rule):
@@ -194,7 +175,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.originallyPassword
+        transformedPassword = passInfo.originalPassword
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
@@ -210,11 +191,11 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
             toIndex = self.calculateToIndex(transformedPassword)
 
         # Check if transformation changed the password
-        entropyCondition = False
-        if (passInfo.originallyPassword != transformedPassword):
-            entropyCondition = True
+        entropyChange = 0.0
+        if (passInfo.originalPassword != transformedPassword):
+            entropyChange = 2.0
 
-        return [transformedPassword, entropyCondition]
+        return [transformedPassword, entropyChange]
 
 
 class CapitalizeFromIndexToIndex(Rule):
@@ -235,11 +216,11 @@ class CapitalizeFromIndexToIndex(Rule):
             passInfo.transformedPassword[toIndex + 1:]
 
         # Check if transformation changed the password
-        entropyCondition = False
-        if (passInfo.originallyPassword != transformedPassword):
-            entropyCondition = True
+        entropyChange = 0.0
+        if (passInfo.originalPassword != transformedPassword):
+            entropyChange = 1.0
 
-        return [transformedPassword, entropyCondition]
+        return [transformedPassword, entropyChange]
 
 
 class LowerFromIndexToIndex(Rule):
@@ -260,11 +241,11 @@ class LowerFromIndexToIndex(Rule):
             passInfo.transformedPassword[toIndex + 1:]
 
         # Check if transformation changed the password
-        entropyCondition = False
-        if (passInfo.originallyPassword != transformedPassword):
-            entropyCondition = True
+        entropyChange = 0.0
+        if (passInfo.originalPassword != transformedPassword):
+            entropyChange = 1.0
 
-        return [transformedPassword, entropyCondition]
+        return [transformedPassword, entropyChange]
 
 
 class CapitalizeAllLetters(CapitalizeFromIndexToIndex):
