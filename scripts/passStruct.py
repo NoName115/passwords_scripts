@@ -187,8 +187,7 @@ class PassData():
     def getTransformRules(self):
         return ", ".join(str(x) for x in self.transformRules) + '\n'
 
-    def storeDataToJson(self, date):
-        filename = "outputs/passData_" + date + ".output"
+    def storeDataToJson(self, filename):
         outputFile = open(filename, "w")
 
         passwordJsonList = []

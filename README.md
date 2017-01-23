@@ -35,6 +35,7 @@ You can edit analysis options by following commands:
 
 ```python
 passwordData = loadData.LoadFromFile("file_path").loadData()
+passwordData = loadData.LoadFromJson("file_path").loadData()
 passwordData = loadData.LoadFromStdin().loadData()
 ```
 
@@ -55,6 +56,11 @@ rules.ApplyAdvancedl33tTable().transform(passwordData)
 ```python
 libCheck.CrackLib().checkResult(passwordList)
 libCheck.PassWDQC().checkResult(passwordList)
+```
+
+#### Store password data
+```python
+passwordList.storeDataToJson("file_path")
 ```
 
 #### Run analyzer

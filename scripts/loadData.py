@@ -1,8 +1,10 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassData
+from scripts.passStruct import Password
 
 import scripts.errorPrinter as errorPrinter
 import sys
+import json
 
 
 class Load(object):
@@ -88,6 +90,58 @@ class LoadFromFile(Load):
                             'Wrong input \'{0:1}\' have to be number'.
                             format(data[1])
                             )
+        except IOError:
+            errorPrinter.printError(
+                self.__class__.__name__,
+                'File \'{0:1}\' doesn\'t exist'.format(self.fileName)
+                )
+
+        return passwordData
+
+
+class LoadFromJson(Load):
+
+    def __init__(self, fileName=None):
+        self.fileName = fileName
+
+    def loadData(self):
+        """Load passData from input file
+
+        Method return -- passwordData of type PassData
+        """
+        passwordData = PassData()
+
+        try:
+            with open(self.fileName) as jsonFile:
+                data = json.load(jsonFile)
+
+            # Parse json data
+            for passInfo in data["passwordList"]:
+                newPassword = Password(
+                    passInfo["originalPassword"],
+                    passInfo["entropy"]
+                    )
+                newPassword.transformedPassword = passInfo[
+                    "transformedPassword"
+                    ]
+                newPassword.transformRules = passInfo[
+                    "transformRules"
+                    ]
+                newPassword.originalLibOutput = passInfo[
+                    "originalLibOutput"
+                    ]
+                newPassword.transformedLibOutput = passInfo[
+                    "transformedLibOutput"
+                    ]
+
+                passwordData.passwordList.append(
+                    newPassword
+                    )
+
+            passwordData.transformRules = data["transformRules"]
+            passwordData.usedPCHL = data["usedPCHL"]
+            passwordData.errorLog.errorLog = data["errorLog"]
+
         except IOError:
             errorPrinter.printError(
                 self.__class__.__name__,
