@@ -18,6 +18,8 @@ class AnalysisOutput(object):
 
     def __init__(self):
         self.libraryPassword = {}
+
+        # TODO
         self.outputText = ""
 
     def addData(self, PCHL, passInfo):
@@ -27,77 +29,44 @@ class AnalysisOutput(object):
         if (passInfo is not None):
             self.libraryPassword[PCHL].append(passInfo)
 
-    def getOriginalPasswords(self, PCHL, getShortOutput):
-        output = ""
-        counter = 0
-        arrayLength = len(self.libraryPassword[PCHL])
+    def getPasswordTransformations(self, PCHL):
+        return " -> ".join(trans for trans in self.libraryPassword[PCHL][0].transformRules)
 
-        for passInfo in self.libraryPassword[PCHL]:
-            output += passInfo.originalPassword
+    def getOriginalPassword(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return self.libraryPassword[PCHL][0].originalPassword
+        else:
+            return "  ".join(passInfo.originalPassword for passInfo in self.libraryPassword[PCHL])
 
-            if (counter != arrayLength - 1):
-                output += '   '
-            counter += 1
+    def getTransformedPassword(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return self.libraryPassword[PCHL][0].transformedPassword
+        else:
+            return "  ".join(passInfo.transformedPassword for passInfo in self.libraryPassword[PCHL])
 
-            if (not getShortOutput and counter > 4):
-                output += "..."
-                return output
+    def getOriginalPasswordPCHLOutput(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return self.libraryPassword[PCHL][0].originalLibOutput[PCHL]
+        else:
+            return "  ".join(passInfo.originalLibOutput[PCHL] for passInfo in self.libraryPassword[PCHL])
 
-        return output
+    def getTransformedPasswordPCHLOutput(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return self.libraryPassword[PCHL][0].transformedLibOutput[PCHL]
+        else:
+            return "  ".join(passInfo.transformedLibOutput[PCHL] for passInfo in self.libraryPassword[PCHL])
 
-    def getTransformedPasswords(self, PCHL, getShortOutput):
-        output = ""
-        counter = 0
-        arrayLength = len(self.libraryPassword[PCHL])
+    def getTransformedPasswordEntropy(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return str(self.libraryPassword[PCHL][0].entropy)
+        else:
+            return "  ".join(str(passInfo.entropy) for passInfo in self.libraryPassword[PCHL])
 
-        for passInfo in self.libraryPassword[PCHL]:
-            output += passInfo.transformedPassword
-
-            if (counter != arrayLength - 1):
-                output += '   '
-            counter += 1
-
-            if (not getShortOutput and counter > 4):
-                output += "..."
-                return output
-
-        return output
-
-    def getTransformedPasswordsEntropy(self, PCHL, getShortOutput):
-        output = ""
-        counter = 0
-        arrayLength = len(self.libraryPassword[PCHL])
-
-        for passInfo in self.libraryPassword[PCHL]:
-            output += str(passInfo.entropy)
-
-            if (counter != arrayLength - 1):
-                output += '   '
-            counter += 1
-
-            if (not getShortOutput and counter > 4):
-                output += "..."
-                return output
-
-        return output
-
-    def getOriginalPasswordsEntropy(self, PCHL, getShortOutput):
-        output = ""
-        counter = 0
-        arrayLength = len(self.libraryPassword[PCHL])
-
-        for passInfo in self.libraryPassword[PCHL]:
-            output += str(passInfo.calculateInitialEntropy())
-
-            if (counter != arrayLength - 1):
-                output += '   '
-            counter += 1
-
-            if (not getShortOutput and counter > 4):
-                output += "..."
-                return output
-
-        return output
+    def getOriginalPasswordEntropy(self, PCHL, getShortOutput):
+        if (getShortOutput):
+            return str(self.libraryPassword[PCHL][0].calculateInitialEntropy())
+        else:
+            return "  ".join(str(passInfo.calculateInitialEntropy()) for passInfo in self.libraryPassword[PCHL])
 
 
 class Analyzer(object):
@@ -112,7 +81,7 @@ class Analyzer(object):
         self.analysisDic[funcName].addData(key, passInfo)
 
     def mainAnalysis(self, passwordData):
-        """Main analysis of input passwords
+        """Main analysis of input Passwords
 
         Analysis collect several information:
             If password, after applying transformations change
@@ -140,16 +109,17 @@ class Analyzer(object):
         # Open file to store analysis output
         outputFile = open(filename, "w")
 
-        # Print main information
+        # Print main information to file
         outputFile.write("Transformations applied:" + '\n')
         outputFile.write(passwordData.getTransformRules() + '\n')
 
+        # Print analysis output to StdOut and outputFile
         for key in self.analysisDic:
             self.printData(key, passwordData, outputFile)
 
         outputFile.close()
 
-        # Store passData
+        # Store passData to Json
         passwordData.storeDataToJson(time)
 
     def printData(self, key, passwordData, outputFile):
@@ -158,10 +128,10 @@ class Analyzer(object):
         if (key == analysisFunctions[0]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_ChLibOutAfterTrans_1_output(key, PCHL, False)
+                    self.get_ChLibOutAfterTrans_1_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_ChLibOutAfterTrans_1_output(key, PCHL, True) +
+                    self.get_ChLibOutAfterTrans_1_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -169,10 +139,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[1]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_ChLibOutAfterTrans_2_output(key, PCHL, False)
+                    self.get_ChLibOutAfterTrans_2_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_ChLibOutAfterTrans_2_output(key, PCHL, True) +
+                    self.get_ChLibOutAfterTrans_2_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -180,10 +150,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[2]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_ChLibOutAfterTrans_3_output(key, PCHL, False)
+                    self.get_ChLibOutAfterTrans_3_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_ChLibOutAfterTrans_3_output(key, PCHL, True) +
+                    self.get_ChLibOutAfterTrans_3_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -191,10 +161,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[3]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_LowEntropyPassLib_1_output(key, PCHL, False)
+                    self.get_LowEntropyPassLib_1_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_LowEntropyPassLib_1_output(key, PCHL, True) +
+                    self.get_LowEntropyPassLib_1_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -202,10 +172,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[4]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_LowEntropyPassLib_2_output(key, PCHL, False)
+                    self.get_LowEntropyPassLib_2_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_LowEntropyPassLib_2_output(key, PCHL, True) +
+                    self.get_LowEntropyPassLib_2_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -213,10 +183,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[5]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_HighEntropyPassLib_1_output(key, PCHL, False)
+                    self.get_HighEntropyPassLib_1_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_HighEntropyPassLib_1_output(key, PCHL, True) +
+                    self.get_HighEntropyPassLib_1_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -224,10 +194,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[6]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_HighEntropyPassLib_2_output(key, PCHL, False)
+                    self.get_HighEntropyPassLib_2_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_HighEntropyPassLib_2_output(key, PCHL, True) +
+                    self.get_HighEntropyPassLib_2_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -235,10 +205,10 @@ class Analyzer(object):
         elif (key == analysisFunctions[7]):
             for PCHL in self.analysisDic[key].libraryPassword:
                 print(
-                    self.get_LowEntropyChPassLib_1_output(key, PCHL, False)
+                    self.get_LowEntropyChPassLib_1_output(key, PCHL, True)
                     )
                 outputFile.write(
-                    self.get_LowEntropyChPassLib_1_output(key, PCHL, True) +
+                    self.get_LowEntropyChPassLib_1_output(key, PCHL, False) +
                     '\n'
                     )
 
@@ -288,54 +258,66 @@ class Analyzer(object):
 
     def get_ChLibOutAfterTrans_1_output(self, key, PCHL, getShortOutput):
         return (
-            "Output of PCHL " + PCHL + " changed." + '\n' +
-            "The output of original passwords:" + '\n' +
-            self.analysisDic[key].getOriginalPasswords(
+            "Original password " +
+            self.analysisDic[key].getOriginalPassword(
                 PCHL,
                 getShortOutput
                 ) +
-            '\n' +
-            "is OK, but after applying transformations," + '\n' +
-            "passwords changed to:" + '\n' +
-            self.analysisDic[key].getTransformedPasswords(
+            " pass through " + PCHL + "." + '\n'
+            "But transformed password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
                 ) +
-            '\n' + "And output of " + PCHL + " is not OK" +
+            ", did not pass through " + PCHL + "." + '\n' +
+            "And the reason of rejection is: " +
+            self.analysisDic[key].getTransformedPasswordPCHLOutput(
+                PCHL,
+                getShortOutput
+                ) +
             '\n'
             )
 
     def get_ChLibOutAfterTrans_2_output(self, key, PCHL, getShortOutput):
         return (
-            "Output of PCHL " + PCHL + " changed." + '\n' +
-            "Orignally passwords:" + '\n' +
-            self.analysisDic[key].getOriginalPasswords(
+            "Original password " +
+            self.analysisDic[key].getOriginalPassword(
                 PCHL,
                 getShortOutput
                 ) +
-            '\n' + "didn\'t pass through " + PCHL + "." + '\n' +
-            "But after applying transformations, " +
-            "passwords changed to:" + "\n" +
-            self.analysisDic[key].getTransformedPasswords(
+            " did not pass throught " + PCHL + ", because \n" +
+            self.analysisDic[key].getOriginalPasswordPCHLOutput(
+                PCHL,
+                getShortOutput
+                ) + '\n'
+            "But after applying transformations, trasformed password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
                 ) +
-            '\n' + "And now, they passed through " + PCHL +
-            " PCHL." +
-            '\n'
+            " pass throught " + PCHL + ".\n"
             )
 
     def get_ChLibOutAfterTrans_3_output(self, key, PCHL, getShortOutput):
-        return(
-            "Passwords:" + '\n' +
-            self.analysisDic[key].getOriginalPasswords(
+        return (
+            "Neither original " +
+            self.analysisDic[key].getOriginalPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "did\'t pass through " + PCHL + " PCHL." + '\n' +
-            "Either before or after applying transformations." +
-            '\n' + "But the output of " + PCHL + " has changed." +
-            '\n'
+                ) + " or transformed " +
+            self.analysisDic[key].getTransformedPassword(
+                PCHL,
+                getShortOutput
+                ) + " password, did not pass throught " + PCHL + '\n' +
+            "But the reason of rejection changed from \n" +
+            self.analysisDic[key].getOriginalPasswordPCHLOutput(
+                PCHL,
+                getShortOutput
+                ) + "\nto\n" +
+            self.analysisDic[key].getTransformedPasswordPCHLOutput(
+                PCHL,
+                getShortOutput
+                ) + ".\n"
             )
 
     def lowEntropyPassLibrary(self, passInfo):
@@ -360,35 +342,31 @@ class Analyzer(object):
                         )
 
     def get_LowEntropyPassLib_1_output(self, key, PCHL, getShortOutput):
-        return(
-            "Transformed passwords:" + '\n' +
-            self.analysisDic[key].getTransformedPasswords(
+        return (
+            "Transformed password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "with low entopy (< 36):" + '\n' +
-            self.analysisDic[key].getTransformedPasswordsEntropy(
+                ) + " with low entropy " +
+            self.analysisDic[key].getTransformedPasswordEntropy(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "pass through " + PCHL + " ." +
-            '\n'
+                ) + ",\n" +
+            "lower then 36.0, sucesfully pass through " + PCHL + ".\n"
             )
 
     def get_LowEntropyPassLib_2_output(self, key, PCHL, getShortOutput):
-        return(
-            "original passwords:" + '\n' +
-            self.analysisDic[key].getOriginalPasswords(
+        return (
+            "Original password " +
+            self.analysisDic[key].getOriginalPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "with low entropy (< 36):" + '\n' +
-            self.analysisDic[key].getOriginalPasswordsEntropy(
+                ) + " with low entropy " +
+            self.analysisDic[key].getOriginalPasswordEntropy(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "pass through " + PCHL + " ." +
-            '\n'
+                ) + ",\n" +
+            "lower than 36.0, sucesfully pass through " + PCHL + ".\n"
             )
 
     def highEntropyNotPassLibrary(self, passInfo):
@@ -413,35 +391,31 @@ class Analyzer(object):
                         )
 
     def get_HighEntropyPassLib_1_output(self, key, PCHL, getShortOutput):
-        return(
-            "Transformed passwords:" + '\n' +
-            self.analysisDic[key].getTransformedPasswords(
+        return (
+            "Transformed password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "with high entropy (> 60):" + '\n' +
-            self.analysisDic[key].getTransformedPasswordsEntropy(
+                ) + " with high entropy " +
+            self.analysisDic[key].getTransformedPasswordEntropy(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "didn\'t pass through " + PCHL + " ." +
-            '\n'
+                ) + ",\n" +
+            "higher than 60.0, did not pass throught " + PCHL + ".\n"
             )
 
     def get_HighEntropyPassLib_2_output(self, key, PCHL, getShortOutput):
-        return(
-            "original passwords:" + '\n' +
-            self.analysisDic[key].getOriginalPasswords(
+        return (
+            "Original password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "with high entropy (> 60):" + '\n' +
-            self.analysisDic[key].getOriginalPasswordsEntropy(
+                ) + " with high entropy " +
+            self.analysisDic[key].getTransformedPasswordEntropy(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "didn\'t pass through " + PCHL + " ." +
-            '\n'
+                ) + ",\n" +
+            "higher than 60.0, did not pass throught " + PCHL + ".\n"
             )
 
     def lowEntropyChangePassLibrary(self, passInfo):
@@ -463,15 +437,25 @@ class Analyzer(object):
                         )
 
     def get_LowEntropyChPassLib_1_output(self, key, PCHL, getShortOutput):
-        return(
-            "Transformed passwords: " + '\n' +
-            self.analysisDic[key].getTransformedPasswords(
+        return (
+            "Transformed password " +
+            self.analysisDic[key].getTransformedPassword(
                 PCHL,
                 getShortOutput
-                ) +
-            '\n' + "with low entopy-change." + '\n' +
-            "Pass through " + PCHL + " ." +
-            '\n'
+                ) + " with applied transformations: \n" +
+            self.analysisDic[key].getPasswordTransformations(
+                PCHL,
+                getShortOutput
+                ) + "\nand with a low entropy-change, entropy value changed" +
+                "from " +
+            self.analysisDic[key].getOriginalPasswordEntropy(
+                PCHL,
+                getShortOutput
+                ) + " to " +
+            self.analysisDic[key].getTransformedPasswordEntropy(
+                PCHL,
+                getShortOutput
+                ) + ", pass through " + PCHL + ".\n"
             )
 
     def overallCategorySummary(self, passInfo):
@@ -488,9 +472,21 @@ class Analyzer(object):
             len(self.analysisDic[key].libraryPassword[PCHL]) /
             len(passwordData) * 100
             )
-        return(
+
+        rejectionDic = {}
+        for passInfo in passwordData:
+            output = passInfo.transformedLibOutput[PCHL]
+            if (output != "OK"):
+                if (output not in rejectionDic):
+                    rejectionDic.update({output : 1})
+                else:
+                    rejectionDic[output] += 1
+
+        return (
             str(round(percentChange, 2)) +
-            "% of transformed passwords pass through " +
-            PCHL + " ." +
-            '\n'
+            "% of transformed passwords pass through " + PCHL + " .\n" +
+            "Most common reason(" +
+            str(round((max(rejectionDic.values()) / len(passwordData)) * 100, 2)) +
+            "%) for rejection is:\n" +
+            str(max(rejectionDic, key=rejectionDic.get)) + '\n'
             )

@@ -1,12 +1,12 @@
-#Example script to run a simple analysis
+# Example script to run a simple analysis
 
 import scripts.rules as rules
 import scripts.libCheck as libCheck
 import scripts.loadData as loadData
 import scripts.analyzer as analyzer
 
-passwordList = loadData.LoadFromFile("inputs/simpleInput").loadData()	#simpleInput	10_million_password_list_top_1000.txt
-#passwordList = loadData.LoadFromStdin().loadData()
+passwordList = loadData.LoadFromFile("inputs/10_million_password_list_top_1000").loadData()  # simpleInput	10_million_password_list_top_1000
+# passwordList = loadData.LoadFromStdin().loadData()
 
 rules.CapitalizeAllLetters().transform(passwordList)
 rules.CapitalizeFirstLetter().transform(passwordList)
