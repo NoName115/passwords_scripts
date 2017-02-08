@@ -42,20 +42,10 @@ class Library(object):
             # Store PCHL name to PassData class
             passwordData.usedPCHL.append(self.__class__.__name__)
 
-        except AttributeError:
+        except Exception as err:
             errorPrinter.printWarning(
                 self.__class__.__name__,
-                "Wrong input data instance"
-                )
-        except IndexError:
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                "Index out of range"
-                )
-        except Exception:
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                "Password checking library is missing"
+                err
                 )
 
     def setPCHLOutput(self, password, passInfo,
@@ -77,7 +67,7 @@ class Library(object):
             )
 
         output = p.communicate(
-            input=bytes(password, 'UTF-8')
+            input=bytes(password, 'UTF-8')  #password.encode('UTF-8') #bytes(password, 'UTF-8')
             )[0].decode('UTF-8').rstrip('\n')
 
         if (delimiter is None):

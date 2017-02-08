@@ -1,6 +1,6 @@
 import datetime
 
-
+'''
 analysisFunctions = [
     'changedLibOutputAfterTransformation1',
     'changedLibOutputAfterTransformation2',
@@ -12,8 +12,8 @@ analysisFunctions = [
     'lowEntropyChangePassLibrary1',
     'overallCategorySummary'
 ]
-
-
+'''
+'''
 class AnalysisOutput(object):
 
     def __init__(self):
@@ -85,6 +85,7 @@ class AnalysisOutput(object):
                 str(passInfo.calculateInitialEntropy())
                 for passInfo in self.libraryPassword[PCHL]
                 )
+                '''
 
 
 class Analyzer(object):
@@ -110,15 +111,18 @@ class Analyzer(object):
             of password checking library for certain password
             And overallSummary, how many password didnt pass through
             PCHL, and after transformation they did.
-        """
+        """ 
 
+        '''
         for passInfo in passwordData:
             self.changedLibOutputAfterTransformation(passInfo)
             self.lowEntropyPassLibrary(passInfo)
             self.highEntropyNotPassLibrary(passInfo)
             self.lowEntropyChangePassLibrary(passInfo)
             self.overallCategorySummary(passInfo)
+        '''
 
+        '''
         # Create outputFile name by current time and date
         now = datetime.datetime.now()
         time = now.strftime("%Y-%m-%d_%H:%M:%S")
@@ -139,6 +143,7 @@ class Analyzer(object):
 
         # Store passData to Json
         # passwordData.storeDataToJson("outputs/passData_" + time + ".json")
+        '''
 
     def printData(self, key, passwordData, outputFile):
 
@@ -248,6 +253,7 @@ class Analyzer(object):
                         ) + '\n'
                     )
 
+    '''
     def changedLibOutputAfterTransformation(self, passInfo):
         for key in passInfo.originalLibOutput:
             # Output of password checking libraries is same at
@@ -273,6 +279,7 @@ class Analyzer(object):
                     key,
                     passInfo
                     )
+    '''
 
     def get_ChLibOutAfterTrans_1_output(self, key, PCHL, getShortOutput):
         return (
@@ -338,6 +345,7 @@ class Analyzer(object):
                 ) + ".\n"
             )
 
+    '''
     def lowEntropyPassLibrary(self, passInfo):
         if (passInfo.entropy < 36):
             for key in passInfo.transformedLibOutput:
@@ -358,6 +366,7 @@ class Analyzer(object):
                         key,
                         passInfo
                         )
+    '''
 
     def get_LowEntropyPassLib_1_output(self, key, PCHL, getShortOutput):
         return (
@@ -387,6 +396,7 @@ class Analyzer(object):
             "lower than 36.0, sucesfully pass through " + PCHL + ".\n"
             )
 
+    '''
     def highEntropyNotPassLibrary(self, passInfo):
         if (passInfo.entropy > 60):
             for key in passInfo.transformedLibOutput:
@@ -407,6 +417,7 @@ class Analyzer(object):
                         key,
                         passInfo
                         )
+    '''
 
     def get_HighEntropyPassLib_1_output(self, key, PCHL, getShortOutput):
         return (
@@ -436,6 +447,7 @@ class Analyzer(object):
             "higher than 60.0, did not pass throught " + PCHL + ".\n"
             )
 
+    '''
     def lowEntropyChangePassLibrary(self, passInfo):
         def outputChanged(passInfo, pchl):
             if (passInfo.originalLibOutput[pchl] !=
@@ -453,6 +465,7 @@ class Analyzer(object):
                         key,
                         passInfo
                         )
+    '''
 
     def get_LowEntropyChPassLib_1_output(self, key, PCHL, getShortOutput):
         return (
@@ -475,6 +488,7 @@ class Analyzer(object):
                 ) + ", pass through " + PCHL + ".\n"
             )
 
+    '''
     def overallCategorySummary(self, passInfo):
         for key in passInfo.transformedLibOutput:
             if (passInfo.transformedLibOutput[key] == "OK"):
@@ -483,6 +497,7 @@ class Analyzer(object):
                     key,
                     passInfo
                     )
+    '''
 
     def get_OverallCategSummary_1_output(self, key, PCHL, passwordData):
         percentChange = (
