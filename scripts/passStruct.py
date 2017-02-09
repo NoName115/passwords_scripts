@@ -53,9 +53,10 @@ class Password():
                 self.transformedLibOutput[key]
                 ) + '\n'
 
-        return '{0:15} {1:15}'.format(
+        return '{0:15} {1:15} {2:.2f}'.format(
             self.originalPassword,
-            self.transformedPassword
+            self.transformedPassword,
+            self.calculateInitialEntropy()
             ) + '\n' + transformations + '\n' + libOutput
 
     def __str__(self):
@@ -133,6 +134,12 @@ class Password():
         minus initial entropy
         """
         return self.entropy - self.calculateInitialEntropy()
+
+    def getAppliedTransformation(self):
+        return " -> ".join(
+            str(trans[0]) + '(' + str(trans[1]) + ')'
+            for trans in self.transformRules
+            )
 
 
 class PassData():

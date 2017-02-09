@@ -114,7 +114,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.originalPassword
+        transformedPassword = passInfo.transformedPassword
 
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
@@ -127,7 +127,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.originalPassword != transformedPassword):
+        if (passInfo.transformedPassword != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]
@@ -175,7 +175,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.originalPassword
+        transformedPassword = passInfo.transformedPassword
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
@@ -192,7 +192,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.originalPassword != transformedPassword):
+        if (passInfo.transformedPassword != transformedPassword):
             entropyChange = 2.0
 
         return [transformedPassword, entropyChange]
@@ -217,7 +217,7 @@ class CapitalizeFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.originalPassword != transformedPassword):
+        if (passInfo.transformedPassword != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]
@@ -242,7 +242,7 @@ class LowerFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.originalPassword != transformedPassword):
+        if (passInfo.transformedPassword != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]
