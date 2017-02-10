@@ -1,25 +1,24 @@
 import datetime
 
 
-analysisFunctions = [
-    'PCHLOutputChanged_Ok2NotOk',
-    'PCHLOutputChanged_NotOk2Ok',
-    'PCHLOutputChanged_NotOk2NotOk',
-    'lowEntropyOriginalPasswordPassPCHL',
-    'lowEntropyTransformedPasswordPassPCHL',
-    'highEntropyOriginalPasswordDontPassPCHL',
-    'highEntropyTransformedPasswordDontPassPCHL',
-    'withLowEntropyChangePassPCHL',
-    'overallSummary'
-]
-
-
 class PassInfoGroup():
 
     def __init__(self):
+        """Initialize class for group of passwords
+        This group is used for analysis
+
+        Self:
+        groupDic -- key is name of PCHL, value is list of class Password
+        """
         self.groupDic = {}
 
     def addPassInfo(self, PCHL, passInfo):
+        """Method add passInfo into list by PCHL
+
+        Arguments:
+        PCHL -- string, name of password checking library
+        passInfo -- class Password in passStruct.py
+        """
         if (PCHL not in self.groupDic):
             self.groupDic.update({PCHL: []})
 
@@ -27,6 +26,15 @@ class PassInfoGroup():
             self.groupDic[PCHL].append(passInfo)
 
     def getPassInfoAttribute(self, PCHL, shortOutput, attribute, isCallable):
+        """Method return attribute of Password as String
+
+        Arguments:
+        PCHL -- string, name of password checking library
+        shortOutput -- boolean, True if only one element is needed
+                       (return element at index 0)
+        attribute -- string, attribute of class Password
+        isCallable -- boolean, True if attribute is callable
+        """
         returnInfo = self.groupDic[PCHL][0].__getattribute__(attribute)() if (isCallable) else self.groupDic[PCHL][0].__getattribute__(attribute)
 
         if (shortOutput):
@@ -44,6 +52,14 @@ class PassInfoGroup():
                     return "  ".join(str(passInfo.__getattribute__(attribute)) for passInfo in self.groupDic[PCHL])
 
     def intersection(self, other):
+        """Intersection of two PassInfoGroup classes
+
+        Arguments:
+        other -- class PassInfoGroup
+
+        Return value:
+        intersectionGroup -- return new PassInfoGroup class
+        """
         intersectionGroup = PassInfoGroup()
         for PCHL in self.groupDic:
             for passInfo in self.groupDic[PCHL]:
@@ -56,6 +72,28 @@ class PassInfoGroup():
 class Analyzer():
 
     def __init__(self, passwordData):
+        """Initialize 5 default analysis groups
+
+        Arguments:
+        passwordData -- class PassData in passStruct.py
+
+        Self:
+        defaultAnalysis -- dictionary of 5 default analysis groups
+        AllPasswords -- contain every password
+        originalPassword_Ok -- contain passwords which originalPassword
+                               pass through PCHL
+        originalPassword_NotOk -- contain passwords which originalPassword
+                                  did not pass through PCHL
+        transformedPassword_Ok -- contain passwords which transformedPassword
+                                  pass through PCHL
+        transformedPassword_NotOk -- contain passwords which transformedPassword
+                                     did not pass through PCHL
+        analysisFunctionNames -- list of every analysis
+                                 names of function in class AnalyzerPrinter
+        passwordData -- class PassData (input data)
+        analysisDic -- dictionary of analyzes
+                       key is element from analysisFunctionNames
+        """
         self.defaultAnalysis = {
             'AllPasswords': PassInfoGroup(),
             'originalPassword_Ok': PassInfoGroup(),
@@ -63,12 +101,28 @@ class Analyzer():
             'transformedPassword_Ok': PassInfoGroup(),
             'transformedPassword_NotOk': PassInfoGroup()
         }
+        self.analysisFunctionNames = [
+            'PCHLOutputChanged_Ok2NotOk',
+            'PCHLOutputChanged_NotOk2Ok',
+            'PCHLOutputChanged_NotOk2NotOk',
+            'lowEntropyOriginalPasswordPassPCHL',
+            'lowEntropyTransformedPasswordPassPCHL',
+            'highEntropyOriginalPasswordDontPassPCHL',
+            'highEntropyTransformedPasswordDontPassPCHL',
+            'withLowEntropyChangePassPCHL',
+            'overallSummary'
+        ]
         self.defaultGroupAnalysis(passwordData)
 
         self.passwordData = passwordData
         self.analysisDic = {}
 
     def defaultGroupAnalysis(self, passwordData):
+        """Method fill 5 default analysis groups with data
+
+        Arguments:
+        passwordData -- class PassData (input data)
+        """
         for passInfo in passwordData:
             for PCHL in passInfo.originalLibOutput:
                 self.defaultAnalysis['AllPasswords'].addPassInfo(PCHL, passInfo)
@@ -84,90 +138,145 @@ class Analyzer():
                     self.defaultAnalysis['transformedPassword_NotOk'].addPassInfo(PCHL, passInfo)
 
     def addPasswordToAnalysisOutput(self, analysisName, PCHL, passInfo):
+        """Method add passInfo into PassInfoGroup in analysisDic
+        by analysisName and PCHL.
+
+        Arguments:
+        analysisName -- string, name of analysis
+                        (element from analysisFunctionNames)
+        PCHL -- string, name of password checking library
+        passInfo -- class Password
+        """
         if (analysisName not in self.analysisDic):
             self.analysisDic.update({analysisName: PassInfoGroup()})
 
         self.analysisDic[analysisName].addPassInfo(PCHL, passInfo)
 
     def addGroupToAnalysisOutput(self, analysisName, groupInfo):
+        """Add whole groupInfo into analysisDic by analysisName
+
+        Arguments:
+        analysisName -- string, name of analysis
+                        (element from analysisFunctionNames)
+        groupInfo -- class PassInfoGroup
+        """
         self.analysisDic.update({analysisName: groupInfo})
 
     def mainAnalysis(self):
+        """Run analyzes
+        """
         self.PCHLOutputChanged()
         self.lowAndHighEntropyAnalysis()
         self.lowEntropyChangePassPCHL()
         self.overallSummary()
 
     def PCHLOutputChanged(self):
+        """Three analysis, that focus on outputs of
+        password checking library for original and transformed password
+        """
+
+        # PCHLOutputChanged_Ok2NotOk -- analysis name
+        # output of originalPasword is OK but
+        # transformedPassword was rejected, output is not OK
         self.addGroupToAnalysisOutput(
-            analysisFunctions[0],
+            self.analysisFunctionNames[0],
             self.defaultAnalysis['originalPassword_Ok'].intersection(
                 self.defaultAnalysis['transformedPassword_NotOk']
                 )
             )
 
+        # PCHLOutputChanged_NotOk2Ok -- analysis name
+        # originalPassword was rejected by PCHL but
+        # transformedPassword pass through PCHL
         self.addGroupToAnalysisOutput(
-            analysisFunctions[1],
+            self.analysisFunctionNames[1],
             self.defaultAnalysis['originalPassword_NotOk'].intersection(
                 self.defaultAnalysis['transformedPassword_Ok']
                 )
             )
 
+        # PCHLOutputChanged_NotOk2NotOk -- analysis name
+        # original and transformed password was rejected but
+        # reason of rejection is different
         for PCHL, passInfoList in (self.defaultAnalysis['originalPassword_NotOk'].intersection(
             self.defaultAnalysis['transformedPassword_NotOk'])).groupDic.items():
             for passInfo in passInfoList:
                 if (passInfo.originalLibOutput[PCHL] != passInfo.transformedLibOutput[PCHL]):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[2],
+                        self.analysisFunctionNames[2],
                         PCHL,
                         passInfo
                         )
 
     def lowAndHighEntropyAnalysis(self):
+        """Four analysis, that focus on entropy of original
+        and transformed password
+        """
+
         for PCHL, passInfoList in self.defaultAnalysis['originalPassword_Ok'].groupDic.items():
             for passInfo in passInfoList:
+                # lowEntropyOriginalPasswordPassPCHL -- analysis name
+                # originalPasswords with entropy lower then 36, pass through PCHL
                 if (passInfo.calculateInitialEntropy() < 36):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[3],
+                        self.analysisFunctionNames[3],
                         PCHL,
                         passInfo
                         )
+
+        for PCHL, passInfoList in self.defaultAnalysis['originalPassword_NotOk'].groupDic.items():
+            for passInfo in passInfoList:
+                # highEntropyOriginalPasswordDontPassPCHL -- analysis name
+                # originalPasswords with entropy higher then 60, did not pass through PCHL
                 if (passInfo.calculateInitialEntropy() > 60):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[5],
+                        self.analysisFunctionNames[5],
                         PCHL,
                         passInfo
                         )
 
         for PCHL, passInfoList in self.defaultAnalysis['transformedPassword_Ok'].groupDic.items():
             for passInfo in passInfoList:
+                # lowEntropyTransformedPasswordPassPCHL -- analysis name
+                # transformedPasswords with entropy lower then 36, pass through PCHL
                 if (passInfo.entropy < 36):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[4],
+                        self.analysisFunctionNames[4],
                         PCHL,
                         passInfo
                         )
+
+        for PCHL, passInfoList in self.defaultAnalysis['transformedPassword_NotOk'].groupDic.items():
+            for passInfo in passInfoList:
+                # highEntropyTransformedPasswordDontPassPCHL -- analysis name
+                # transformedPasswords with entropy higher then 60, did not pass through PCHL
                 if (passInfo.entropy > 60):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[6],
+                        self.analysisFunctionNames[6],
                         PCHL,
                         passInfo
                         )
 
     def lowEntropyChangePassPCHL(self):
+        """Analysis, that focus on entropy-change.
+        That is the entropy, which password gets by transformations
+        """
         for PCHL, passInfoList in (self.defaultAnalysis['originalPassword_NotOk'].intersection(
             self.defaultAnalysis['transformedPassword_Ok'])).groupDic.items():
             for passInfo in passInfoList:
                 if (passInfo.calculateChangedEntropy() < 2):
                     self.addPasswordToAnalysisOutput(
-                        analysisFunctions[7],
+                        self.analysisFunctionNames[7],
                         PCHL,
                         passInfo
                         )
 
     def overallSummary(self):
+        """Calculate percentages of transformedPassword that pass through PCHL
+        And most common reason for rejection
+        """
         self.addGroupToAnalysisOutput(
-            analysisFunctions[8],
+            self.analysisFunctionNames[8],
             self.defaultAnalysis['AllPasswords']
             )
 
@@ -398,7 +507,7 @@ class AnalyzerPrinter():
 
         return (
             str(round(percentChange, 2)) +
-            "% of transformed passwords pass through " + PCHL + " .\n" +
+            "% of transformed passwords pass through " + PCHL + ".\n" +
             "Most common reason(" +
             str(round(
                     (max(rejectionDic.values()) / len(groupInfo.groupDic[PCHL])) * 100,

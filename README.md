@@ -54,16 +54,23 @@ rules.ApplyAdvancedl33tTable().transform(passwordData)
 
 #### Implemented password checking libraries
 ```python
-libCheck.CrackLib().checkResult(passwordList)
-libCheck.PassWDQC().checkResult(passwordList)
+libCheck.CrackLib().checkResult(passwordData)
+libCheck.PassWDQC().checkResult(passwordData)
 ```
 
 #### Store password data
 ```python
-passwordList.storeDataToJson("file_path")
+passwordData.storeDataToJson("file_path")
 ```
 
 #### Run analyzer
 ```python
-analyzer.Analyzer().mainAnalysis(passwordList)
+analyzer = analysisStruct.Analyzer(passwordData)
+analyzer.mainAnalysis()
+```
+
+#### Get analysis output
+Simple output is printed to stdout. Whole analysis output is in *outputs/analysis_date_time.output* file
+```python
+analysisStruct.AnalyzerPrinter(analyzer).printMainAnalysis()
 ```

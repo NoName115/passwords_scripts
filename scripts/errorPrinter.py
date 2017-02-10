@@ -12,8 +12,8 @@ def addMainError(className, errorText):
     """Store mainError message
 
     Arguments:
-            className -- name of the class in which error occured
-            errorText -- details about error
+    className -- name of the class in which error occured
+    errorText -- details about error
     """
     mainError.update({className: errorText})
 

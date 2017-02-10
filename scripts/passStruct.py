@@ -116,8 +116,7 @@ class Password():
         self.transformedLibOutput.update({libraryName: libOutput})
 
     def calculateInitialEntropy(self):
-        """Calculate initial entropy, entropy of
-        original password
+        """Calculate initial entropy, entropy of original password
         """
         startEntropy = self.entropy
 
@@ -136,6 +135,8 @@ class Password():
         return self.entropy - self.calculateInitialEntropy()
 
     def getAppliedTransformation(self):
+        """Return string of applied transformations
+        """
         return " -> ".join(
             str(trans[0]) + '(' + str(trans[1]) + ')'
             for trans in self.transformRules
@@ -195,6 +196,11 @@ class PassData():
         return ", ".join(str(x) for x in self.transformRules) + '\n'
 
     def storeDataToJson(self, filename):
+        """Store PassData structure to Json
+
+        Arguments:
+        filename -- contain path and filename
+        """
         outputFile = open(filename, "w")
 
         passwordJsonList = []
