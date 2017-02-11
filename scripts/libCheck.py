@@ -67,7 +67,7 @@ class Library(object):
             )
 
         output = p.communicate(
-            input=bytes(password, 'UTF-8')  #password.encode('UTF-8') #bytes(password, 'UTF-8')
+            input=bytes(password, 'UTF-8')
             )[0].decode('UTF-8').rstrip('\n')
 
         if (delimiter is None):

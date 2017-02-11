@@ -13,7 +13,21 @@ class Load(object):
 
     @abstractmethod
     def __init__(self):
-        pass
+        """Check Python version
+        """
+        req_version = (3, 0)
+        cur_version = sys.version_info
+
+        if (cur_version) < req_version:
+            errorPrinter.printError(
+                self.__class__.__name__,
+                "Update your Python" + '\n'
+                "You need Python 3.x to run this program" + '\n' +
+                "Your version is: " +
+                str(cur_version.major) + '.' +
+                str(cur_version.minor) + '.' +
+                str(cur_version.micro)
+                )
 
     @abstractmethod
     def loadData(self, passwordData):
@@ -58,6 +72,7 @@ class LoadFromStdin(Load):
 class LoadFromFile(Load):
 
     def __init__(self, fileName=None):
+        super(LoadFromFile, self).__init__()
         self.fileName = fileName
 
     def loadData(self):
@@ -102,6 +117,7 @@ class LoadFromFile(Load):
 class LoadFromJson(Load):
 
     def __init__(self, fileName=None):
+        super(LoadFromJson, self).__init__()
         self.fileName = fileName
 
     def loadData(self):
