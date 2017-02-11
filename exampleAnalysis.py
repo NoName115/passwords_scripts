@@ -7,17 +7,17 @@ import scripts.analysisStruct as analysisStruct
 
 # simpleInput	10_million_password_list_top_1000
 passwordList = loadData.LoadFromFile("inputs/10_million_password_list_top_1000").loadData()
-#passwordList = loadData.LoadFromJson("inputs/jsonData.json").loadData()
-#passwordList = loadData.LoadFromStdin().loadData()
+# passwordList = loadData.LoadFromJson("inputs/jsonData.json").loadData()
+# passwordList = loadData.LoadFromStdin().loadData()
 
-#rules.CapitalizeAllLetters().transform(passwordList)
+# rules.CapitalizeAllLetters().transform(passwordList)
 rules.CapitalizeFirstLetter().transform(passwordList)
-#rules.CapitalizeLastLetter().transform(passwordList)
-#rules.LowerAllLetters().transform(passwordList)
-#rules.LowerFirstLetter().transform(passwordList)
+# rules.CapitalizeLastLetter().transform(passwordList)
+# rules.LowerAllLetters().transform(passwordList)
+# rules.LowerFirstLetter().transform(passwordList)
 rules.LowerLastLetter().transform(passwordList)
 rules.ApplySimplel33tTable().transform(passwordList)
-#rules.ApplyAdvancedl33tTable().transform(passwordList)
+# rules.ApplyAdvancedl33tTable().transform(passwordList)
 
 libCheck.CrackLib().checkResult(passwordList)
 libCheck.PassWDQC().checkResult(passwordList)
