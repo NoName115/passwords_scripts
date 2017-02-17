@@ -103,11 +103,9 @@ class Analyzer():
         transPass_NotOk -- contain passwords which
                                      transformedPassword
                                      did not pass through PCHL
-        analysisFunctionNames -- list of every analysis
-                                 names of function in class AnalyzerPrinter
         passwordData -- class PassData (input data)
         analysisDic -- dictionary of analyzes
-                       key is element from analysisFunctionNames
+                       key is name of function in AnalyzerPrinter class
         """
         self.defaultAnalysis = {
             'AllPasswords': PassInfoGroup(),
@@ -116,17 +114,6 @@ class Analyzer():
             'transPass_Ok': PassInfoGroup(),
             'transPass_NotOk': PassInfoGroup()
         }
-        self.analysisFunctionNames = [
-            'PCHLOutputChanged_Ok2NotOk',
-            'PCHLOutputChanged_NotOk2Ok',
-            'PCHLOutputChanged_NotOk2NotOk',
-            'lowEntropyOriginalPasswordPassPCHL',
-            'lowEntropyTransformedPasswordPassPCHL',
-            'highEntropyOriginalPasswordDontPassPCHL',
-            'highEntropyTransformedPasswordDontPassPCHL',
-            'withLowEntropyChangePassPCHL',
-            'overallSummary'
-        ]
         self.defaultGroupAnalysis(passwordData)
 
         self.passwordData = passwordData
@@ -173,7 +160,6 @@ class Analyzer():
 
         Arguments:
         analysisName -- string, name of analysis
-                        (element from analysisFunctionNames)
         PCHL -- string, name of password checking library
         passInfo -- class Password
         """
@@ -187,7 +173,6 @@ class Analyzer():
 
         Arguments:
         analysisName -- string, name of analysis
-                        (element from analysisFunctionNames)
         groupInfo -- class PassInfoGroup
         """
         self.analysisDic.update({analysisName: groupInfo})
@@ -209,7 +194,7 @@ class Analyzer():
         # output of originalPasword is OK but
         # transformedPassword was rejected, output is not OK
         self.addGroupToAnalysisOutput(
-            self.analysisFunctionNames[0],
+            'PCHLOutputChanged_Ok2NotOk',
             self.defaultAnalysis['origPass_Ok'].intersection(
                 self.defaultAnalysis['transPass_NotOk']
                 )
@@ -219,7 +204,7 @@ class Analyzer():
         # originalPassword was rejected by PCHL but
         # transformedPassword pass through PCHL
         self.addGroupToAnalysisOutput(
-            self.analysisFunctionNames[1],
+            'PCHLOutputChanged_NotOk2Ok',
             self.defaultAnalysis['origPass_NotOk'].intersection(
                 self.defaultAnalysis['transPass_Ok']
                 )
@@ -236,7 +221,7 @@ class Analyzer():
                 if (passInfo.originalLibOutput[PCHL] !=
                    passInfo.transformedLibOutput[PCHL]):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[2],
+                        'PCHLOutputChanged_NotOk2NotOk',
                         PCHL,
                         passInfo
                         )
@@ -254,7 +239,7 @@ class Analyzer():
                 # pass through PCHL
                 if (passInfo.calculateInitialEntropy() < 36):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[3],
+                        'lowEntropyOriginalPasswordPassPCHL',
                         PCHL,
                         passInfo
                         )
@@ -267,7 +252,7 @@ class Analyzer():
                 # did not pass through PCHL
                 if (passInfo.calculateInitialEntropy() > 60):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[5],
+                        'highEntropyOriginalPasswordDontPassPCHL',
                         PCHL,
                         passInfo
                         )
@@ -280,7 +265,7 @@ class Analyzer():
                 # pass through PCHL
                 if (passInfo.entropy < 36):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[4],
+                        'lowEntropyTransformedPasswordPassPCHL',
                         PCHL,
                         passInfo
                         )
@@ -293,7 +278,7 @@ class Analyzer():
                 # did not pass through PCHL
                 if (passInfo.entropy > 60):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[6],
+                        'highEntropyTransformedPasswordDontPassPCHL',
                         PCHL,
                         passInfo
                         )
@@ -309,7 +294,7 @@ class Analyzer():
             for passInfo in passInfoList:
                 if (passInfo.calculateChangedEntropy() < 2):
                     self.addPasswordToAnalysisOutput(
-                        self.analysisFunctionNames[7],
+                        'withLowEntropyChangePassPCHL',
                         PCHL,
                         passInfo
                         )
@@ -319,7 +304,7 @@ class Analyzer():
         And most common reason for rejection
         """
         self.addGroupToAnalysisOutput(
-            self.analysisFunctionNames[8],
+            'overallSummary',
             self.defaultAnalysis['AllPasswords']
             )
 
@@ -346,7 +331,7 @@ class AnalyzerPrinter():
             self.analysisData.passwordData.getTransformRules() + '\n'
             )
 
-        # Print analysis output to StdOut and outputFile
+        # Print analysis output to stdout and outputFile
         if (self.analysisData.analysisDic):
             for analysisFuncName, analysisPassData in (
                     self.analysisData.analysisDic.items()):

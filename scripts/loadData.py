@@ -7,7 +7,7 @@ import sys
 import json
 
 
-class Load(object):
+class Loader(object):
 
     __metaclas__ = ABCMeta
 
@@ -18,15 +18,20 @@ class Load(object):
         req_version = (3, 0)
         cur_version = sys.version_info
 
-        if (cur_version) < req_version:
+        if (cur_version < req_version):
+            errorText = ("Update your Python\n" +
+                "You need Python 3.x to run this program\n")
+            if (cur_version < (2, 6)):
+                errorText += "Your version is lower then 2.7"
+            else:
+                errorText += ("Your version is: " +
+                    str(cur_version.major) + '.' +
+                    str(cur_version.minor) + '.' +
+                    str(cur_version.micro))
+
             errorPrinter.printError(
                 self.__class__.__name__,
-                "Update your Python" + '\n'
-                "You need Python 3.x to run this program" + '\n' +
-                "Your version is: " +
-                str(cur_version.major) + '.' +
-                str(cur_version.minor) + '.' +
-                str(cur_version.micro)
+                errorText
                 )
 
     @abstractmethod
@@ -34,7 +39,7 @@ class Load(object):
         pass
 
 
-class LoadFromStdin(Load):
+class LoadFromStdin(Loader):
 
     def __init__(self):
         super(LoadFromStdin, self).__init__()
@@ -69,7 +74,7 @@ class LoadFromStdin(Load):
         return passwordData
 
 
-class LoadFromFile(Load):
+class LoadFromFile(Loader):
 
     def __init__(self, fileName=None):
         super(LoadFromFile, self).__init__()
@@ -114,7 +119,7 @@ class LoadFromFile(Load):
         return passwordData
 
 
-class LoadFromJson(Load):
+class LoadFromJson(Loader):
 
     def __init__(self, fileName=None):
         super(LoadFromJson, self).__init__()

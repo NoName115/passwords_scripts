@@ -48,8 +48,9 @@ class Rule(object):
                 passInfo.transformedPassword = transformOutput[0]
                 passInfo.entropy += transformOutput[1]
 
-                passInfo.transformRules.append(
-                    [self.__class__.__name__, transformOutput[1]]
+                passInfo.addTransformRule(
+                    self.__class__.__name__,
+                    transformOutput[1]
                     )
 
             # Store ruleName to PassData class

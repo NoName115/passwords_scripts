@@ -97,6 +97,9 @@ class Password():
             transformedPCHLOutputs + '\n' + \
             errorOutput + '\n'
 
+    def addTransformRule(self, className, entropy):
+        self.transformRules.append({className: entropy})
+
     def addOriginalLibOutput(self, libraryName, libOutput):
         """Add library output to dictionary
 
@@ -121,7 +124,7 @@ class Password():
         startEntropy = self.entropy
 
         for element in reversed(self.transformRules):
-            startEntropy -= int(element[1])
+            startEntropy -= int(list(element.values())[0])
 
         return startEntropy
 
@@ -138,7 +141,8 @@ class Password():
         """Return string of applied transformations
         """
         return " -> ".join(
-            str(trans[0]) + '(' + str(trans[1]) + ')'
+            str(list(trans.keys())[0]) + '(' +
+            str(list(trans.values())[0]) + ')'
             for trans in self.transformRules
             )
 
