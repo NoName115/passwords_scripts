@@ -2,13 +2,14 @@
 
 import scripts.rules as rules
 import scripts.libCheck as libCheck
-import scripts.loadData as loadData
+import scripts.dataLoader as dataLoader
 import scripts.analysisStruct as analysisStruct
 
 # simpleInput	10_million_password_list_top_1000
-passwordList = loadData.LoadFromFile("inputs/10_million_password_list_top_1000").loadData()
-# passwordList = loadData.LoadFromJson("inputs/jsonData.json").loadData()
-# passwordList = loadData.LoadFromStdin().loadData()
+passwordList = dataLoader.LoadFromFile(
+    "inputs/10_million_password_list_top_1000").transformToPassData()
+# passwordList = dataLoader.LoadFromJson("inputs/jsonData.json").transformToPassData()
+# passwordList = dataLoader.LoadFromStdin().transformToPassData()
 
 # rules.CapitalizeAllLetters().transform(passwordList)
 rules.CapitalizeFirstLetter().transform(passwordList)

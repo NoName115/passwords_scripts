@@ -21,7 +21,7 @@ class Loader(object):
         if (cur_version < req_version):
             errorText = ("Update your Python\n" +
                 "You need Python 3.x to run this program\n")
-            if (cur_version < (2, 6)):
+            if (cur_version < (2, 7)):
                 errorText += "Your version is lower then 2.7"
             else:
                 errorText += ("Your version is: " +
@@ -35,7 +35,7 @@ class Loader(object):
                 )
 
     @abstractmethod
-    def loadData(self, passwordData):
+    def transformToPassData(self, passwordData):
         pass
 
 
@@ -44,7 +44,7 @@ class LoadFromStdin(Loader):
     def __init__(self):
         super(LoadFromStdin, self).__init__()
 
-    def loadData(self):
+    def transformToPassData(self):
         """Load passwords and entropy from stdin
 
         Input format -- password(string), space, entropy(float, integer)
@@ -80,7 +80,7 @@ class LoadFromFile(Loader):
         super(LoadFromFile, self).__init__()
         self.fileName = fileName
 
-    def loadData(self):
+    def transformToPassData(self):
         """Load passwords and entropy from file
 
         Input format -- password(string), space, entropy(float, integer)
@@ -125,7 +125,7 @@ class LoadFromJson(Loader):
         super(LoadFromJson, self).__init__()
         self.fileName = fileName
 
-    def loadData(self):
+    def transformToPassData(self):
         """Load passData from input file
 
         Method return -- passwordData of type PassData

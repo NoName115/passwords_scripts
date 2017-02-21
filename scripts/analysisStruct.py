@@ -417,13 +417,13 @@ class AnalyzerPrinter():
                 shortOutput,
                 'originalPassword',
                 False
-                ) + " or transformed " +
+                ) + " nor transformed " +
             groupInfo.getPassInfoAttribute(
                 PCHL,
                 shortOutput,
                 'transformedPassword',
                 False
-                ) + " password, did not pass throught " + PCHL + '\n' +
+                ) + " password, pass throught " + PCHL + '\n' +
             "But the reason of rejection changed from \n" +
             groupInfo.getPassInfoAttribute(
                 PCHL,
@@ -517,7 +517,14 @@ class AnalyzerPrinter():
 
     def withLowEntropyChangePassPCHL(self, groupInfo, PCHL, shortOutput):
         return (
-            "Transformed password " +
+            "Original password " +
+            groupInfo.getPassInfoAttribute(
+                PCHL,
+                shortOutput,
+                'originalPassword',
+                False
+                ) + ", " +
+            "transformed password " +
             groupInfo.getPassInfoAttribute(
                 PCHL,
                 shortOutput,
