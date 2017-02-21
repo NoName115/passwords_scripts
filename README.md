@@ -34,9 +34,9 @@ You can edit analysis options by following commands:
 #### Options to load input data:
 
 ```python
-passwordData = loadData.LoadFromFile("file_path").transformToPassData()
-passwordData = loadData.LoadFromJson("file_path").transformToPassData()
-passwordData = loadData.LoadFromStdin().transformToPassData()
+passwordData = dataLoader.LoadFromFile("file_path").transformToPassData()
+passwordData = dataLoader.LoadFromJson("file_path").transformToPassData()
+passwordData = dataLoader.LoadFromStdin().transformToPassData()
 ```
 
 #### Different rules to transform passwordData
