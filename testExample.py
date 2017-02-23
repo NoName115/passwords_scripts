@@ -1,42 +1,39 @@
 import scripts.rules as rules
 import scripts.libCheck as libCheck
-import scripts.loadData as loadData
+import scripts.dataLoader as dataLoader
 import scripts.analysisStruct as analysisStruct
 
 import scripts.passStruct as passStruct
 
-# passwordList - list ktory obsahuje dvojice [Heslo, Entropia]
-passwordList = loadData.LoadFromFile("inputs/10_million_password_list_top_1000").loadData()
 
-# Vytvorenie triedy Transform ktora si ukochovava vsetky
-# transformacie ktore maju byt aplikovane
-transList = Transform()
-transList.add(rules.CapitalizeFirstLetter)
-transList.add(rules.ApplySimplel33tTable)
+# Vratit list[] hesiel
+passwordList = dataLoader.LoadFromFile("path").loadData()
+
+# Vytvorenie triedy Transformation ktore uchovava transformacie
+transformation = Transformation()
+transformation.add(rules.CapitalizeFirstLetter)
+transformation.add(rules.ApplySimplel33tTable)
 
 # (Mixer) Aplikovanie pravidiel na list hesiel
-# funkcia vrati triedu PassData z passStruct.PassData
-passwordData = transList.applyTransformations(passwordList)
+# funkcia vrati list tried Password z passStruct.Password
+passDataList = map(lambda password: transformation.apply(password), passwordList)
 
-# Rovnako ako trieda Transform, na rovnaky sposob
-# aj trieda passCheckLib
-pchl = PassCheckLib()
-pchl.add(libCheck.CrackLib)
-pchl.add(libCheck.PassWDQC)
+# Rovnaky princip ako pri Transformation
+pcl = PassCheckLib()
+pcl.add(libCheck.CrackLib)
+pcl.add(libCheck.PassWDQC)
 
-# Prehnanie hesiel cez password Checking Libraries
-pchl.checkPasswords(passwordData)
-
+# Prehnanie hesiel cez passworch checking libraries
+passDataList = map(lambda password: pcl.check(password), passDataList)
 
 # Ukladanie dat aj analyza ostava ako bola
 passwordData.storeDataToJson('path')
 
 analysis = analysisStruct.Analyzer(passwordList)
-analysis.mainAnalysis()
+analysis.run()
 
 analysisPrinter = analysisStruct.AnalyzerPrinter(analysis)
-analysisPrinter.printMainAnalysis()
-
+analysisPrinter.print()
 
 
 ###### Priklad implementacie novych tried
@@ -48,16 +45,14 @@ class Transform():
 	def add(self, rule):
 		self.transList.append(rule)
 
-	def applyTransformations(self, passList):
-		passwordData = passStruct.PassData()
+	def apply(self, password):
+		passInfo = passStruct.Password()
+		passInfo.calculateEntropy(password)
 
-		# pridat data z passList do passwordData
-		for passTuple in passList:
-			passwordData.add(passTuple[0], passTuple[1])
 		for trans in self.transList:
-			trans.transform(passwordData)
+			trans.transform(passInfo)
 
-		return passwordData
+		return passInfo
 
 
 class PassCheckLib():
@@ -68,6 +63,8 @@ class PassCheckLib():
 	def add(self, pchl):
 		self.pchlList.append(pchl)
 
-	def checkPasswords(self, passData):
+	def checkPasswords(self, passInfo):
 		for pchl in self.pchlList:
-			pchl.checkResult(passData)
+			pchl.checkResult(passInfo)
+
+		return passInfo
