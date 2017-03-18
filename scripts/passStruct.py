@@ -14,6 +14,11 @@ class Password():
         password -- (string)
         entropy -- (float/integer)
         """
+        self.originalData = [password, entropy]
+        self.transformedData = [password, entropy]
+        self.transformRules = []
+
+        '''
         self.originalPassword = password
         self.transformedPassword = password
         self.entropy = entropy
@@ -21,7 +26,15 @@ class Password():
 
         self.originalLibOutput = {}
         self.transformedLibOutput = {}
+        '''
 
+    def __str__(self):
+        return str(self.originalData) + str(self.transformedData) + str(self.transformRules)
+
+    def addTransformRule(self, className, entropy):
+        self.transformRules.append({className: entropy})
+
+    '''
     def debugData(self):
         """Return all password data
 
@@ -145,8 +158,8 @@ class Password():
             str(list(trans.values())[0]) + ')'
             for trans in self.transformRules
             )
-
-
+    '''
+'''
 class PassData():
 
     def __init__(self):
@@ -167,6 +180,7 @@ class PassData():
     def __len__(self):
         return len(self.passwordList)
 
+    
     def add(self, *args):
         """Add new password to list
 
@@ -195,6 +209,7 @@ class PassData():
                 "Correct: password(String)," +
                 " entropy(Number) - optional argument"
                 )
+    
 
     def getTransformRules(self):
         return ", ".join(str(x) for x in self.transformRules) + '\n'
@@ -252,6 +267,7 @@ class PassData():
         for x in self.passwordList:
             print(x.debugData())
 
+
     def generateEntropy(self, inputPassword):
         """Method calculate password entropy
 
@@ -298,3 +314,4 @@ class PassData():
             charEntropy += 180
 
         return round(len(inputPassword) / 1.5 * log(charEntropy, 2), 2)
+    '''

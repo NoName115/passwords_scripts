@@ -1,8 +1,20 @@
 from abc import ABCMeta, abstractmethod
-from scripts.passStruct import PassData, Password
+from scripts.passStruct import Password
 
 import scripts.errorPrinter as errorPrinter
 import subprocess
+
+
+class PassCheckLib():
+
+    def __init__(self):
+        self.pclList = []
+
+    def add(self, pcl):
+        self.pclList.append(pcl)
+
+    def check(self, passInfo):
+        pass
 
 
 class Library(object):

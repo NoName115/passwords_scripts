@@ -1,10 +1,27 @@
 from abc import ABCMeta, abstractmethod
-from scripts.passStruct import PassData
+from scripts.passStruct import Password
 
 import scripts.errorPrinter as errorPrinter
 import random
 import re
 import sys
+
+
+class Transformation():
+
+    def __init__(self):
+        self.transformationList = []
+
+    def add(self, transformation):
+        self.transformationList.append(transformation)
+
+    def apply(self, password):
+        passInfo = Password(password[0], password[1])
+
+        for trans in self.transformationList:
+            trans.transform(passInfo)
+
+        return passInfo
 
 
 class Rule(object):
@@ -16,7 +33,7 @@ class Rule(object):
         self.inputFromIndex = inputFromIndex
         self.inputToIndex = inputToIndex
 
-    def transform(self, passwordData):
+    def transform(self, passInfo):
         """Main method for password transformation
 
         Method catch errors, calculate indexes,
@@ -24,37 +41,36 @@ class Rule(object):
         estimateEntropyChangeAndSaveTransformData method
         """
         try:
-            for passInfo in passwordData.passwordList:
-                fromIndex = self.calculateFromIndex(
-                    passInfo.originalPassword
-                    )
-                toIndex = self.calculateToIndex(
-                    passInfo.originalPassword
-                    )
+            fromIndex = self.calculateFromIndex(
+                passInfo.originalData[0]
+                )
+            toIndex = self.calculateToIndex(
+                passInfo.originalData[0]
+                )
 
-                if (fromIndex > toIndex):
-                    passwordData.errorLog.addError(
-                        self.__class__.__name__,
-                        "Wrong value of input data. " + '\n' +
-                        "'fromIndex' must be same or lower then 'toIndex'"
-                        )
-                    continue
-
-                # transformOutput obtain transformedPassword and entropyChange
-                transformOutput = self.uniqueTransform(
-                    passInfo, fromIndex, toIndex
-                    )
-
-                passInfo.transformedPassword = transformOutput[0]
-                passInfo.entropy += transformOutput[1]
-
-                passInfo.addTransformRule(
+            if (fromIndex > toIndex):
+                passwordData.errorLog.addError(
                     self.__class__.__name__,
-                    transformOutput[1]
+                    "Wrong value of input data. " + '\n' +
+                    "'fromIndex' must be same or lower then 'toIndex'"
                     )
+                return
+
+            # transformOutput obtain transformedPassword and entropyChange
+            transformOutput = self.uniqueTransform(
+                passInfo, fromIndex, toIndex
+                )
+
+            passInfo.transformedData[0] = transformOutput[0]
+            passInfo.transformedData[1] += transformOutput[1]
+
+            passInfo.addTransformRule(
+                self.__class__.__name__,
+                transformOutput[1]
+                )
 
             # Store ruleName to PassData class
-            passwordData.transformRules.append(self.__class__.__name__)
+            #passwordData.transformRules.append(self.__class__.__name__)
 
         except TypeError:
             passwordData.errorLog.addError(
@@ -115,7 +131,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.transformedPassword
+        transformedPassword = passInfo.transformedData[0]
 
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
@@ -128,7 +144,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.transformedPassword != transformedPassword):
+        if (passInfo.transformedData[0] != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]
@@ -176,7 +192,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.transformedPassword
+        transformedPassword = passInfo.transformedData[0]
         for key in self.l33tTable:
             transformedPassword = transformedPassword[: fromIndex] + \
                 transformedPassword[fromIndex: toIndex + 1]. \
@@ -193,7 +209,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.transformedPassword != transformedPassword):
+        if (passInfo.transformedData[0] != transformedPassword):
             entropyChange = 2.0
 
         return [transformedPassword, entropyChange]
@@ -212,13 +228,13 @@ class CapitalizeFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.transformedPassword[: fromIndex] + \
-            passInfo.transformedPassword[fromIndex: toIndex + 1].upper() + \
-            passInfo.transformedPassword[toIndex + 1:]
+        transformedPassword = passInfo.transformedData[0][: fromIndex] + \
+            passInfo.transformedData[0][fromIndex: toIndex + 1].upper() + \
+            passInfo.transformedData[0][toIndex + 1:]
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.transformedPassword != transformedPassword):
+        if (passInfo.transformedData[0] != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]
@@ -237,13 +253,13 @@ class LowerFromIndexToIndex(Rule):
         fromIndex -- start index of applying the rule
         toIndex -- last index of applying the rule
         """
-        transformedPassword = passInfo.transformedPassword[: fromIndex] + \
-            passInfo.transformedPassword[fromIndex: toIndex + 1].lower() + \
-            passInfo.transformedPassword[toIndex + 1:]
+        transformedPassword = passInfo.transformedData[0][: fromIndex] + \
+            passInfo.transformedData[0][fromIndex: toIndex + 1].lower() + \
+            passInfo.transformedData[0][toIndex + 1:]
 
         # Check if transformation changed the password
         entropyChange = 0.0
-        if (passInfo.transformedPassword != transformedPassword):
+        if (passInfo.transformedData[0] != transformedPassword):
             entropyChange = 1.0
 
         return [transformedPassword, entropyChange]

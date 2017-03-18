@@ -37,24 +37,6 @@ analysisPrinter.print()
 
 
 ###### Priklad implementacie novych tried
-class Transform():
-
-	def __init__(self):
-		self.transList = []
-
-	def add(self, rule):
-		self.transList.append(rule)
-
-	def apply(self, password):
-		passInfo = passStruct.Password()
-		passInfo.calculateEntropy(password)
-
-		for trans in self.transList:
-			trans.transform(passInfo)
-
-		return passInfo
-
-
 class PassCheckLib():
 
 	def __init__(self):
