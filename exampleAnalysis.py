@@ -33,10 +33,9 @@ pcl.add(CrackLib())
 pcl.add(PassWDQC())
 
 # Check passwords with pcls
-pclData = map(
-	lambda password: pcl.check(password),
-	passDataList
-	)
+pclData = pcl.check(passDataList)
+
+print(pclData)
 
 '''
 # simpleInput	10_million_password_list_top_1000

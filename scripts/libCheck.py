@@ -13,8 +13,17 @@ class PassCheckLib():
     def add(self, pcl):
         self.pclList.append(pcl)
 
-    def check(self, passInfo):
-        pass
+    def check(self, passInfoList):
+        pclDic = {}
+
+        for passInfo in passInfoList:
+            pclDic.update({ passInfo.originalData[0]: {} })
+            pclDic.update({ passInfo.transformedData[0]: {} })
+
+            for pcl in self.pclList:
+                pcl.checkResult(passInfo, pclDic)
+
+        return pclDic
 
 
 class Library(object):
@@ -26,7 +35,7 @@ class Library(object):
         pass
 
     @abstractmethod
-    def checkResult(self, passwordData, delimiter=None, *args):
+    def checkResult(self, passInfo, pclDic, delimiter=None, *args):
         """Get output of library and save it to passwordData
 
         Arguments:
@@ -35,39 +44,36 @@ class Library(object):
         *args -- arguments for run/call library
         """
         try:
-            for x in passwordData:
-                self.setPCHLOutput(
-                    x.transformedPassword,
-                    x,
-                    x.addTransformedLibOutput,
-                    delimiter,
-                    *args
-                    )
-                self.setPCHLOutput(
-                    x.originalPassword,
-                    x,
-                    x.addOriginalLibOutput,
-                    delimiter,
-                    *args
-                    )
+            output = self.getPCHLOutput(
+                passInfo.originalData[0],
+                delimiter,
+                *args
+                )
+            pclDic[passInfo.originalData[0]].update({
+                self.__class__.__name__: output
+                })
 
-            # Store PCHL name to PassData class
-            passwordData.usedPCHL.append(self.__class__.__name__)
+            output = self.getPCHLOutput(
+                passInfo.transformedData[0],
+                delimiter,
+                *args
+                )
+            pclDic[passInfo.transformedData[0]].update({
+                self.__class__.__name__: output
+                })
 
         except Exception as err:
+            raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err
                 )
 
-    def setPCHLOutput(self, password, passInfo,
-                      libraryOutputMethod, delimiter, *args):
+    def getPCHLOutput(self, password, delimiter, *args):
         """Function get output of library and store it to passwordData
 
         Arguments:
         password -- input password, type string
-        passInfo -- type passStruct.Password
-        libraryOutputMethod -- method called to store PCHL output
         delimiter -- split library output
         *args -- arguments for run/call library
         """
@@ -82,16 +88,7 @@ class Library(object):
             input=bytes(password, 'UTF-8')
             )[0].decode('UTF-8').rstrip('\n')
 
-        if (delimiter is None):
-            libraryOutputMethod(
-                self.__class__.__name__,
-                output
-                )
-        else:
-            libraryOutputMethod(
-                self.__class__.__name__,
-                output.split(delimiter)[1]
-                )
+        return output if (delimiter is None) else output.split(delimiter)[1]
 
 
 class CrackLib(Library):
@@ -99,11 +96,13 @@ class CrackLib(Library):
     def __init__(self):
         super(CrackLib, self).__init__()
 
-    def checkResult(self, passwordData):
+    def checkResult(self, passInfo, pclDic):
         super(CrackLib, self).checkResult(
-            passwordData,
+            passInfo,
+            pclDic,
             ": ",
-            "cracklib-check")
+            "cracklib-check"
+            )
 
 
 class PassWDQC(Library):
@@ -111,8 +110,10 @@ class PassWDQC(Library):
     def __init__(self):
         super(PassWDQC, self).__init__()
 
-    def checkResult(self, passwordData):
+    def checkResult(self, passInfo, pclDic):
         super(PassWDQC, self).checkResult(
-            passwordData,
+            passInfo,
+            pclDic,
             None,
-            "pwqcheck", "-1")
+            "pwqcheck", "-1"
+            )
