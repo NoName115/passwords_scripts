@@ -73,6 +73,7 @@ class Rule(object):
             #passwordData.transformRules.append(self.__class__.__name__)
 
         except TypeError:
+            raise
             passwordData.errorLog.addError(
                 self.__class__.__name__,
                 "Argument 'fromIndex' or 'toIndex' is not a number. " +
@@ -80,6 +81,7 @@ class Rule(object):
                 "rules.rule_name(fromIndex, toIndex).transform(passwordData)"
                 )
         except AttributeError:
+            raise
             errorPrinter.addMainError(
                 self.__class__.__name__,
                 "Wrong input type of data. " + '\n' +

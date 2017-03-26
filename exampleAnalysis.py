@@ -5,27 +5,29 @@ import scripts.libCheck as libCheck
 import scripts.dataLoader as dataLoader
 import scripts.analysisStruct as analysisStruct
 
-import scripts.passSturct as passSturct
+import scripts.passStruct as passStruct
 '''
 from scripts.rules import *
 from scripts.dataLoader import *
 from scripts.libCheck import *
+from scripts.analysisStruct import *
+
+from scripts.passStruct import PassData
 
 
 # Load data to list of tuple [password, entropy]
-passwordList = LoadFromFile("inputs/simpleInput").load()
+passwordList = LoadFromFile("inputs/10_million_password_list_top_1000").load()
 
 # Create class that contain rules
 transformation = Transformation()
 transformation.add(CapitalizeFirstLetter())
-transformation.add(ApplySimplel33tTable())
+transformation.add(ApplyAdvancedl33tTable())
 
 # Applying transformations to passwords
-passDataList = map(
+passInfoList = list(map(
 	lambda password: transformation.apply(password),
 	passwordList
-	)
-
+	))
 
 # Create class that contain password checking libraries
 pcl = PassCheckLib()
@@ -33,9 +35,25 @@ pcl.add(CrackLib())
 pcl.add(PassWDQC())
 
 # Check passwords with pcls
-pclData = pcl.check(passDataList)
+pclData = pcl.check(passInfoList)
 
-print(pclData)
+
+
+# Analysis
+analyzer = Analyzer(passInfoList, pclData)
+analysis_1 = pclOutputChanged_Ok2NotOK(analyzer)
+analysis_1.runAnalysis()
+analysis_1.printAnalysisOutput()
+
+### TEST
+'''
+test = PassData(
+	passDataList[0],
+	pclData[passDataList[0].originalData[0]],
+	pclData[passDataList[0].transformedData[0]]
+	)
+print(test.debugData())
+'''
 
 '''
 # simpleInput	10_million_password_list_top_1000

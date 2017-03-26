@@ -1,3 +1,6 @@
+from abc import ABCMeta, abstractmethod
+from scripts.passStruct import PassData
+
 import datetime
 
 
@@ -8,61 +11,61 @@ class PassInfoGroup():
         This group is used for analysis
 
         Self:
-        groupDic -- key is name of PCHL, value is list of class Password
+        groupDic -- key is name of pcl, value is list of class Password
         """
         self.groupDic = {}
 
-    def addPassInfo(self, PCHL, passInfo):
-        """Method add passInfo into list by PCHL
+    def addPassInfo(self, pcl, passInfo):
+        """Method add passInfo into list by pcl
 
         Arguments:
-        PCHL -- string, name of password checking library
+        pcl -- string, name of password checking library
         passInfo -- class Password in passStruct.py
         """
-        if (PCHL not in self.groupDic):
-            self.groupDic.update({PCHL: []})
+        if (pcl not in self.groupDic):
+            self.groupDic.update({pcl: []})
 
         if (passInfo is not None):
-            self.groupDic[PCHL].append(passInfo)
+            self.groupDic[pcl].append(passInfo)
 
-    def getPassInfoAttribute(self, PCHL, shortOutput, attribute, isCallable):
+    def getPassInfoAttribute(self, pcl, shortOutput, attribute, isCallable):
         """Method return attribute of Password as String
 
         Arguments:
-        PCHL -- string, name of password checking library
+        pcl -- string, name of password checking library
         shortOutput -- boolean, True if only one element is needed
                        (return element at index 0)
         attribute -- string, attribute of class Password
         isCallable -- boolean, True if attribute is callable
         """
-        returnInfo = self.groupDic[PCHL][0].__getattribute__(attribute)() \
+        returnInfo = self.groupDic[pcl][0].__getattribute__(attribute)() \
             if (isCallable) \
-            else self.groupDic[PCHL][0].__getattribute__(attribute)
+            else self.groupDic[pcl][0].__getattribute__(attribute)
 
         if (shortOutput):
             return (
-                returnInfo[PCHL] if (type(returnInfo) is dict) else returnInfo
+                returnInfo[pcl] if (type(returnInfo) is dict) else returnInfo
                 )
         else:
             if (type(returnInfo) is dict):
                 return "  ".join(
                     (
-                        passInfo.__getattribute__(attribute)()[PCHL]
+                        passInfo.__getattribute__(attribute)()[pcl]
                         if (isCallable)
-                        else passInfo.__getattribute__(attribute)[PCHL]
+                        else passInfo.__getattribute__(attribute)[pcl]
                     )
-                    for passInfo in self.groupDic[PCHL]
+                    for passInfo in self.groupDic[pcl]
                     )
             else:
                 if (isCallable):
                     return "  ".join(
                         str(passInfo.__getattribute__(attribute)())
-                        for passInfo in self.groupDic[PCHL]
+                        for passInfo in self.groupDic[pcl]
                         )
                 else:
                     return "  ".join(
                         str(passInfo.__getattribute__(attribute))
-                        for passInfo in self.groupDic[PCHL]
+                        for passInfo in self.groupDic[pcl]
                         )
 
     def intersection(self, other):
@@ -75,34 +78,38 @@ class PassInfoGroup():
         intersectionGroup -- return new PassInfoGroup class
         """
         intersectionGroup = PassInfoGroup()
-        for PCHL in self.groupDic:
-            for passInfo in self.groupDic[PCHL]:
-                if (passInfo in other.groupDic[PCHL]):
-                    intersectionGroup.addPassInfo(PCHL, passInfo)
+        for pcl in self.groupDic:
+            for passInfo in self.groupDic[pcl]:
+                if (passInfo in other.groupDic[pcl]):
+                    intersectionGroup.addPassInfo(pcl, passInfo)
 
         return intersectionGroup
+
+    def printData(self):
+        print(self.groupDic)
 
 
 class Analyzer():
 
-    def __init__(self, passwordData):
+    def __init__(self, passInfoList, pclDic):
         """Initialize 5 default analysis groups
 
         Arguments:
-        passwordData -- class PassData in passStruct.py
+        passInfoList -- list of Password class
+        pclDic -- dictionary of password checking libraries output
 
         Self:
         defaultAnalysis -- dictionary of 5 default analysis groups
         AllPasswords -- contain every password
         origPass_Ok -- contain passwords which originalPassword
-                               pass through PCHL
+                               pass through pcl
         origPass_NotOk -- contain passwords which originalPassword
-                                  did not pass through PCHL
+                                  did not pass through pcl
         transPass_Ok -- contain passwords which transformedPassword
-                                  pass through PCHL
+                                  pass through pcl
         transPass_NotOk -- contain passwords which
                                      transformedPassword
-                                     did not pass through PCHL
+                                     did not pass through pcl
         passwordData -- class PassData (input data)
         analysisDic -- dictionary of analyzes
                        key is name of function in AnalyzerPrinter class
@@ -114,46 +121,155 @@ class Analyzer():
             'transPass_Ok': PassInfoGroup(),
             'transPass_NotOk': PassInfoGroup()
         }
-        self.defaultGroupAnalysis(passwordData)
+        self.fillDefaultAnalysisGroups(passInfoList, pclDic)
 
-        self.passwordData = passwordData
-        self.analysisDic = {}
-
-    def defaultGroupAnalysis(self, passwordData):
-        """Method fill 5 default analysis groups with data
+    def fillDefaultAnalysisGroups(self, passInfoList, pclDic):
+        """Method concatenate passInfoList with pclDic
+        and create list of PassData class.
+        And fill 5 default analysis groups with data
 
         Arguments:
-        passwordData -- class PassData (input data)
+        passInfoList -- list of Password class
+        pclDic -- dictionary of password checking libraries output
         """
-        for passInfo in passwordData:
-            for PCHL in passInfo.originalLibOutput:
+        # Create passDataList
+        passDataList = []
+        for passInfo in passInfoList:
+            passDataList.append(PassData(
+                passInfo,
+                pclDic[passInfo.originalData[0]],
+                pclDic[passInfo.transformedData[0]]
+                ))
+
+        # Fill default analysis group with data
+        for passData in passDataList:
+            for pcl in passData.originalLibOutput:
                 self.defaultAnalysis['AllPasswords'].addPassInfo(
-                    PCHL,
-                    passInfo
+                    pcl,
+                    passData
                     )
 
-                if (passInfo.originalLibOutput[PCHL] == "OK"):
+                if (passData.originalLibOutput[pcl] == "OK"):
                     self.defaultAnalysis['origPass_Ok'].addPassInfo(
-                        PCHL,
-                        passInfo
+                        pcl,
+                        passData
                         )
                 else:
                     self.defaultAnalysis['origPass_NotOk'].addPassInfo(
-                        PCHL,
-                        passInfo
+                        pcl,
+                        passData
                         )
 
-                if (passInfo.transformedLibOutput[PCHL] == "OK"):
+                if (passData.transformedLibOutput[pcl] == "OK"):
                     self.defaultAnalysis['transPass_Ok'].addPassInfo(
-                        PCHL,
-                        passInfo
+                        pcl,
+                        passData
                         )
                 else:
                     self.defaultAnalysis['transPass_NotOk'].addPassInfo(
-                        PCHL,
-                        passInfo
+                        pcl,
+                        passData
                         )
 
+
+class AnalysisTemplate():
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self, analyzer):
+        self.analyzer = analyzer
+        self.data = PassInfoGroup()
+
+    def getData(self):
+        return self.data
+
+    def addPassInfo(self, pcl, passInfo):
+        self.data.addPassInfo(pcl, passInfo)
+
+    def addGroup(self, groupData):
+        self.data = groupData
+
+    @abstractmethod
+    def runAnalysis(self):
+        pass
+
+    @abstractmethod
+    def printAnalysisOutput(self):
+        pass
+
+
+class pclOutputChanged_Ok2NotOK(AnalysisTemplate):
+
+    def __init__(self, analyzer):
+        super(pclOutputChanged_Ok2NotOK, self).__init__(analyzer)
+
+    def runAnalysis(self):
+        self.addGroup(
+            self.analyzer.defaultAnalysis['origPass_Ok'].intersection(
+                self.analyzer.defaultAnalysis['transPass_NotOk']
+                )
+            )
+
+    def printAnalysisOutput(self):
+        for pcl in self.data.groupDic:
+            print(
+                "Original password " +
+                self.data.getPassInfoAttribute(
+                    pcl,
+                    True,
+                    'getOriginalPassword',
+                    True
+                    ) +
+                " pass through " + pcl + "." + '\n' +
+                "But transformed password " +
+                self.data.getPassInfoAttribute(
+                    pcl,
+                    True,
+                    'getTransformedPassword',
+                    True
+                    ) +
+                ", did not pass through " + pcl + "." + '\n' +
+                "And the reason of rejection is: " +
+                self.data.getPassInfoAttribute(
+                    pcl,
+                    True,
+                    'transformedLibOutput',
+                    False
+                    ) +
+                '\n'
+                )
+
+'''
+def PCHLOutputChanged_Ok2NotOk(self, groupInfo, PCHL, shortOutput):
+        return (
+            "Original password " +
+            groupInfo.getPassInfoAttribute(
+                PCHL,
+                shortOutput,
+                'originalPassword',
+                False
+                ) +
+            " pass through " + PCHL + "." + '\n'
+            "But transformed password " +
+            groupInfo.getPassInfoAttribute(
+                PCHL,
+                shortOutput,
+                'transformedPassword',
+                False
+                ) +
+            ", did not pass through " + PCHL + "." + '\n' +
+            "And the reason of rejection is: " +
+            groupInfo.getPassInfoAttribute(
+                PCHL,
+                shortOutput,
+                'transformedLibOutput',
+                False
+                ) +
+            '\n'
+            )
+'''
+
+'''
     def addPasswordToAnalysisOutput(self, analysisName, PCHL, passInfo):
         """Method add passInfo into PassInfoGroup in analysisDic
         by analysisName and PCHL.
@@ -582,3 +698,4 @@ class AnalyzerPrinter():
             "%) for rejection is:\n" +
             str(max(rejectionDic, key=rejectionDic.get)) + '\n'
             )
+'''
