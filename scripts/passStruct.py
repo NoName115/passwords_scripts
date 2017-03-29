@@ -43,7 +43,7 @@ class Password():
     def addTransformRule(self, className, entropy):
         self.transformRules.append({className: entropy})
 
-    def getIntitialEntropy(self):
+    def getInitialEntropy(self):
         return self.originalData[1]
 
     def getActualEntropy(self):
@@ -118,8 +118,9 @@ class PassData(Password):
         for trans in self.transformRules:
             for key, value in trans.items():
                 if (value == 0):
-                    errorOutput += "Transformation  " + key + \
-                    "  wasn\'t applied" + '\n'
+                    errorOutput += (
+                        "Transformation  " + key + "  wasn\'t applied" + '\n'
+                        )
 
         return '{0:10} ({1:.2f})'.format(
             self.originalData[0],

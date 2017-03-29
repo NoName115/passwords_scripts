@@ -17,8 +17,8 @@ class PassCheckLib():
         pclDic = {}
 
         for passInfo in passInfoList:
-            pclDic.update({ passInfo.originalData[0]: {} })
-            pclDic.update({ passInfo.transformedData[0]: {} })
+            pclDic.update({passInfo.originalData[0]: {}})
+            pclDic.update({passInfo.transformedData[0]: {}})
 
             for pcl in self.pclList:
                 pcl.checkResult(passInfo, pclDic)

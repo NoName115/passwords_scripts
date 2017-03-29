@@ -69,9 +69,6 @@ class Rule(object):
                 transformOutput[1]
                 )
 
-            # Store ruleName to PassData class
-            #passwordData.transformRules.append(self.__class__.__name__)
-
         except TypeError:
             raise
             passwordData.errorLog.addError(

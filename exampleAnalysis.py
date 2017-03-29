@@ -38,12 +38,60 @@ pcl.add(PassWDQC())
 pclData = pcl.check(passInfoList)
 
 
+#exit()
 
 # Analysis
 analyzer = Analyzer(passInfoList, pclData)
-analysis_1 = pclOutputChanged_Ok2NotOK(analyzer)
+
+analyzer.addAnalysis(PCLOutputChanged_Ok2NotOK(analyzer))
+analyzer.addAnalysis(PCLOutputChanged_NotOk2Ok(analyzer))
+analyzer.addAnalysis(PCLOutputChanged_NotOk2NotOk(analyzer))
+analyzer.addAnalysis(lowEntropyOriginalPasswordPassPCL(analyzer))
+analyzer.addAnalysis(highEntropyOriginalPasswordDontPassPCL(analyzer))
+analyzer.addAnalysis(lowEntropyTransformedPasswordPassPCL(analyzer))
+analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL(analyzer))
+analyzer.addAnalysis(lowEntropyChangePassPCL(analyzer))
+analyzer.addAnalysis(overallSummary(analyzer))
+
+analyzer.runAnalysis()
+analyzer.printAnalysisOutput()
+'''
+analysis_1 = PCLOutputChanged_Ok2NotOK(analyzer)
 analysis_1.runAnalysis()
-analysis_1.printAnalysisOutput()
+print(analysis_1.getAnalysisOutput())
+
+analysis_2 = PCLOutputChanged_NotOk2Ok(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = PCLOutputChanged_NotOk2NotOk(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = lowEntropyOriginalPasswordPassPCL(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = highEntropyOriginalPasswordDontPassPCL(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = lowEntropyTransformedPasswordPassPCL(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = highEntropyTransformedPasswordDontPassPCL(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = lowEntropyChangePassPCL(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+
+analysis_2 = overallSummary(analyzer)
+analysis_2.runAnalysis()
+print(analysis_2.getAnalysisOutput())
+'''
 
 ### TEST
 '''

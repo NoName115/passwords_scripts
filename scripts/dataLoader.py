@@ -19,15 +19,19 @@ class Loader(object):
         cur_version = sys.version_info
 
         if (cur_version < req_version):
-            errorText = ("Update your Python\n" +
-                "You need Python 3.x to run this program\n")
+            errorText = (
+                "Update your Python\n" +
+                "You need Python 3.x to run this program\n"
+                )
             if (cur_version < (2, 7)):
                 errorText += "Your version is lower then 2.7"
             else:
-                errorText += ("Your version is: " +
+                errorText += (
+                    "Your version is: " +
                     str(cur_version.major) + '.' +
                     str(cur_version.minor) + '.' +
-                    str(cur_version.micro))
+                    str(cur_version.micro)
+                    )
 
             errorPrinter.printError(
                 self.__class__.__name__,
@@ -108,13 +112,11 @@ class LoadFromStdin(Loader):
                         data[0],
                         round(float(data[1]), 2)
                         ])
-                    #passwordData.add(data[0], float(data[1]))
                 elif (len(data) == 1):
                     passwordData.append([
                         data[0],
                         self.generateEntropy(data[0])
                         ])
-                    #passwordData.add(data[0])
                 else:
                     errorPrinter.printWarning(
                         self.__class__.__name__,
