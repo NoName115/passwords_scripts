@@ -1,10 +1,11 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassData
+from prettytable import PrettyTable
 
 import datetime
 
 
-class PassInfoGroup():
+class PassDataGroup():
 
     def __init__(self):
         """Initialize class for group of passwords
@@ -15,20 +16,20 @@ class PassInfoGroup():
         """
         self.groupDic = {}
 
-    def addPassInfo(self, pcl, passInfo):
-        """Method add passInfo into list by pcl
+    def addPassData(self, pcl, passData):
+        """Method add passData into list by pcl
 
         Arguments:
         pcl -- string, name of password checking library
-        passInfo -- class Password in passStruct.py
+        passPada -- class PassData in passStruct.py
         """
         if (pcl not in self.groupDic):
             self.groupDic.update({pcl: []})
 
-        if (passInfo is not None):
-            self.groupDic[pcl].append(passInfo)
+        if (passData is not None):
+            self.groupDic[pcl].append(passData)
 
-    def getPassInfoAttribute(self, pcl, shortOutput, attribute, isCallable):
+    def getPassDataAttribute(self, pcl, shortOutput, attribute, isCallable):
         """Method return attribute of Password as String
 
         Arguments:
@@ -50,41 +51,63 @@ class PassInfoGroup():
             if (type(returnInfo) is dict):
                 return "  ".join(
                     (
-                        passInfo.__getattribute__(attribute)()[pcl]
+                        passData.__getattribute__(attribute)()[pcl]
                         if (isCallable)
-                        else passInfo.__getattribute__(attribute)[pcl]
+                        else passData.__getattribute__(attribute)[pcl]
                     )
-                    for passInfo in self.groupDic[pcl]
+                    for passData in self.groupDic[pcl]
                     )
             else:
                 if (isCallable):
                     return "  ".join(
-                        str(passInfo.__getattribute__(attribute)())
-                        for passInfo in self.groupDic[pcl]
+                        str(passData.__getattribute__(attribute)())
+                        for passData in self.groupDic[pcl]
                         )
                 else:
                     return "  ".join(
-                        str(passInfo.__getattribute__(attribute))
-                        for passInfo in self.groupDic[pcl]
+                        str(passData.__getattribute__(attribute))
+                        for passData in self.groupDic[pcl]
                         )
 
-    def intersection(self, other):
-        """Intersection of two PassInfoGroup classes
+    def getDataInTable(self, pcl, header, attributes):
+        """Method create and fill 'table' with PassData data from groupDic
 
         Arguments:
-        other -- class PassInfoGroup
+        header -- list, header of every column
+        attributes -- list, attributes that are extracted from PassData class
+        """
+        table = PrettyTable(header)
+        for passData in self.groupDic[pcl]:
+            dataList = []
+            # Iterate every attribute and get correct data from passData
+            for attr in attributes:
+                attrData = passData.__getattribute__(attr)()
+                if (type(attrData) is dict):
+                    attrData = attrData[pcl]
+                dataList.append(attrData)
+
+            table.add_row(dataList)
+
+        return table
+
+    def intersection(self, other):
+        """Intersection of two PassDataGroup classes
+
+        Arguments:
+        other -- class PassDataGroup
 
         Return value:
-        intersectionGroup -- return new PassInfoGroup class
+        intersectionGroup -- return new PassDataGroup class
         """
-        intersectionGroup = PassInfoGroup()
+        intersectionGroup = PassDataGroup()
         for pcl in self.groupDic:
-            for passInfo in self.groupDic[pcl]:
-                if (passInfo in other.groupDic[pcl]):
-                    intersectionGroup.addPassInfo(pcl, passInfo)
+            for passData in self.groupDic[pcl]:
+                if (passData in other.groupDic[pcl]):
+                    intersectionGroup.addPassData(pcl, passData)
 
         return intersectionGroup
 
+    # DEBUG
     def printData(self):
         print(self.groupDic)
 
@@ -116,11 +139,11 @@ class Analyzer():
         """
         self.analysisList = []
         self.defaultAnalysis = {
-            'AllPasswords': PassInfoGroup(),
-            'origPass_Ok': PassInfoGroup(),
-            'origPass_NotOk': PassInfoGroup(),
-            'transPass_Ok': PassInfoGroup(),
-            'transPass_NotOk': PassInfoGroup()
+            'AllPasswords': PassDataGroup(),
+            'origPass_Ok': PassDataGroup(),
+            'origPass_NotOk': PassDataGroup(),
+            'transPass_Ok': PassDataGroup(),
+            'transPass_NotOk': PassDataGroup()
         }
         self.fillDefaultAnalysisGroups(passInfoList, pclDic)
 
@@ -145,29 +168,29 @@ class Analyzer():
         # Fill default analysis group with data
         for passData in passDataList:
             for pcl in passData.originalLibOutput:
-                self.defaultAnalysis['AllPasswords'].addPassInfo(
+                self.defaultAnalysis['AllPasswords'].addPassData(
                     pcl,
                     passData
                     )
 
                 if (passData.originalLibOutput[pcl] == "OK"):
-                    self.defaultAnalysis['origPass_Ok'].addPassInfo(
+                    self.defaultAnalysis['origPass_Ok'].addPassData(
                         pcl,
                         passData
                         )
                 else:
-                    self.defaultAnalysis['origPass_NotOk'].addPassInfo(
+                    self.defaultAnalysis['origPass_NotOk'].addPassData(
                         pcl,
                         passData
                         )
 
                 if (passData.transformedLibOutput[pcl] == "OK"):
-                    self.defaultAnalysis['transPass_Ok'].addPassInfo(
+                    self.defaultAnalysis['transPass_Ok'].addPassData(
                         pcl,
                         passData
                         )
                 else:
-                    self.defaultAnalysis['transPass_NotOk'].addPassInfo(
+                    self.defaultAnalysis['transPass_NotOk'].addPassData(
                         pcl,
                         passData
                         )
@@ -180,8 +203,27 @@ class Analyzer():
             analysis.runAnalysis()
 
     def printAnalysisOutput(self):
+        # Create outputfile name it by current datetime
+        now = datetime.datetime.now()
+        time = now.strftime("%Y-%m-%d_%H:%M:%S")
+        filename = "outputs/analysis_" + time + ".output"
+
+        outputFile = open(filename, 'w')
+
+        # Print analysis output to stdout and outputFile
         for analysis in self.analysisList:
             print(analysis.getAnalysisOutput())
+
+            # Print simple analysis description and data in table
+            outputFile.write(
+                analysis.getAnalysisDescription() + '\n'
+            )
+            outputFile.write(
+                analysis.getDataInTable()
+            )
+
+        # Close output file
+        outputFile.close()
 
 
 class AnalysisTemplate():
@@ -190,23 +232,46 @@ class AnalysisTemplate():
 
     def __init__(self, analyzer):
         self.analyzer = analyzer
-        self.data = PassInfoGroup()
+        self.data = PassDataGroup()
 
     def getData(self):
         return self.data
 
-    def addPassInfo(self, pcl, passInfo):
-        self.data.addPassInfo(pcl, passInfo)
+    def addPassData(self, pcl, passData):
+        self.data.addPassData(pcl, passData)
 
     def addGroup(self, groupData):
         self.data = groupData
 
     @abstractmethod
-    def runAnalysis(self):
+    def getAnalysisDescription(self):
         pass
 
     @abstractmethod
+    def runAnalysis(self):
+        pass
+
     def getAnalysisOutput(self):
+        output = ""
+        for pcl in self.data.groupDic:
+            if (output):
+                output += '\n'
+
+            output += self.uniqueAnalysisOutput(pcl)
+
+        return output
+
+    @abstractmethod
+    def uniqueAnalysisOutput(self):
+        pass
+
+    def getDataInTable(self):
+        return '\n'.join(
+            str(self.uniqueTableOutput(pcl)) for pcl in self.data.groupDic
+            )
+
+    @abstractmethod
+    def uniqueTableOutput(self, pcl):
         pass
 
 
@@ -225,36 +290,33 @@ class PCLOutputChanged_Ok2NotOK(AnalysisTemplate):
                 )
             )
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Original password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) +
-                " pass through " + pcl + "." + '\n' +
-                "But transformed password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) +
-                ", did not pass through " + pcl + "." + '\n' +
-                "And the reason of rejection is: " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'transformedLibOutput',
-                    False
-                    ) +
-                '\n'
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Original password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) +
+            " pass through " + pcl + "." + '\n' +
+            "But transformed password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) +
+            ", did not pass through " + pcl + "." + '\n' +
+            "And the reason of rejection is: " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'transformedLibOutput',
+                False
+                ) +
+            '\n'
+            )
 
 
 class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
@@ -272,34 +334,45 @@ class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
                 )
             )
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Original password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) +
-                " did not pass throught " + pcl + ", because \n" +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'originalLibOutput',
-                    False
-                    ) + '\n'
-                "But after applying transformations, transformed password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) +
-                " pass throught " + pcl + ".\n"
-                )
-        return output
+    def getAnalysisDescription(self):
+        return (
+            "Mega-Super analyza....TEST :)"
+            )
+
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Original password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) +
+            " did not pass throught " + pcl + ", because \n" +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'originalLibOutput',
+                False
+                ) + '\n'
+            "But after applying transformations, transformed password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) +
+            " pass throught " + pcl + ".\n"
+            )
+
+    def uniqueTableOutput(self, pcl):
+        return (
+            self.data.getDataInTable(
+                pcl,
+                ['Original password', 'Transformed password', 'Original pcl output'],
+                ['getOriginalPassword', 'getTransformedPassword', 'getOriginalLibOutput']
+            )
+        )
 
 
 class PCLOutputChanged_NotOk2NotOk(AnalysisTemplate):
@@ -311,47 +384,44 @@ class PCLOutputChanged_NotOk2NotOk(AnalysisTemplate):
         """Original and transformed password was rejected but
         reason of rejection is different
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['origPass_NotOk'].intersection(
                 self.analyzer.defaultAnalysis['transPass_NotOk'])
                 ).groupDic.items():
-            for passInfo in passInfoList:
-                if (passInfo.originalLibOutput[pcl] !=
-                   passInfo.transformedLibOutput[pcl]):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.originalLibOutput[pcl] !=
+                   passData.transformedLibOutput[pcl]):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Neither original " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) + ' nor transformed ' +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) + " password, pass through " + pcl + '\n' +
-                "But the reason of rejection changed from \n" +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'originalLibOutput',
-                    False
-                    ) + "\nto\n" +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'transformedLibOutput',
-                    False
-                    ) + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Neither original " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) + ' nor transformed ' +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) + " password, pass through " + pcl + '\n' +
+            "But the reason of rejection changed from \n" +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'originalLibOutput',
+                False
+                ) + "\nto\n" +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'transformedLibOutput',
+                False
+                ) + ".\n"
+            )
 
 
 class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
@@ -363,33 +433,30 @@ class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
         """Original passwords with entropy lower than 36,
         pass through PCHL
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['origPass_Ok'].groupDic.items()
                 ):
-            for passInfo in passInfoList:
-                if (passInfo.getInitialEntropy() < 36):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.getInitialEntropy() < 36):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Original password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) + " with low entropy " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getInitialEntropy',
-                    True
-                    )) + ",\n" +
-                "lower than 36.0, sucesfully pass through " + pcl + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Original password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) + " with low entropy " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getInitialEntropy',
+                True
+                )) + ",\n" +
+            "lower than 36.0, sucesfully pass through " + pcl + ".\n"
+            )
 
 
 class highEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
@@ -401,33 +468,30 @@ class highEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
         """Original passwords with entropy higher than 60,
         did not pass throught PCL
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['origPass_NotOk'].groupDic.items()
                 ):
-            for passInfo in passInfoList:
-                if (passInfo.getInitialEntropy() > 60):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.getInitialEntropy() > 60):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Original password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) + " with high entropy " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getInitialEntropy',
-                    True
-                    )) + ",\n" +
-                "higher than 60.0, did not pass throught " + pcl + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Original password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) + " with high entropy " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getInitialEntropy',
+                True
+                )) + ",\n" +
+            "higher than 60.0, did not pass throught " + pcl + ".\n"
+            )
 
 
 class lowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
@@ -439,33 +503,30 @@ class lowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
         """Transformed passwords with entropy lower than 36,
         pass through PCHL
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['transPass_Ok'].groupDic.items()
                 ):
-            for passInfo in passInfoList:
-                if (passInfo.getActualEntropy() < 36):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.getActualEntropy() < 36):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Transformed password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) + " with low entropy " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getActualEntropy',
-                    True
-                    )) + ",\n" +
-                "lower than 36.0, sucesfully pass through " + pcl + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Transformed password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) + " with low entropy " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getActualEntropy',
+                True
+                )) + ",\n" +
+            "lower than 36.0, sucesfully pass through " + pcl + ".\n"
+            )
 
 
 class highEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
@@ -479,33 +540,30 @@ class highEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
         """Transformed passwords with entropy higher than 60,
         did not pass through PCHL
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['transPass_NotOk'].groupDic.items()
                 ):
-            for passInfo in passInfoList:
-                if (passInfo.getActualEntropy() > 60):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.getActualEntropy() > 60):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Transformed password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) + " with high entropy " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getActualEntropy',
-                    True
-                    )) + ",\n" +
-                "higher than 60.0, did not pss through " + pcl + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Transformed password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) + " with high entropy " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getActualEntropy',
+                True
+                )) + ",\n" +
+            "higher than 60.0, did not pss through " + pcl + ".\n"
+            )
 
 
 class lowEntropyChangePassPCL(AnalysisTemplate):
@@ -517,52 +575,49 @@ class lowEntropyChangePassPCL(AnalysisTemplate):
         """Analysis, that focus on entropy-change.
         That is the entropy, which password gets by transformations
         """
-        for pcl, passInfoList in (
+        for pcl, passDataList in (
             self.analyzer.defaultAnalysis['origPass_NotOk'].intersection(
                 self.analyzer.defaultAnalysis['transPass_Ok'])
                 ).groupDic.items():
-            for passInfo in passInfoList:
-                if (passInfo.getChangedEntropy() < 2):
-                    self.addPassInfo(pcl, passInfo)
+            for passData in passDataList:
+                if (passData.getChangedEntropy() < 2):
+                    self.addPassData(pcl, passData)
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            output += (
-                "Original password " +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getOriginalPassword',
-                    True
-                    ) + ", transformed password" +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getTransformedPassword',
-                    True
-                    ) + " with applied transformations: \n" +
-                self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getAppliedTransformation',
-                    True
-                    ) + "\nand with a low entropy-change," +
-                "entropy value changed from " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getInitialEntropy',
-                    True
-                    )) + " to " +
-                str(self.data.getPassInfoAttribute(
-                    pcl,
-                    True,
-                    'getActualEntropy',
-                    True
-                    )) + ", pass through " + pcl + ".\n"
-                )
-        return output
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "Original password " +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getOriginalPassword',
+                True
+                ) + ", transformed password" +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getTransformedPassword',
+                True
+                ) + " with applied transformations: \n" +
+            self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getAppliedTransformation',
+                True
+                ) + "\nand with a low entropy-change," +
+            "entropy value changed from " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getInitialEntropy',
+                True
+                )) + " to " +
+            str(self.data.getPassDataAttribute(
+                pcl,
+                True,
+                'getActualEntropy',
+                True
+                )) + ", pass through " + pcl + ".\n"
+            )
 
 
 class overallSummary(AnalysisTemplate):
@@ -576,41 +631,38 @@ class overallSummary(AnalysisTemplate):
         """
         self.addGroup(self.analyzer.defaultAnalysis['AllPasswords'])
 
-    def getAnalysisOutput(self):
-        output = ""
-        for pcl in self.data.groupDic:
-            percentChange = (
-                len(
-                    self.analyzer.defaultAnalysis['transPass_Ok'].groupDic[pcl]
-                    ) /
-                len(self.data.groupDic[pcl]) * 100
-                )
-
-            rejectionDic = {}
-            for passInfo in (
-                self.analyzer.defaultAnalysis['transPass_NotOk'].groupDic[pcl]
-                    ):
-                if (passInfo.transformedLibOutput[pcl] not in rejectionDic):
-                    rejectionDic.update({
-                        passInfo.transformedLibOutput[pcl]: 1
-                        })
-                else:
-                    rejectionDic[passInfo.transformedLibOutput[pcl]] += 1
-
-            output += (
-                str(round(percentChange, 2)) +
-                "% of transformed passwords pass through " + pcl + ".\n" +
-                "Most common reason(" +
-                str(
-                    round(
-                        max(rejectionDic.values()) /
-                        len(self.data.groupDic[pcl]) * 100,
-                        2
-                        )
-                    ) + "%) for rejection is:\n" +
-            str(max(rejectionDic, key=rejectionDic.get)) + '\n'
+    def uniqueAnalysisOutput(self, pcl):
+        percentChange = (
+            len(
+                self.analyzer.defaultAnalysis['transPass_Ok'].groupDic[pcl]
+                ) /
+            len(self.data.groupDic[pcl]) * 100
             )
-        return output
+
+        rejectionDic = {}
+        for passData in (
+            self.analyzer.defaultAnalysis['transPass_NotOk'].groupDic[pcl]
+                ):
+            if (passData.transformedLibOutput[pcl] not in rejectionDic):
+                rejectionDic.update({
+                    passData.transformedLibOutput[pcl]: 1
+                    })
+            else:
+                rejectionDic[passData.transformedLibOutput[pcl]] += 1
+
+        return (
+            str(round(percentChange, 2)) +
+            "% of transformed passwords pass through " + pcl + ".\n" +
+            "Most common reason(" +
+            str(
+                round(
+                    max(rejectionDic.values()) /
+                    len(self.data.groupDic[pcl]) * 100,
+                    2
+                    )
+                ) + "%) for rejection is:\n" +
+            str(max(rejectionDic, key=rejectionDic.get)) + '\n'
+        )
 
 
 '''

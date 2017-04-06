@@ -131,6 +131,12 @@ class PassData(Password):
                 self.transformedData[1]
                 ) + " " + transformedPCLOutputs + '\n' + errorOutput
 
+    def getOriginalLibOutput(self):
+        return self.originalLibOutput
+
+    def getTransformedLibOutput(self):
+        return self.transformedLibOutput
+
 '''
 class PassData():
 

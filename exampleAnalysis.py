@@ -37,21 +37,18 @@ pcl.add(PassWDQC())
 # Check passwords with pcls
 pclData = pcl.check(passInfoList)
 
-
-#exit()
-
 # Analysis
 analyzer = Analyzer(passInfoList, pclData)
 
-analyzer.addAnalysis(PCLOutputChanged_Ok2NotOK(analyzer))
+#analyzer.addAnalysis(PCLOutputChanged_Ok2NotOK(analyzer))
 analyzer.addAnalysis(PCLOutputChanged_NotOk2Ok(analyzer))
-analyzer.addAnalysis(PCLOutputChanged_NotOk2NotOk(analyzer))
-analyzer.addAnalysis(lowEntropyOriginalPasswordPassPCL(analyzer))
-analyzer.addAnalysis(highEntropyOriginalPasswordDontPassPCL(analyzer))
-analyzer.addAnalysis(lowEntropyTransformedPasswordPassPCL(analyzer))
-analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL(analyzer))
-analyzer.addAnalysis(lowEntropyChangePassPCL(analyzer))
-analyzer.addAnalysis(overallSummary(analyzer))
+#analyzer.addAnalysis(PCLOutputChanged_NotOk2NotOk(analyzer))
+#analyzer.addAnalysis(lowEntropyOriginalPasswordPassPCL(analyzer))
+#analyzer.addAnalysis(highEntropyOriginalPasswordDontPassPCL(analyzer))
+#analyzer.addAnalysis(lowEntropyTransformedPasswordPassPCL(analyzer))
+#analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL(analyzer))
+#analyzer.addAnalysis(lowEntropyChangePassPCL(analyzer))
+#analyzer.addAnalysis(overallSummary(analyzer))
 
 analyzer.runAnalysis()
 analyzer.printAnalysisOutput()
