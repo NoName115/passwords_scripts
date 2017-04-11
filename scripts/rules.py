@@ -52,7 +52,7 @@ class Rule(object):
                 passInfo.errorLog.addError(
                     self.__class__.__name__,
                     "Wrong value of input data. " + '\n' +
-                    "'fromIndex' must be same or lower then 'toIndex'"
+                    "'fromIndex' must be same or lower than 'toIndex'"
                     )
                 return
 

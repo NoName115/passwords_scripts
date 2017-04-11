@@ -44,7 +44,7 @@ class Library(object):
         *args -- arguments for run/call library
         """
         try:
-            output = self.getPCHLOutput(
+            output = self.getPCLOutput(
                 passInfo.originalData[0],
                 delimiter,
                 *args
@@ -53,7 +53,7 @@ class Library(object):
                 self.__class__.__name__: output
                 })
 
-            output = self.getPCHLOutput(
+            output = self.getPCLOutput(
                 passInfo.transformedData[0],
                 delimiter,
                 *args
@@ -68,7 +68,7 @@ class Library(object):
                 err
                 )
 
-    def getPCHLOutput(self, password, delimiter, *args):
+    def getPCLOutput(self, password, delimiter, *args):
         """Function get output of library and store it to passwordData
 
         Arguments:

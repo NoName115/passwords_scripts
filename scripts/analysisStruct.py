@@ -233,7 +233,10 @@ class AnalysisTemplate():
     def getDataInTable(self):
         return (
             '\n'.join(
-                (self.getAnalysisDescription(pcl) + str(self.getUniqueTableOutput(pcl)))
+                (
+                    self.getAnalysisDescription(pcl) +
+                    str(self.getUniqueTableOutput(pcl))
+                )
                 for pcl in self.data.groupDic
             ) + '\n'
         )
@@ -290,8 +293,14 @@ class PCLOutputChanged_Ok2NotOK(AnalysisTemplate):
         return (
             self.data.getDataInTable(
                 pcl,
-                ['Original password', 'Transformed password', 'Transformed PCL output'],
-                ['getOriginalPassword', 'getTransformedPassword', 'getTransformedLibOutput']
+                [
+                    'Original password', 'Transformed password',
+                    'Transformed PCL output'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getTransformedLibOutput'
+                ]
             )
         )
 
@@ -324,7 +333,7 @@ class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
                 pcl,
                 'getOriginalPassword'
                 ) +
-            " did not pass throught " + pcl + ", because \n" +
+            " did not pass through " + pcl + ", because \n" +
             self.data.getPassDataAttribute(
                 pcl,
                 'getOriginalLibOutput'
@@ -334,15 +343,21 @@ class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
                 pcl,
                 'getTransformedPassword'
                 ) +
-            " pass throught " + pcl + ".\n"
+            " pass through " + pcl + ".\n"
             )
 
     def getUniqueTableOutput(self, pcl):
         return (
             self.data.getDataInTable(
                 pcl,
-                ['Original password', 'Transformed password', 'Original PCL output'],
-                ['getOriginalPassword', 'getTransformedPassword', 'getOriginalLibOutput']
+                [
+                    'Original password', 'Transformed password',
+                    'Original PCL output'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getOriginalLibOutput'
+                ]
             )
         )
 
@@ -392,15 +407,19 @@ class PCLOutputChanged_NotOk2NotOk(AnalysisTemplate):
                 'getTransformedLibOutput'
                 ) + ".\n"
             )
-    
+
     def getUniqueTableOutput(self, pcl):
         return (
             self.data.getDataInTable(
                 pcl,
-                ['Original password', 'Transformed password',
-                 'Original PCL output', 'Transformed PCL output'],
-                ['getOriginalPassword', 'getTransformedPassword',
-                 'getOriginalLibOutput', 'getTransformedLibOutput']
+                [
+                    'Original password', 'Transformed password',
+                    'Original PCL output', 'Transformed PCL output'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getOriginalLibOutput', 'getTransformedLibOutput'
+                ]
             )
         )
 
@@ -420,10 +439,10 @@ class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
             for passData in passDataList:
                 if (passData.getInitialEntropy() < 36):
                     self.addPassData(pcl, passData)
-    
+
     def getAnalysisDescription(self, pcl):
         return (
-            "Original passwords with entropy lower then 36.0, " +
+            "Original passwords with entropy lower than 36.0, " +
             "pass through " + pcl + "\n"
         )
 
@@ -440,7 +459,7 @@ class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
                 )) + ",\n" +
             "lower than 36.0, sucesfully pass through " + pcl + ".\n"
             )
-    
+
     def getUniqueTableOutput(self, pcl):
         return (
             self.data.getDataInTable(
@@ -484,7 +503,7 @@ class highEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
                 pcl,
                 'getInitialEntropy'
                 )) + ",\n" +
-            "higher than 60.0, did not pass throught " + pcl + ".\n"
+            "higher than 60.0, did not pass through " + pcl + ".\n"
             )
 
     def getUniqueTableOutput(self, pcl):
@@ -515,7 +534,7 @@ class lowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
 
     def getAnalysisDescription(self, pcl):
         return (
-            "Transformed passwords with entropy lower then 36, " +
+            "Transformed passwords with entropy lower than 36, " +
             "pass through " + pcl + "\n"
         )
 
@@ -639,16 +658,20 @@ class lowEntropyChangePassPCL(AnalysisTemplate):
                 'getActualEntropy'
                 )) + ", pass through " + pcl + ".\n"
             )
-    
+
     def getUniqueTableOutput(self, pcl):
         return (
             self.data.getDataInTable(
                 pcl,
-                ['Original password', 'Transformed password',
-                 'Transformations', 'Initial entropy', 'Entropy'],
-                ['getOriginalPassword', 'getTransformedPassword',
-                 'getAppliedTransformation', 'getInitialEntropy',
-                 'getActualEntropy']
+                [
+                    'Original password', 'Transformed password',
+                    'Transformations', 'Initial entropy', 'Entropy'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getAppliedTransformation', 'getInitialEntropy',
+                    'getActualEntropy'
+                ]
             )
         )
 
@@ -707,9 +730,13 @@ class overallSummary(AnalysisTemplate):
         return (
             self.data.getDataInTable(
                 pcl,
-                ['Original password', 'Transformed password',
-                 'Original PCL output', 'Transformed PCL output'],
-                ['getOriginalPassword', 'getTransformedPassword',
-                 'getOriginalLibOutput', 'getTransformedLibOutput']
+                [
+                    'Original password', 'Transformed password',
+                    'Original PCL output', 'Transformed PCL output'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getOriginalLibOutput', 'getTransformedLibOutput'
+                ]
             )
         )

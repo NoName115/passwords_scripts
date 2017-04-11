@@ -24,7 +24,7 @@ class Loader(object):
                 "You need Python 3.x to run this program\n"
                 )
             if (cur_version < (2, 7)):
-                errorText += "Your version is lower then 2.7"
+                errorText += "Your version is lower than 2.7"
             else:
                 errorText += (
                     "Your version is: " +
@@ -202,7 +202,8 @@ class LoadFromJson(Loader):
 
             passInfoList = []
             pclData = {}
-            #Parse json data
+
+            # Parse json data
             for passData in data['passwordList']:
                 newPassword = Password(
                         passData['originalPassword'],
@@ -219,8 +220,10 @@ class LoadFromJson(Loader):
                 passInfoList.append(newPassword)
 
                 pclData.update({
-                    passData['originalPassword']: passData['originalLibOutput'],
-                    passData['transformedPassword']: passData['transformedLibOutput']
+                    passData['originalPassword']:
+                        passData['originalLibOutput'],
+                    passData['transformedPassword']:
+                        passData['transformedLibOutput']
                 })
 
             return passInfoList, pclData
@@ -234,7 +237,7 @@ class LoadFromJson(Loader):
 
 class StoreDataToJson():
 
-    def __init__(self, filename=None):
+    def __init__(self, filename="inputs/passData.json"):
         self.fileName = filename
 
     def store(self, passInfoList, pclData):
@@ -244,7 +247,6 @@ class StoreDataToJson():
         passInfoList -- list of PassInfo classes
         pclData -- dictionary of passwords and pcl outputs
         """
-        self.fileName = self.fileName if (self.fileName) else "inputs/passData.json"
         outputFile = open(self.fileName, 'w')
 
         passwordJsonList = []
@@ -255,8 +257,12 @@ class StoreDataToJson():
                 'initialEntropy': passInfo.getInitialEntropy(),
                 'actualEntropy': passInfo.getActualEntropy(),
                 'transformRules': passInfo.transformRules,
-                'originalLibOutput': pclData[passInfo.getOriginalPassword()],
-                'transformedLibOutput': pclData[passInfo.getTransformedPassword()],
+                'originalLibOutput': pclData[
+                    passInfo.getOriginalPassword()
+                    ],
+                'transformedLibOutput': pclData[
+                    passInfo.getTransformedPassword()
+                    ],
                 'errorLog': passInfo.errorLog.getLog()
             })
 
