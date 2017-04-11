@@ -63,7 +63,6 @@ class Library(object):
                 })
 
         except Exception as err:
-            raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err

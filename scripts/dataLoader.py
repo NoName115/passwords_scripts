@@ -191,45 +191,84 @@ class LoadFromJson(Loader):
     def load(self):
         """Load passData from input file
 
-        Method return -- passwordData of type PassData
+        Method return -- tuple [passInfoList, pclData]
+                         passInfoList - list of PassInfo classes
+                         pclData - dictionary of passwords and PCL outputs
         """
-        passwordData = PassData()
 
         try:
             with open(self.fileName) as jsonFile:
                 data = json.load(jsonFile)
 
-            # Parse json data
-            for passInfo in data["passwordList"]:
+            passInfoList = []
+            pclData = {}
+            #Parse json data
+            for passData in data['passwordList']:
                 newPassword = Password(
-                    passInfo["originalPassword"],
-                    passInfo["entropy"]
+                        passData['originalPassword'],
+                        passData['initialEntropy']
+                        )
+                newPassword.transformedData = [
+                    passData['transformedPassword'],
+                    passData['actualEntropy']
+                    ]
+                newPassword.transformRules = passData['transformRules']
+                newPassword.errorLog = errorPrinter.RuleError(
+                    passData['errorLog']
                     )
-                newPassword.transformedPassword = passInfo[
-                    "transformedPassword"
-                    ]
-                newPassword.transformRules = passInfo[
-                    "transformRules"
-                    ]
-                newPassword.originalLibOutput = passInfo[
-                    "originalLibOutput"
-                    ]
-                newPassword.transformedLibOutput = passInfo[
-                    "transformedLibOutput"
-                    ]
+                passInfoList.append(newPassword)
 
-                passwordData.passwordList.append(
-                    newPassword
-                    )
+                pclData.update({
+                    passData['originalPassword']: passData['originalLibOutput'],
+                    passData['transformedPassword']: passData['transformedLibOutput']
+                })
 
-            passwordData.transformRules = data["transformRules"]
-            passwordData.usedPCHL = data["usedPCHL"]
-            passwordData.errorLog.errorLog = data["errorLog"]
+            return passInfoList, pclData
 
         except IOError:
             errorPrinter.printError(
                 self.__class__.__name__,
                 'File \'{0:1}\' doesn\'t exist'.format(self.fileName)
-                )
+            )
 
-        return passwordData
+
+class StoreDataToJson():
+
+    def __init__(self, filename=None):
+        self.fileName = filename
+
+    def store(self, passInfoList, pclData):
+        """Store passInfoList and pclData to Json
+
+        Arguments:
+        passInfoList -- list of PassInfo classes
+        pclData -- dictionary of passwords and pcl outputs
+        """
+        self.fileName = self.fileName if (self.fileName) else "inputs/passData.json"
+        outputFile = open(self.fileName, 'w')
+
+        passwordJsonList = []
+        for passInfo in passInfoList:
+            passwordJsonList.append({
+                'originalPassword': passInfo.getOriginalPassword(),
+                'transformedPassword': passInfo.getTransformedPassword(),
+                'initialEntropy': passInfo.getInitialEntropy(),
+                'actualEntropy': passInfo.getActualEntropy(),
+                'transformRules': passInfo.transformRules,
+                'originalLibOutput': pclData[passInfo.getOriginalPassword()],
+                'transformedLibOutput': pclData[passInfo.getTransformedPassword()],
+                'errorLog': passInfo.errorLog.getLog()
+            })
+
+        outputFile.write(
+            json.dumps(
+                {
+                    'passwordList': passwordJsonList
+                },
+                sort_keys=True,
+                indent=4,
+                separators=(',', ':')
+            )
+        )
+
+        outputFile.close()

@@ -49,7 +49,7 @@ class Rule(object):
                 )
 
             if (fromIndex > toIndex):
-                passwordData.errorLog.addError(
+                passInfo.errorLog.addError(
                     self.__class__.__name__,
                     "Wrong value of input data. " + '\n' +
                     "'fromIndex' must be same or lower then 'toIndex'"
@@ -70,15 +70,13 @@ class Rule(object):
                 )
 
         except TypeError:
-            raise
-            passwordData.errorLog.addError(
+            passInfo.errorLog.addError(
                 self.__class__.__name__,
                 "Argument 'fromIndex' or 'toIndex' is not a number. " +
                 '\n ' + "Input format: " +
                 "rules.rule_name(fromIndex, toIndex).transform(passwordData)"
                 )
         except AttributeError:
-            raise
             errorPrinter.addMainError(
                 self.__class__.__name__,
                 "Wrong input type of data. " + '\n' +

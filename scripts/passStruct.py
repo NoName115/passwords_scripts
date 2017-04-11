@@ -14,6 +14,7 @@ class Password():
         self.originalData = [password, entropy]
         self.transformedData = [password, entropy]
         self.transformRules = []
+        self.errorLog = errorPrinter.RuleError()
 
     def __str__(self):
         return '{0:15} ({1:.2f})'.format(
@@ -24,6 +25,9 @@ class Password():
             self.transformedData[0],
             self.transformedData[1]
             ) + '\n' + self.getAppliedTransformation() + '\n'
+
+    def addTransformRule(self, className, entropy):
+        self.transformRules.append({className: entropy})
 
     def getAppliedTransformation(self):
         """Return string of applied transformations
@@ -39,9 +43,6 @@ class Password():
 
     def getTransformedPassword(self):
         return self.transformedData[0]
-
-    def addTransformRule(self, className, entropy):
-        self.transformRules.append({className: entropy})
 
     def getInitialEntropy(self):
         return self.originalData[1]
