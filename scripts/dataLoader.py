@@ -13,7 +13,7 @@ class Loader(object):
 
     @abstractmethod
     def __init__(self):
-        """Check Python version
+        """Check Python version, must be greater or equal then 3.0
         """
         req_version = (3, 0)
         cur_version = sys.version_info
@@ -189,7 +189,7 @@ class LoadFromJson(Loader):
         self.fileName = fileName
 
     def load(self):
-        """Load passData from input file
+        """Load passData from input json file
 
         Method return -- tuple [passInfoList, pclData]
                          passInfoList - list of PassInfo classes

@@ -21,7 +21,7 @@ class PassDataGroup():
 
         Arguments:
         pcl -- string, name of password checking library
-        passPada -- class PassData in passStruct.py
+        passData -- class PassData from passStruct.py
         """
         if (pcl not in self.groupDic):
             self.groupDic.update({pcl: []})
@@ -46,6 +46,7 @@ class PassDataGroup():
         """Method create and fill 'table' with PassData data from groupDic
 
         Arguments:
+        pcl -- string, name of password checking library
         header -- list, header of every column
         attributes -- list, attributes that are extracted from PassData class
         """
@@ -91,7 +92,7 @@ class Analyzer():
         """Initialize 5 default analysis groups
 
         Arguments:
-        passInfoList -- list of Password class
+        passInfoList -- list of Password classes
         pclDic -- dictionary of password checking libraries output
 
         Self:
@@ -126,7 +127,7 @@ class Analyzer():
         And fill 5 default analysis groups with data
 
         Arguments:
-        passInfoList -- list of Password class
+        passInfoList -- list of Password classes
         pclDic -- dictionary of password checking libraries output
         """
         # Create passDataList
@@ -169,13 +170,21 @@ class Analyzer():
                         )
 
     def addAnalysis(self, analysis):
+        """Method add inputAnalysis to analysisList
+        """
         self.analysisList.append(analysis)
 
-    def runAnalysis(self):
+    def runAnalyzes(self):
+        """Run every analysis in analysisList
+        """
         for analysis in self.analysisList:
             analysis.runAnalysis()
 
-    def printAnalysisOutput(self):
+    def printAnalyzesOutput(self):
+        """Print output of every analysis from analysisList
+        Short output is printed to stdout
+        Long output is written to outputFile
+        """
         # Create outputfile name it by current datetime
         now = datetime.datetime.now()
         time = now.strftime("%Y-%m-%d_%H:%M:%S")
@@ -201,20 +210,34 @@ class AnalysisTemplate():
     __metaclass__ = ABCMeta
 
     def __init__(self, analyzer):
+        """Template for new analysis
+
+        Arguments:
+        analyzer -- class Analyzer
+        """
         self.analyzer = analyzer
         self.data = PassDataGroup()
 
     def getData(self):
+        """Return analysis data
+        """
         return self.data
 
     def addPassData(self, pcl, passData):
+        """Add class PassData to analysis data
+        """
         self.data.addPassData(pcl, passData)
 
     def addGroup(self, groupData):
+        """Add whole group of PassData classes to analysis data
+        """
         self.data = groupData
 
     @abstractmethod
     def getAnalysisDescription(self, pcl):
+        """Short analysis description
+        This description is written to outputFile
+        """
         pass
 
     @abstractmethod
@@ -228,9 +251,13 @@ class AnalysisTemplate():
 
     @abstractmethod
     def uniqueAnalysisOutput(self, pcl):
+        """Long and detailed analysis output
+        """
         pass
 
     def getDataInTable(self):
+        """Return tables of analysis data
+        """
         return (
             '\n'.join(
                 (
@@ -243,6 +270,8 @@ class AnalysisTemplate():
 
     @abstractmethod
     def getUniqueTableOutput(self, pcl):
+        """Return one table with analysis data
+        """
         pass
 
 

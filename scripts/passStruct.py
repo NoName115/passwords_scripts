@@ -51,6 +51,8 @@ class Password():
         return self.transformedData[1]
 
     def getChangedEntropy(self):
+        """Return difference between actual entropy and initial entropy
+        """
         return self.transformedData[1] - self.originalData[1]
 
 

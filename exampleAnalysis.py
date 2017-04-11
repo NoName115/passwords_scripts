@@ -45,5 +45,5 @@ analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL(analyzer))
 analyzer.addAnalysis(lowEntropyChangePassPCL(analyzer))
 analyzer.addAnalysis(overallSummary(analyzer))
 
-analyzer.runAnalysis()
-analyzer.printAnalysisOutput()
+analyzer.runAnalyzes()
+analyzer.printAnalyzesOutput()

@@ -8,12 +8,25 @@ import subprocess
 class PassCheckLib():
 
     def __init__(self):
+        """Initialize list of password checking libraries
+        """
         self.pclList = []
 
     def add(self, pcl):
+        """Add password checking library to list
+        """
         self.pclList.append(pcl)
 
     def check(self, passInfoList):
+        """Check every password with every
+        password checking library from list
+
+        Arguments:
+        passInfoList -- list, list of PassInfo classes
+
+        Return value:
+        pclDic -- dictionary, key=string value=dictionary
+        """
         pclDic = {}
 
         for passInfo in passInfoList:
