@@ -26,7 +26,7 @@ class checking_library_name(Library):
 
 
 
-## Run simple analysis
+## Run analysis
 
 Run *exampleAnalysis.py* to get a basic analysis of implemented password checking libraries.
 You can edit analysis options by following commands:
@@ -42,7 +42,7 @@ passwordList = dataLoader.LoadFromJson("file_path").load()
 #### Apply different rules to transform passwordData
 ##### Create transformation class
 ```python
-transformation = Transformation()
+transformation = rules.Transformation()
 ```
 ##### Add rules
 ```python
@@ -68,7 +68,7 @@ passInfoList = list(map(
 ```python
 pcl = PassCheckLib()
 ```
-##### Add password checking libraries
+##### Add password checking library
 ```python
 pcl.add(libCheck.CrackLib())
 pcl.add(libCheck.PassWDQC())
