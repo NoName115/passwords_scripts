@@ -31,7 +31,7 @@ class checking_library_name(Library):
 Run *exampleAnalysis.py* to get a basic analysis of implemented password checking libraries.
 You can edit analysis options by following commands:
 
-#### Options to load input data:
+### Options to load input data:
 
 ```python
 passwordList = dataLoader.LoadFromStdin().load()
@@ -39,7 +39,7 @@ passwordList = dataLoader.LoadFromFile("file_path").load()
 passwordList = dataLoader.LoadFromJson("file_path").load()
 ```
 
-#### Apply different rules to transform passwordData
+### Apply different rules to transform passwordData
 ##### Create transformation class
 ```python
 transformation = rules.Transformation()
@@ -63,7 +63,7 @@ passInfoList = list(map(
 	))
 ```
 
-#### Check passwords with implemented password checking libraries
+### Check passwords with implemented password checking libraries
 ##### Create password checking libraries class
 ```python
 pcl = PassCheckLib()
@@ -78,29 +78,28 @@ pcl.add(libCheck.PassWDQC())
 pclData = pcl.check(passInfoList)
 ```
 
-#### Store data to Json
+### Store data to Json
 ```python
 dataLoader.StoreDataToJson().store(passInfoList, pclData)
 ```
 
-### Analyzer
+### Create main analyzer
 Simple output is printed to stdout. Whole analysis output written to *outputs/analysis_date_time.output* file
-#### Create main analyzer
 ```python
 analyzer = Analyzer(passInfoList, pclData)
 ```
-#### Run list of analyzes and extract their output
+### Run list of analyzes and extract their output
 ##### Add analysis
 ```python
-analyzer.addAnalysis(PCLOutputChanged_Ok2NotOK(analyzer))
-analyzer.addAnalysis(PCLOutputChanged_NotOk2Ok(analyzer))
-analyzer.addAnalysis(PCLOutputChanged_NotOk2NotOk(analyzer))
-analyzer.addAnalysis(lowEntropyOriginalPasswordPassPCL(analyzer))
-analyzer.addAnalysis(highEntropyOriginalPasswordDontPassPCL(analyzer))
-analyzer.addAnalysis(lowEntropyTransformedPasswordPassPCL(analyzer))
-analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL(analyzer))
-analyzer.addAnalysis(lowEntropyChangePassPCL(analyzer))
-analyzer.addAnalysis(overallSummary(analyzer))
+analyzer.addAnalysis(PCLOutputChanged_Ok2NotOK())
+analyzer.addAnalysis(PCLOutputChanged_NotOk2Ok())
+analyzer.addAnalysis(PCLOutputChanged_NotOk2NotOk())
+analyzer.addAnalysis(lowEntropyOriginalPasswordPassPCL())
+analyzer.addAnalysis(highEntropyOriginalPasswordDontPassPCL())
+analyzer.addAnalysis(lowEntropyTransformedPasswordPassPCL())
+analyzer.addAnalysis(highEntropyTransformedPasswordDontPassPCL())
+analyzer.addAnalysis(lowEntropyChangePassPCL())
+analyzer.addAnalysis(overallSummary())
 ```
 ##### Run list of analyzes
 ```python
@@ -111,7 +110,7 @@ anlyzer.runAnalyzes()
 analyzer.printAnalysisOutput()
 ```
 
-#### Run one analysis
+### Run one analysis
 ##### Choose one analysis
 ```python
 simpleAnalysis = PCLOutputChanged_Ok2NotOK(analyzer)

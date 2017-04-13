@@ -178,6 +178,9 @@ class Analyzer():
         """Run every analysis in analysisList
         """
         for analysis in self.analysisList:
+            if (not analysis.analyzer):
+                analysis.analyzer = self
+
             analysis.runAnalysis()
 
     def printAnalyzesOutput(self):
@@ -209,7 +212,7 @@ class AnalysisTemplate():
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         """Template for new analysis
 
         Arguments:
@@ -277,7 +280,7 @@ class AnalysisTemplate():
 
 class PCLOutputChanged_Ok2NotOK(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(PCLOutputChanged_Ok2NotOK, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -336,7 +339,7 @@ class PCLOutputChanged_Ok2NotOK(AnalysisTemplate):
 
 class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(PCLOutputChanged_NotOk2Ok, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -393,7 +396,7 @@ class PCLOutputChanged_NotOk2Ok(AnalysisTemplate):
 
 class PCLOutputChanged_NotOk2NotOk(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(PCLOutputChanged_NotOk2NotOk, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -455,7 +458,7 @@ class PCLOutputChanged_NotOk2NotOk(AnalysisTemplate):
 
 class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(lowEntropyOriginalPasswordPassPCL, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -501,7 +504,7 @@ class lowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
 
 class highEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(highEntropyOriginalPasswordDontPassPCL, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -547,7 +550,7 @@ class highEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
 
 class lowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(lowEntropyTransformedPasswordPassPCL, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -593,7 +596,7 @@ class lowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
 
 class highEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(highEntropyTransformedPasswordDontPassPCL, self).__init__(
             analyzer
             )
@@ -641,7 +644,7 @@ class highEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
 
 class lowEntropyChangePassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(lowEntropyChangePassPCL, self).__init__(analyzer)
 
     def runAnalysis(self):
@@ -707,7 +710,7 @@ class lowEntropyChangePassPCL(AnalysisTemplate):
 
 class overallSummary(AnalysisTemplate):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer=None):
         super(overallSummary, self).__init__(analyzer)
 
     def runAnalysis(self):
