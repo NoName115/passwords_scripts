@@ -52,7 +52,8 @@ class Library(object):
         """Get output of library and save it to passwordData
 
         Arguments:
-        passwordData -- type PassData
+        passInfo -- type Password from passStruct.py
+        pclDic -- dictionary
         delimiter -- optional argument, if is necessary to split library output
         *args -- arguments for run/call library
         """

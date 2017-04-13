@@ -1,8 +1,8 @@
 ## Implement your own password checking library
 
 In file *libCheck.py* you can add your own password checking library.
-Create new class with your *checking_library_name*.
-Output of your *checking_library_name* must be in format:
+Create new class with your *password_checking_library_name*.
+Output of your *password_checking_library_name* must be in format:
 
 \_password\_ (spaces or tabs) \_checking_library_output\_
 
@@ -11,17 +11,18 @@ or
 \_password\_ \_delimiter\_ \_checking_library_output\_
 
 ```python
-class checking_library_name(Library):
+class password_checking_library_name(Library):
   def __init__(self):
-    super(checking_library_name, self).__init__()
-    
-  def checkResult(self, passwordData):
+    super(password_checking_library_name, self).__init__()
+
+  def checkResult(self, passInfo, pclDic):
     """
-    passwordData -- input data of type PassData
+    passInfo -- type Password from passStruct.py
+    pclDic -- dictionary
     delimiter -- optional argument, if is necessary to split library output
     *args -- arguments for run/call library
     """
-    super(checking_library_name, self).checkResult(passwordData, delimiter, *args)
+    super(password_checking_library_name, self).checkResult(passInfo, pclDic, delimiter, *args)
 ```
 
 
@@ -84,7 +85,7 @@ dataLoader.StoreDataToJson().store(passInfoList, pclData)
 ```
 
 ### Create main analyzer
-Simple output is printed to stdout. Whole analysis output written to *outputs/analysis_date_time.output* file
+Simple output is printed to stdout. Whole analysis output is written to *outputs/analysis_date_time.output* file
 ```python
 analyzer = Analyzer(passInfoList, pclData)
 ```
