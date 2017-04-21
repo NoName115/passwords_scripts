@@ -1,3 +1,6 @@
+[![Code Climate](https://codeclimate.com/github/redhat-qe-security/pcl-analyzer/badges/gpa.svg)](https://codeclimate.com/github/redhat-qe-security/pcl-analyzer)
+
+
 ## Implement your own password checking library
 
 In file *libCheck.py* you can add your own password checking library.

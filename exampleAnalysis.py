@@ -4,10 +4,8 @@ from scripts.dataLoader import *
 from scripts.libCheck import *
 from scripts.analysisStruct import *
 
-from scripts.passStruct import PassData
 
-
-# Load data to list of tuple [password, entropy]
+# Load data to list of tuples [password, entropy]
 passwordList = LoadFromFile("inputs/10_million_password_list_top_1000").load()
 
 # Create class that contain rules

@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from scripts.passStruct import Password
+from scripts.passStruct import PassInfo
 
 import scripts.errorPrinter as errorPrinter
 import random
@@ -16,7 +16,7 @@ class Transformation():
         self.transformationList.append(transformation)
 
     def apply(self, password):
-        passInfo = Password(password[0], password[1])
+        passInfo = PassInfo(password[0], password[1])
 
         for trans in self.transformationList:
             trans.transform(passInfo)

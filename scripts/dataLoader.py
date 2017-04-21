@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from math import log
-from scripts.passStruct import Password
+from scripts.passStruct import PassInfo
 
 import scripts.errorPrinter as errorPrinter
 import sys
@@ -205,7 +205,7 @@ class LoadFromJson(Loader):
 
             # Parse json data
             for passData in data['passwordList']:
-                newPassword = Password(
+                newPassword = PassInfo(
                         passData['originalPassword'],
                         passData['initialEntropy']
                         )

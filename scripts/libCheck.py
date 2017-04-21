@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from scripts.passStruct import Password
 
 import scripts.errorPrinter as errorPrinter
 import subprocess

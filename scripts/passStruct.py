@@ -3,7 +3,7 @@ import re
 import json
 
 
-class Password():
+class PassInfo():
 
     def __init__(self, password=None, entropy=None):
         """
@@ -56,7 +56,7 @@ class Password():
         return self.transformedData[1] - self.originalData[1]
 
 
-class PassData(Password):
+class PassData(PassInfo):
 
     def __init__(self, passInfo, originalLibOutput, transformedLibOutput):
         self.originalData = passInfo.originalData

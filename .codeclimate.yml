@@ -1,0 +1,16 @@
+engines:
+  radon:
+    enabled: true
+    config:
+      threshold: "C"
+  pep8:
+    enabled: true
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+
+ratings:
+  paths:
+    - "scripts/**"
+    - "**.py"
