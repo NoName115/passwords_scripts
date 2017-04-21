@@ -1,4 +1,5 @@
 [![Code Climate](https://codeclimate.com/github/redhat-qe-security/pcl-analyzer/badges/gpa.svg)](https://codeclimate.com/github/redhat-qe-security/pcl-analyzer)
+[![Code Issues](https://www.quantifiedcode.com/api/v1/project/022267c755de4b6b89e09dd9378dfbb7/badge.svg)](https://www.quantifiedcode.com/app/project/022267c755de4b6b89e09dd9378dfbb7)
 
 
 ## Implement your own password checking library
