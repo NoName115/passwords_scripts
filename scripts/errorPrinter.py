@@ -5,58 +5,58 @@ from sys import exit
 
 Especcialy, wrong type of input data
 """
-mainError = {}
+main_error = {}
 
 
-def addMainError(className, errorText):
-    """Store mainError message
+def addMainError(class_name, error_text):
+    """Store main_error message
 
     Arguments:
-    className -- name of the class in which error occured
-    errorText -- details about error
+    class_name -- name of the class in which error occured
+    error_text -- details about error
     """
-    mainError.update({className: errorText})
+    main_error.update({class_name: error_text})
 
 
 class RuleError():
 
-    def __init__(self, errorLog=None):
+    def __init__(self, error_log=None):
         """Iniatialize class for storing errors
 
         Self:
-        errorLog -- dictionary of errors ({className : errorDetails})
+        error_log -- dictionary of errors ({class_name : errorDetails})
         """
-        self.errorLog = errorLog if (errorLog) else {}
+        self.error_log = error_log if (error_log) else {}
 
-    def addError(self, className, errorText):
+    def addError(self, class_name, error_text):
         """Store error message
 
         Arguments:
-        className -- name of the class in which error occured
-        errorText -- details about error
+        class_name -- name of the class in which error occured
+        error_text -- details about error
         """
-        self.errorLog.update({className: errorText})
+        self.error_log.update({class_name: error_text})
 
     def getLog(self):
-        return self.errorLog
+        return self.error_log
 
 
-def printError(className, errorText):
+def printError(class_name, error_text):
     """Print error message and terminate program
 
     Arguments:
-    className -- name of the class that called this method
-    errorText -- details about error
+    class_name -- name of the class that called this method
+    error_text -- details about error
     """
-    print('Error: {0:13} - {1:30}'.format(className, errorText))
+    print('Error: {0:13} - {1:30}'.format(class_name, str(error_text)))
     exit(-1)
 
 
-def printWarning(className, errorText):
+def printWarning(class_name, error_text):
     """Print warning message
 
     Arguments:
-    className -- name of the class that called this method
-    errorText -- details about error
+    class_name -- name of the class that called this method
+    error_text -- details about error
     """
-    print('Warning: {0:13} - {1:30}'.format(className, errorText))
+    print('Warning: {0:13} - {1:30}'.format(class_name, str(error_text)))

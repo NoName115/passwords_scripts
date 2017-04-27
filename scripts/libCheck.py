@@ -16,26 +16,26 @@ class PassCheckLib():
         """
         self.pclList.append(pcl)
 
-    def check(self, passInfoList):
+    def check(self, passinfo_list):
         """Check every password with every
         password checking library from list
 
         Arguments:
-        passInfoList -- list, list of PassInfo classes
+        passinfo_list -- list, list of PassInfo classes
 
         Return value:
-        pclDic -- dictionary, key=string value=dictionary
+        pcl_dic -- dictionary, key=string value=dictionary
         """
-        pclDic = {}
+        pcl_dic = {}
 
-        for passInfo in passInfoList:
-            pclDic.update({passInfo.originalData[0]: {}})
-            pclDic.update({passInfo.transformedData[0]: {}})
+        for passinfo in passinfo_list:
+            pcl_dic.update({passinfo.original_data[0]: {}})
+            pcl_dic.update({passinfo.transformed_data[0]: {}})
 
             for pcl in self.pclList:
-                pcl.checkResult(passInfo, pclDic)
+                pcl.checkResult(passinfo, pcl_dic)
 
-        return pclDic
+        return pcl_dic
 
 
 class Library(object):
@@ -47,31 +47,31 @@ class Library(object):
         pass
 
     @abstractmethod
-    def checkResult(self, passInfo, pclDic, delimiter=None, *args):
+    def checkResult(self, passinfo, pcl_dic, delimiter=None, *args):
         """Get output of library and save it to passwordData
 
         Arguments:
-        passInfo -- type Password from passStruct.py
-        pclDic -- dictionary
+        passinfo -- type Password from passStruct.py
+        pcl_dic -- dictionary
         delimiter -- optional argument, if is necessary to split library output
         *args -- arguments for run/call library
         """
         try:
             output = self.getPCLOutput(
-                passInfo.originalData[0],
+                passinfo.original_data[0],
                 delimiter,
                 *args
                 )
-            pclDic[passInfo.originalData[0]].update({
+            pcl_dic[passinfo.original_data[0]].update({
                 self.__class__.__name__: output
                 })
 
             output = self.getPCLOutput(
-                passInfo.transformedData[0],
+                passinfo.transformed_data[0],
                 delimiter,
                 *args
                 )
-            pclDic[passInfo.transformedData[0]].update({
+            pcl_dic[passinfo.transformed_data[0]].update({
                 self.__class__.__name__: output
                 })
 
@@ -81,7 +81,8 @@ class Library(object):
                 err
                 )
 
-    def getPCLOutput(self, password, delimiter, *args):
+    @staticmethod
+    def getPCLOutput(password, delimiter, *args):
         """Function get output of library and store it to passwordData
 
         Arguments:
@@ -108,10 +109,10 @@ class CrackLib(Library):
     def __init__(self):
         super(CrackLib, self).__init__()
 
-    def checkResult(self, passInfo, pclDic):
+    def checkResult(self, passinfo, pcl_dic):
         super(CrackLib, self).checkResult(
-            passInfo,
-            pclDic,
+            passinfo,
+            pcl_dic,
             ": ",
             "cracklib-check"
             )
@@ -122,10 +123,10 @@ class PassWDQC(Library):
     def __init__(self):
         super(PassWDQC, self).__init__()
 
-    def checkResult(self, passInfo, pclDic):
+    def checkResult(self, passinfo, pcl_dic):
         super(PassWDQC, self).checkResult(
-            passInfo,
-            pclDic,
+            passinfo,
+            pcl_dic,
             None,
             "pwqcheck", "-1"
             )
