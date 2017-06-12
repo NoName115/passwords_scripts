@@ -55,7 +55,7 @@ class Rule(object):
                     )
                 return
 
-            # transformOutput obtain transformedPassword and entropyChange
+            # transformOutput obtain transformed_password and entropy_change
             transform_output = self.uniqueTransform(
                 passinfo, from_index, to_index
                 )
@@ -226,16 +226,16 @@ class CapitalizeFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformedPassword = passinfo.transformed_data[0][: from_index] + \
+        transformed_password = passinfo.transformed_data[0][: from_index] + \
             passinfo.transformed_data[0][from_index: to_index + 1].upper() + \
             passinfo.transformed_data[0][to_index + 1:]
 
         # Check if transformation changed the password
-        entropyChange = 0.0
-        if (passinfo.transformed_data[0] != transformedPassword):
-            entropyChange = 1.0
+        entropy_change = 0.0
+        if (passinfo.transformed_data[0] != transformed_password):
+            entropy_change = 1.0
 
-        return [transformedPassword, entropyChange]
+        return [transformed_password, entropy_change]
 
 
 class LowerFromIndexToIndex(Rule):
@@ -251,16 +251,16 @@ class LowerFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformedPassword = passinfo.transformed_data[0][: from_index] + \
+        transformed_password = passinfo.transformed_data[0][: from_index] + \
             passinfo.transformed_data[0][from_index: to_index + 1].lower() + \
             passinfo.transformed_data[0][to_index + 1:]
 
         # Check if transformation changed the password
-        entropyChange = 0.0
-        if (passinfo.transformed_data[0] != transformedPassword):
-            entropyChange = 1.0
+        entropy_change = 0.0
+        if (passinfo.transformed_data[0] != transformed_password):
+            entropy_change = 1.0
 
-        return [transformedPassword, entropyChange]
+        return [transformed_password, entropy_change]
 
 
 class CapitalizeAllLetters(CapitalizeFromIndexToIndex):

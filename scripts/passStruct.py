@@ -106,12 +106,12 @@ class PassData(PassInfo):
         LibraryName - LibraryOutput
         """
 
-        original_PCL_outputs = "    ".join(
+        original_pcl_outputs = "    ".join(
             '{0:1}: {1:10}'.format(key, value)
             for key, value in self.original_lib_output.items()
             )
 
-        transformed_PCL_outputs = "    ".join(
+        transformed_pcl_outputs = "    ".join(
             '{0:1}: {1:10}'.format(key, value)
             for key, value in self.transformed_lib_output.items()
             )
@@ -128,14 +128,34 @@ class PassData(PassInfo):
         return '{0:10} ({1:.2f})'.format(
             self.original_data[0],
             self.original_data[1]
-            ) + " " + original_PCL_outputs + '\n' + \
+            ) + " " + original_pcl_outputs + '\n' + \
             '{0:10} ({1:.2f})'.format(
                 self.transformed_data[0],
                 self.transformed_data[1]
-                ) + " " + transformed_PCL_outputs + '\n' + error_output
+                ) + " " + transformed_pcl_outputs + '\n' + error_output
 
     def getOriginalLibOutput(self):
         return self.original_lib_output
 
     def getTransformedLibOutput(self):
         return self.transformed_lib_output
+
+    def getOkOriginalPassword(self):
+        passdic = {}
+        for pcl, pcl_output in self.original_lib_output.items():
+            if (pcl_output == "OK"):
+                passdic.update({ pcl: self.original_data[0] })
+            else:
+                passdic.update({ pcl: "-" })
+
+        return passdic
+
+    def getOkTransformedPassword(self):
+        passdic = {}
+        for pcl, pcl_output in self.transformed_lib_output.items():
+            if (pcl_output == "OK"):
+                passdic.update({ pcl: self.transformed_data[0] })
+            else:
+                passdic.update({ pcl: "-" })
+
+        return passdic

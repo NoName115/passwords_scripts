@@ -3,6 +3,7 @@ from scripts.passStruct import PassData
 from prettytable import PrettyTable
 
 import datetime
+import copy
 
 
 class PassDataGroup():
@@ -80,6 +81,24 @@ class PassDataGroup():
                     intersection_group.addPassData(pcl, passdata)
 
         return intersection_group
+
+    def union(self, other):
+        """Union of two PassDataGroup classes
+
+        Arguments:
+        other -- class PassDataGroup
+
+        Return value:
+        union_group -- return new PassDataGroup class
+        """
+        union_group = copy.copy(self)
+        for pcl in self.group_dic:
+            if (pcl in other.group_dic):
+                for passdata in other.group_dic[pcl]:
+                    if (not (passdata in union_group.group_dic[pcl])):
+                        union_group.addPassData(pcl, other_passdata)
+
+        return union_group
 
     # DEBUG
     def printData(self):
@@ -212,13 +231,14 @@ class AnalysisTemplate():
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, analyzer=None):
+    def __init__(self, analyzer=None, without_pcl_argument=False):
         """Template for new analysis
 
         Arguments:
         analyzer -- class Analyzer
         """
         self.analyzer = analyzer
+        self.without_pcl_argument = without_pcl_argument
         self.data = PassDataGroup()
 
     def getData(self):
@@ -248,9 +268,12 @@ class AnalysisTemplate():
         pass
 
     def getAnalysisOutput(self):
-        return '\n'.join(
-            str(self.uniqueAnalysisOutput(pcl)) for pcl in self.data.group_dic
-            )
+        if (self.without_pcl_argument):
+            return (str(self.uniqueAnalysisOutput(None)))
+        else:
+            return '\n'.join(
+                str(self.uniqueAnalysisOutput(pcl)) for pcl in self.data.group_dic
+                )
 
     @abstractmethod
     def uniqueAnalysisOutput(self, pcl):
@@ -261,15 +284,21 @@ class AnalysisTemplate():
     def getDataInTable(self):
         """Return tables of analysis data
         """
-        return (
-            '\n'.join(
-                (
-                    self.getAnalysisDescription(pcl) +
-                    str(self.getUniqueTableOutput(pcl))
+        if (self.without_pcl_argument):
+            return (
+                self.getAnalysisDescription(None) +
+                str(self.getUniqueTableOutput(None))
                 )
-                for pcl in self.data.group_dic
-            ) + '\n'
-        )
+        else:
+            return (
+                '\n'.join(
+                    (
+                        self.getAnalysisDescription(pcl) +
+                        str(self.getUniqueTableOutput(pcl))
+                    )
+                    for pcl in self.data.group_dic
+                ) + '\n'
+            )
 
     @abstractmethod
     def getUniqueTableOutput(self, pcl):
@@ -280,8 +309,11 @@ class AnalysisTemplate():
 
 class PCLOutputChangedFromOk2NotOK(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(PCLOutputChangedFromOk2NotOK, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(PCLOutputChangedFromOk2NotOK, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Output of originalPasword is OK but
@@ -339,8 +371,11 @@ class PCLOutputChangedFromOk2NotOK(AnalysisTemplate):
 
 class PCLOutputChangedFromNotOk2Ok(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(PCLOutputChangedFromNotOk2Ok, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(PCLOutputChangedFromNotOk2Ok, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """OriginalPassword was rejected by PCL but
@@ -396,8 +431,11 @@ class PCLOutputChangedFromNotOk2Ok(AnalysisTemplate):
 
 class PCLOutputChangedFromNotOk2NotOk(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(PCLOutputChangedFromNotOk2NotOk, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(PCLOutputChangedFromNotOk2NotOk, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Original and transformed password was rejected but
@@ -458,8 +496,11 @@ class PCLOutputChangedFromNotOk2NotOk(AnalysisTemplate):
 
 class LowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(LowEntropyOriginalPasswordPassPCL, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(LowEntropyOriginalPasswordPassPCL, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Original passwords with entropy lower than 36,
@@ -504,8 +545,11 @@ class LowEntropyOriginalPasswordPassPCL(AnalysisTemplate):
 
 class HighEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(HighEntropyOriginalPasswordDontPassPCL, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(HighEntropyOriginalPasswordDontPassPCL, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Original passwords with entropy higher than 60,
@@ -550,8 +594,11 @@ class HighEntropyOriginalPasswordDontPassPCL(AnalysisTemplate):
 
 class LowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(LowEntropyTransformedPasswordPassPCL, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(LowEntropyTransformedPasswordPassPCL, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Transformed passwords with entropy lower than 36,
@@ -596,9 +643,10 @@ class LowEntropyTransformedPasswordPassPCL(AnalysisTemplate):
 
 class HighEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
+    def __init__(self, analyzer=None, without_pcl_argument=False):
         super(HighEntropyTransformedPasswordDontPassPCL, self).__init__(
-            analyzer
+            analyzer,
+            without_pcl_argument
             )
 
     def runAnalysis(self):
@@ -644,8 +692,11 @@ class HighEntropyTransformedPasswordDontPassPCL(AnalysisTemplate):
 
 class LowEntropyChangePassPCL(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(LowEntropyChangePassPCL, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(LowEntropyChangePassPCL, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Analysis, that focus on entropy-change.
@@ -710,8 +761,11 @@ class LowEntropyChangePassPCL(AnalysisTemplate):
 
 class OverallSummary(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(OverallSummary, self).__init__(analyzer)
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(OverallSummary, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
 
     def runAnalysis(self):
         """Calculate percentages of transformed passwords
@@ -772,3 +826,121 @@ class OverallSummary(AnalysisTemplate):
                 ]
             )
         )
+
+
+class CountOkAndNotOkPasswords(AnalysisTemplate):
+
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(CountOkAndNotOkPasswords, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
+
+    def runAnalysis(self):
+        self.addGroup(self.analyzer.default_analysis['allPasswords'])
+        self.password_counter = {}
+
+        for pcl, passinfo_list in self.data.group_dic.items():
+            self.password_counter.update({ pcl: [0, 0] })
+            for passinfo in passinfo_list:
+                if (passinfo.getOriginalLibOutput()[pcl] == 'OK'):
+                    self.password_counter[pcl][0] += 1
+                else:
+                    self.password_counter[pcl][1] += 1
+                if (passinfo.getTransformedLibOutput()[pcl] == 'OK'):
+                    self.password_counter[pcl][0] += 1
+                else:
+                    self.password_counter[pcl][1] += 1
+
+    def getAnalysisDescription(self, pcl):
+        return (
+            "Analysis return number of passwords that passed through " + pcl +
+            " and number of password that didn\'t\n"
+        )
+
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            str(self.password_counter[pcl][0]) + " passwords pass through " + pcl +
+            " & " + str(self.password_counter[pcl][1]) + " passwords didn\'t pass through " + pcl
+        )
+
+    def getUniqueTableOutput(self, pcl):
+        return (
+            self.data.getDataInTable(
+                pcl,
+                [
+                    'Original password', 'Transformed password',
+                    'Original PCL output', 'Transformed PCL output'
+                ],
+                [
+                    'getOriginalPassword', 'getTransformedPassword',
+                    'getOriginalLibOutput', 'getTransformedLibOutput'
+                ]
+            )
+        )
+
+
+class AllOkPasswords(AnalysisTemplate):
+
+    def __init__(self, analyzer=None, without_pcl_argument=False):
+        super(AllOkPasswords, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
+
+    def runAnalysis(self):
+        self.addGroup(
+            self.analyzer.default_analysis['transPass_Ok'].union(
+                self.analyzer.default_analysis['origPass_Ok']
+            )
+        )
+
+    def getAnalysisDescription(self, pcl):
+        return (
+            "Analysis return all OK passwords (original & transformed) for " +
+            pcl + " PCL\n"
+        )
+
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "For analysis output, open analysis_file in folder 'outputs'"
+        )
+
+    def getUniqueTableOutput(self, pcl):
+        return (
+            self.data.getDataInTable(
+                pcl,
+                [
+                    'Ok Original password', 'Ok Transformed password'
+                ],
+                [
+                    'getOkOriginalPassword', 'getTransformedPassword'
+                ]
+            )
+        )
+
+
+class AllPCLOutputs(AnalysisTemplate):
+
+    def __init__(self, analyzer=None, without_pcl_argument=True):
+        super(AllPCLOutputs, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
+
+    def runAnalysis(self):
+        self.addGroup(self.analyzer.default_analysis['allPasswords'])
+
+    def getAnalysisDescription(self, pcl):
+        return (
+            "Analysis return table with password and PCLs output\n"
+        )
+
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "For analysis output, open analysis_file in folder 'outputs'"
+        )
+
+    def getUniqueTableOutput(self, pcl):
+        # TODO
+        pass

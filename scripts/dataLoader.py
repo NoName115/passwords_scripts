@@ -250,9 +250,9 @@ class StoreDataToJson():
         """
         outputfile = open(self.filename, 'w')
 
-        password_json_List = []
+        password_json_list = []
         for passinfo in passinfo_list:
-            password_json_List.append({
+            password_json_list.append({
                 'originalPassword': passinfo.getOriginalPassword(),
                 'transformedPassword': passinfo.getTransformedPassword(),
                 'initialEntropy': passinfo.getInitialEntropy(),
@@ -270,7 +270,7 @@ class StoreDataToJson():
         outputfile.write(
             json.dumps(
                 {
-                    'passwordList': password_json_List
+                    'passwordList': password_json_list
                 },
                 sort_keys=True,
                 indent=4,
