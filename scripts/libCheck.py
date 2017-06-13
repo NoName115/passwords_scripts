@@ -130,3 +130,17 @@ class PassWDQC(Library):
             None,
             "pwqcheck", "-1"
             )
+
+
+class TestLib(Library):
+
+    def __init__(self):
+        super(TestLib, self).__init__()
+
+    def checkResult(self, passinfo, pcl_dic):
+        super(TestLib, self).checkResult(
+            passinfo,
+            pcl_dic,
+            ": ",
+            "cracklib-check"
+            )

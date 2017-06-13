@@ -96,7 +96,7 @@ class PassDataGroup():
             if (pcl in other.group_dic):
                 for passdata in other.group_dic[pcl]:
                     if (not (passdata in union_group.group_dic[pcl])):
-                        union_group.addPassData(pcl, other_passdata)
+                        union_group.addPassData(pcl, passdata)
 
         return union_group
 
@@ -287,17 +287,17 @@ class AnalysisTemplate():
         if (self.without_pcl_argument):
             return (
                 self.getAnalysisDescription(None) +
-                str(self.getUniqueTableOutput(None))
+                str(self.getUniqueTableOutput(None)) + '\n\n'
                 )
         else:
             return (
-                '\n'.join(
+                '\n\n'.join(
                     (
                         self.getAnalysisDescription(pcl) +
                         str(self.getUniqueTableOutput(pcl))
                     )
                     for pcl in self.data.group_dic
-                ) + '\n'
+                ) + '\n\n'
             )
 
     @abstractmethod
@@ -305,6 +305,25 @@ class AnalysisTemplate():
         """Return one table with analysis data
         """
         pass
+    
+    def havePasswordSamePCLOutputs(self, passdata, getLibOutputFunc):
+        """Function return True if output of every PCL is OK or N'Ok
+        """
+        counterOk = 0
+        counterNotOk = 0
+        pclLibOutput = passdata.__getattribute__(getLibOutputFunc)()
+
+        for pcl, pcl_output in pclLibOutput.items():
+            if (pcl_output == "OK"):
+                counterOk += 1
+            else:
+                counterNotOk += 1
+
+        if (counterOk == len(pclLibOutput) or
+           counterNotOk == len(pclLibOutput)):
+            return True
+
+        return False
 
 
 class PCLOutputChangedFromOk2NotOK(AnalysisTemplate):
@@ -903,7 +922,8 @@ class AllOkPasswords(AnalysisTemplate):
 
     def uniqueAnalysisOutput(self, pcl):
         return (
-            "For analysis output, open analysis_file in folder 'outputs'"
+            "For analysis output (" + self.__class__.__name__ +
+            "), open analysis_file in folder 'outputs'"
         )
 
     def getUniqueTableOutput(self, pcl):
@@ -920,10 +940,10 @@ class AllOkPasswords(AnalysisTemplate):
         )
 
 
-class AllPCLOutputs(AnalysisTemplate):
+class AllPasswordsWithPCLOutputs(AnalysisTemplate):
 
     def __init__(self, analyzer=None, without_pcl_argument=True):
-        super(AllPCLOutputs, self).__init__(
+        super(AllPasswordsWithPCLOutputs, self).__init__(
             analyzer,
             without_pcl_argument
             )
@@ -933,14 +953,137 @@ class AllPCLOutputs(AnalysisTemplate):
 
     def getAnalysisDescription(self, pcl):
         return (
-            "Analysis return table with password and PCLs output\n"
+            "Analysis return table of all passwords and PCLs output\n"
         )
 
     def uniqueAnalysisOutput(self, pcl):
         return (
-            "For analysis output, open analysis_file in folder 'outputs'"
+            "For analysis output (" + self.__class__.__name__ +
+            "), open analysis_file in folder 'outputs'"
         )
 
     def getUniqueTableOutput(self, pcl):
-        # TODO
-        pass
+        # Create table with header
+        header = ['Password'] + list(self.data.group_dic.keys())
+        table = PrettyTable(header)
+
+        # Iteratate only one PCL coz, every PLC contain all passwords
+        for passdata in self.data.group_dic[header[1]]:
+            table_row = self.getTableRow(
+                passdata,
+                header,
+                'getOriginalPassword',
+                'getOriginalLibOutput',
+                True
+                )
+            if (table_row):
+                table.add_row(table_row)
+
+            # Same for transformed password, if it is different
+            if (passdata.isPasswordTransformed()):
+                table_row = self.getTableRow(
+                    passdata,
+                    header,
+                    'getTransformedPassword',
+                    'getTransformedLibOutput',
+                    True
+                )
+                if (table_row):
+                    table.add_row(table_row)
+
+        return table
+
+    def getTableRow(
+        self, passdata, header, getPasswordFunc, getLibOutputFunc,
+        filterData=False
+    ):
+        password = passdata.__getattribute__(getPasswordFunc)()
+        if (filterData and
+           self.havePasswordSamePCLOutputs(passdata, getLibOutputFunc)):
+            return None
+
+        data_list = [password]
+        # Add correct pcl output
+        for column in header[1:]:
+            data_list.append(
+                passdata.__getattribute__(getLibOutputFunc)()[column]
+                )
+
+        return data_list
+
+
+class AllPasswordsWithPCLNames(AnalysisTemplate):
+
+    def __init__(self, analyzer=None, without_pcl_argument=True):
+        super(AllPasswordsWithPCLNames, self).__init__(
+            analyzer,
+            without_pcl_argument
+            )
+
+    def runAnalysis(self):
+        self.addGroup(self.analyzer.default_analysis['allPasswords'])
+
+    def getAnalysisDescription(self, pcl):
+        return (
+            "Analysis return table of all passwords and list of PCLs " +
+            "which rejected or accepted the password\n"
+        )
+
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "For analysis output (" + self.__class__.__name__ +
+            "), open analysis_file in folder 'outputs'"
+        )
+
+    def getUniqueTableOutput(self, pcl):
+        # Create table and header
+        header = ['Password', 'Rejected PCL', 'Ok PCL']
+        table = PrettyTable(header)
+
+        # Get only one name of PCL coz, every PLC contain all passwords
+        pcl = list(self.data.group_dic.keys())[0]
+
+        # Fill table with correct data        
+        for passdata in self.data.group_dic[pcl]:
+            table_row = self.getTableRow(
+                passdata,
+                'getOriginalPassword',
+                'getOriginalLibOutput',
+                True
+                )
+            if (table_row):
+                table.add_row(table_row)
+
+            if (passdata.isPasswordTransformed()):
+                table_row = self.getTableRow(
+                    passdata,
+                    'getTransformedPassword',
+                    'getTransformedLibOutput',
+                    True
+                )
+                if (table_row):
+                    table.add_row(table_row)
+
+        return table
+
+    def getTableRow(
+        self, passdata, getPasswordFunc, getLibOutputFunc,
+        filterData=False
+    ):
+        password = passdata.__getattribute__(getPasswordFunc)()
+        if (filterData and
+           self.havePasswordSamePCLOutputs(passdata, getLibOutputFunc)):
+            return None
+
+        # data_list - password, list of rejectedPCL, list of acceptedPCL
+        data_list = [password, [], []]
+        # Add PCL's names which rejected or accepted the password
+        for pcl, pcl_output in (
+            passdata.__getattribute__(getLibOutputFunc)().items()
+        ):
+            if (pcl_output == "OK"):
+                data_list[2].append(pcl)
+            else:
+                data_list[1].append(pcl)
+
+        return data_list

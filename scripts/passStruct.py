@@ -55,6 +55,9 @@ class PassInfo():
         """
         return self.transformed_data[1] - self.original_data[1]
 
+    def isPasswordTransformed(self):
+        return not (self.original_data[0] == self.transformed_data[0])
+
 
 class PassData(PassInfo):
 

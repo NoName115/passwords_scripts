@@ -210,11 +210,11 @@ class LoadFromJson(Loader):
                         passData['originalPassword'],
                         passData['initialEntropy']
                         )
-                new_password.transformedData = [
+                new_password.transformed_data = [
                     passData['transformedPassword'],
                     passData['actualEntropy']
                     ]
-                new_password.transformRules = passData['transformRules']
+                new_password.transform_rules = passData['transformRules']
                 new_password.error_log = errorPrinter.RuleError(
                     passData['errorLog']
                     )
