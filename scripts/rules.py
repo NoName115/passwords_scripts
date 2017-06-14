@@ -24,7 +24,7 @@ class Transformation():
         return passinfo
 
 
-class Rule(object):
+class Rule():
 
     __metaclass__ = ABCMeta
 
@@ -61,7 +61,10 @@ class Rule(object):
                 )
 
             passinfo.transformed_data[0] = transform_output[0]
-            passinfo.transformed_data[1] += transform_output[1]
+            passinfo.transformed_data[1] = round(
+                passinfo.transformed_data[1] + transform_output[1],
+                2
+                )
 
             passinfo.addTransformRule(
                 self.__class__.__name__,

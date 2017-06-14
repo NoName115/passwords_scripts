@@ -306,12 +306,12 @@ class AnalysisTemplate():
         """
         pass
     
-    def havePasswordSamePCLOutputs(self, passdata, getLibOutputFunc):
+    def havePasswordSamePCLOutputs(self, passdata, password):
         """Function return True if output of every PCL is OK or N'Ok
         """
         counterOk = 0
         counterNotOk = 0
-        pclLibOutput = passdata.__getattribute__(getLibOutputFunc)()
+        pclLibOutput = passdata.getLibOutputByPassword(password)
 
         for pcl, pcl_output in pclLibOutput.items():
             if (pcl_output == "OK"):
@@ -888,11 +888,15 @@ class CountOkAndNotOkPasswords(AnalysisTemplate):
             self.data.getDataInTable(
                 pcl,
                 [
-                    'Original password', 'Transformed password',
+                    'Original password', 'Orig. Entropy',
+                    'Transformed password', 'Trans. Entropy',
+                    'Entropy diff.',
                     'Original PCL output', 'Transformed PCL output'
                 ],
                 [
-                    'getOriginalPassword', 'getTransformedPassword',
+                    'getOriginalPassword', 'getInitialEntropy',
+                    'getTransformedPassword', 'getActualEntropy',
+                    'getChangedEntropy',
                     'getOriginalLibOutput', 'getTransformedLibOutput'
                 ]
             )
@@ -964,16 +968,15 @@ class AllPasswordsWithPCLOutputs(AnalysisTemplate):
 
     def getUniqueTableOutput(self, pcl):
         # Create table with header
-        header = ['Password'] + list(self.data.group_dic.keys())
+        header = ['Password', 'Entropy'] + list(self.data.group_dic.keys())
         table = PrettyTable(header)
 
         # Iteratate only one PCL coz, every PLC contain all passwords
-        for passdata in self.data.group_dic[header[1]]:
+        for passdata in self.data.group_dic[header[-1]]:
             table_row = self.getTableRow(
                 passdata,
                 header,
                 'getOriginalPassword',
-                'getOriginalLibOutput',
                 True
                 )
             if (table_row):
@@ -985,7 +988,6 @@ class AllPasswordsWithPCLOutputs(AnalysisTemplate):
                     passdata,
                     header,
                     'getTransformedPassword',
-                    'getTransformedLibOutput',
                     True
                 )
                 if (table_row):
@@ -993,20 +995,17 @@ class AllPasswordsWithPCLOutputs(AnalysisTemplate):
 
         return table
 
-    def getTableRow(
-        self, passdata, header, getPasswordFunc, getLibOutputFunc,
-        filterData=False
-    ):
+    def getTableRow(self, passdata, header, getPasswordFunc, filterData=False):
         password = passdata.__getattribute__(getPasswordFunc)()
         if (filterData and
-           self.havePasswordSamePCLOutputs(passdata, getLibOutputFunc)):
+           self.havePasswordSamePCLOutputs(passdata, password)):
             return None
 
-        data_list = [password]
+        data_list = [password, passdata.getEntropyByPassword(password)]
         # Add correct pcl output
-        for column in header[1:]:
+        for column in header[2:]:
             data_list.append(
-                passdata.__getattribute__(getLibOutputFunc)()[column]
+                passdata.getLibOutputByPassword(password)[column]
                 )
 
         return data_list
@@ -1048,7 +1047,6 @@ class AllPasswordsWithPCLNames(AnalysisTemplate):
             table_row = self.getTableRow(
                 passdata,
                 'getOriginalPassword',
-                'getOriginalLibOutput',
                 True
                 )
             if (table_row):
@@ -1058,7 +1056,6 @@ class AllPasswordsWithPCLNames(AnalysisTemplate):
                 table_row = self.getTableRow(
                     passdata,
                     'getTransformedPassword',
-                    'getTransformedLibOutput',
                     True
                 )
                 if (table_row):
@@ -1066,20 +1063,17 @@ class AllPasswordsWithPCLNames(AnalysisTemplate):
 
         return table
 
-    def getTableRow(
-        self, passdata, getPasswordFunc, getLibOutputFunc,
-        filterData=False
-    ):
+    def getTableRow(self, passdata, getPasswordFunc, filterData=False):
         password = passdata.__getattribute__(getPasswordFunc)()
         if (filterData and
-           self.havePasswordSamePCLOutputs(passdata, getLibOutputFunc)):
+           self.havePasswordSamePCLOutputs(passdata, password)):
             return None
 
         # data_list - password, list of rejectedPCL, list of acceptedPCL
         data_list = [password, [], []]
         # Add PCL's names which rejected or accepted the password
         for pcl, pcl_output in (
-            passdata.__getattribute__(getLibOutputFunc)().items()
+            passdata.getLibOutputByPassword(password).items()
         ):
             if (pcl_output == "OK"):
                 data_list[2].append(pcl)

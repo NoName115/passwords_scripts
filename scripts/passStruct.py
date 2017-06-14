@@ -50,10 +50,17 @@ class PassInfo():
     def getActualEntropy(self):
         return self.transformed_data[1]
 
+    def getEntropyByPassword(self, password):
+        """Method return initial entropy if input password is same
+        as original password, otherwise return actual entropy
+        """
+        return self.original_data[1] if (password == self.original_data[0]) \
+            else self.transformed_data[1]
+
     def getChangedEntropy(self):
         """Return difference between actual entropy and initial entropy
         """
-        return self.transformed_data[1] - self.original_data[1]
+        return round(self.transformed_data[1] - self.original_data[1], 2)
 
     def isPasswordTransformed(self):
         return not (self.original_data[0] == self.transformed_data[0])
@@ -142,6 +149,14 @@ class PassData(PassInfo):
 
     def getTransformedLibOutput(self):
         return self.transformed_lib_output
+
+    def getLibOutputByPassword(self, password):
+        """Method return pcl output for original password
+        if input password is same as original password, otherwise
+        return pcl output for transformed password
+        """
+        return self.original_lib_output if (password == self.original_data[0]) \
+            else self.transformed_lib_output
 
     def getOkOriginalPassword(self):
         passdic = {}
