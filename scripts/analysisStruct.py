@@ -799,11 +799,14 @@ class OverallSummary(AnalysisTemplate):
         )
 
     def uniqueAnalysisOutput(self, pcl):
-        percent_change = (
-            len(
+        count_transPass_Ok = 0
+        if (pcl in self.analyzer.default_analysis['transPass_Ok'].group_dic):
+            count_transPass_Ok = len(
                 self.analyzer.default_analysis['transPass_Ok'].group_dic[pcl]
-                ) /
-            len(self.data.group_dic[pcl]) * 100
+                )
+
+        percent_change = (
+            count_transPass_Ok / len(self.data.group_dic[pcl]) * 100
             )
 
         rejection_dic = {}
@@ -817,18 +820,22 @@ class OverallSummary(AnalysisTemplate):
             else:
                 rejection_dic[passdata.transformed_lib_output[pcl]] += 1
 
+        # Calculate % for every reason of rejection
+        sorted_rejection_dic = sorted(
+            rejection_dic.items(),
+            key=lambda value: value[1],
+            reverse=True
+            )
+        reasons_of_rejection = '\n'.join(
+            reason_value[0] + " - " +
+            str(round(reason_value[1] / len(self.data.group_dic[pcl]) * 100, 2)) + "%"
+                for reason_value in sorted_rejection_dic
+        )
+
         return (
             str(round(percent_change, 2)) +
             "% of transformed passwords pass through " + pcl + ".\n" +
-            "Most common reason(" +
-            str(
-                round(
-                    max(rejection_dic.values()) /
-                    len(self.data.group_dic[pcl]) * 100,
-                    2
-                    )
-                ) + "%) for rejection is:\n" +
-            str(max(rejection_dic, key=rejection_dic.get)) + '\n'
+            "Reasons of rejection:\n" + reasons_of_rejection + '\n'
         )
 
     def getUniqueTableOutput(self, pcl):
@@ -857,19 +864,21 @@ class CountOkAndNotOkPasswords(AnalysisTemplate):
 
     def runAnalysis(self):
         self.addGroup(self.analyzer.default_analysis['allPasswords'])
-        self.password_counter = {}
+        self.password_counter = {'original': {}, 'transformed': {}}
 
         for pcl, passinfo_list in self.data.group_dic.items():
-            self.password_counter.update({ pcl: [0, 0] })
+            self.password_counter['original'].update({ pcl: [0, 0] })
+            self.password_counter['transformed'].update({ pcl: [0, 0] })
             for passinfo in passinfo_list:
                 if (passinfo.getOriginalLibOutput()[pcl] == 'OK'):
-                    self.password_counter[pcl][0] += 1
+                    self.password_counter['original'][pcl][0] += 1
                 else:
-                    self.password_counter[pcl][1] += 1
+                    self.password_counter['original'][pcl][1] += 1
+
                 if (passinfo.getTransformedLibOutput()[pcl] == 'OK'):
-                    self.password_counter[pcl][0] += 1
+                    self.password_counter['transformed'][pcl][0] += 1
                 else:
-                    self.password_counter[pcl][1] += 1
+                    self.password_counter['transformed'][pcl][1] += 1
 
     def getAnalysisDescription(self, pcl):
         return (
@@ -879,8 +888,12 @@ class CountOkAndNotOkPasswords(AnalysisTemplate):
 
     def uniqueAnalysisOutput(self, pcl):
         return (
-            str(self.password_counter[pcl][0]) + " passwords pass through " + pcl +
-            " & " + str(self.password_counter[pcl][1]) + " passwords didn\'t pass through " + pcl
+            str(self.password_counter['original'][pcl][0]) +
+            " original passwords passed through " + pcl + " & " +
+            str(self.password_counter['original'][pcl][1]) + " didn't.\n" +
+            str(self.password_counter['transformed'][pcl][0]) +
+            " transformed passwords passed through " + pcl + " & " +
+            str(self.password_counter['transformed'][pcl][1]) + " didn't."
         )
 
     def getUniqueTableOutput(self, pcl):
@@ -935,10 +948,12 @@ class AllOkPasswords(AnalysisTemplate):
             self.data.getDataInTable(
                 pcl,
                 [
-                    'Ok Original password', 'Ok Transformed password'
+                    'Ok Original password', 'Orig. Entropy',
+                    'Ok Transformed password', 'Trans. Entropy'
                 ],
                 [
-                    'getOkOriginalPassword', 'getTransformedPassword'
+                    'getOkOriginalPassword', 'getInitialEntropy',
+                    'getTransformedPassword', 'getActualEntropy'
                 ]
             )
         )
@@ -968,7 +983,7 @@ class AllPasswordsWithPCLOutputs(AnalysisTemplate):
 
     def getUniqueTableOutput(self, pcl):
         # Create table with header
-        header = ['Password', 'Entropy'] + list(self.data.group_dic.keys())
+        header = ['Password', 'Entropy', 'Transformations'] + list(self.data.group_dic.keys())
         table = PrettyTable(header)
 
         # Iteratate only one PCL coz, every PLC contain all passwords
@@ -1001,9 +1016,13 @@ class AllPasswordsWithPCLOutputs(AnalysisTemplate):
            self.havePasswordSamePCLOutputs(passdata, password)):
             return None
 
-        data_list = [password, passdata.getEntropyByPassword(password)]
+        data_list = [
+            password,
+            passdata.getEntropyByPassword(password),
+            passdata.getAppliedTransformationByPassword(password)
+            ]
         # Add correct pcl output
-        for column in header[2:]:
+        for column in header[3:]:
             data_list.append(
                 passdata.getLibOutputByPassword(password)[column]
                 )
@@ -1081,3 +1100,43 @@ class AllPasswordsWithPCLNames(AnalysisTemplate):
                 data_list[1].append(pcl)
 
         return data_list
+
+
+class TransformedPasswordCrackLibOkPassWDQCNotOk(AnalysisTemplate):
+
+    def __init__(self, analyzer=None, without_pcl_argument=True):
+        super(TransformedPasswordCrackLibOkPassWDQCNotOk, self).__init__(
+            analyzer,
+            without_pcl_argument
+        )
+
+    def runAnalysis(self):
+        self.addGroup(self.analyzer.default_analysis['transPass_Ok'])
+    
+    def getAnalysisDescription(self, pcl):
+        return (
+            "Analysis return table of passwords that are 9+ character long " +
+            "and pcl output\n"
+        )
+    
+    def uniqueAnalysisOutput(self, pcl):
+        return (
+            "For analysis output (" + self.__class__.__name__ +
+            "), open analysis_file in folder 'outputs'"
+        )
+
+    def getUniqueTableOutput(self, pcl):
+        # Create table and header
+        header = ['Transformed password', 'Length', 'CrackLib', 'PassWDQC']
+        table = PrettyTable(header)
+
+        for passdata in self.data.group_dic['PassWDQC']:
+            if (passdata.getTransformedLibOutput()['CrackLib'] != "OK"):
+                table.add_row([
+                    passdata.getTransformedPassword(),
+                    len(passdata.getTransformedPassword()),
+                    passdata.getTransformedLibOutput()['CrackLib'],
+                    passdata.getTransformedLibOutput()['PassWDQC']
+                    ])
+
+        return table.get_string(sortby="Length")

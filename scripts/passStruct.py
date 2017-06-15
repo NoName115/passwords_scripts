@@ -38,6 +38,15 @@ class PassInfo():
             for trans in self.transform_rules
             )
 
+    def getAppliedTransformationByPassword(self, password):
+        """Method return applied transformations if input password
+        is same as transformed password, otherwise return '-'
+        """
+        if (self.transformed_data[0] == password):
+            return self.getAppliedTransformation()
+        else:
+            return '-'
+
     def getOriginalPassword(self):
         return self.original_data[0]
 

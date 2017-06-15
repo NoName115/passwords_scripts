@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassInfo
+from random import randint
 
 import scripts.errorPrinter as errorPrinter
 import random
@@ -41,10 +42,10 @@ class Rule():
         """
         try:
             from_index = self.calculateFromIndex(
-                passinfo.original_data[0]
+                passinfo.getTransformedPassword()
                 )
             to_index = self.calculateToIndex(
-                passinfo.original_data[0]
+                passinfo.getTransformedPassword()
                 )
 
             if (from_index > to_index):
@@ -312,3 +313,60 @@ class ApplyAdvancedl33tTable(ApplyAdvancedl33tFromIndexToIndex):
 
     def __init__(self):
         super(ApplyAdvancedl33tTable, self).__init__(0, -1)
+
+class AddTwoRandomDigitsAsPrefix(Rule):
+
+    def __init__(self):
+        super(AddTwoRandomDigitsAsPrefix, self).__init__(0, 0)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        digits = str(randint(0, 9)) + str(randint(0, 9))
+        transformed_password = digits + passinfo.getTransformedPassword()
+        entropy_change = 6.5
+
+        return [transformed_password, entropy_change]
+
+
+class ChangeFirstLetterToRandomLetter(Rule):
+
+    def __init__(self):
+        super(ChangeFirstLetterToRandomLetter, self).__init__(0, 0)
+    
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.getTransformedPassword()
+        entropy_change = 0
+
+        for c, i in zip(transformed_password, range(0, len(transformed_password))):
+            if (c.islower() or c.isupper()):
+                transformed_password = transformed_password[0: i] + \
+                    chr(randint(97, 122)) + transformed_password[i + 1: ]
+                entropy_change = 4.5
+                break
+
+        return [transformed_password, entropy_change]
+
+
+class ChangeRandomLetterToRandomLetter(Rule):
+
+    def __init__(self):
+        super(ChangeRandomLetterToRandomLetter, self).__init__(0, 0)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.getTransformedPassword()
+        entropy_change = 0
+        characterIndexList = []
+
+        for c, i in zip(transformed_password, range(0, len(transformed_password))):
+            if (c.islower() or c.isupper()):
+                characterIndexList.append(i)
+        
+        if (characterIndexList):
+            random_index = characterIndexList[randint(
+                0,
+                len(characterIndexList) - 1
+                )]
+            transformed_password = transformed_password[0: random_index] + \
+                chr(randint(97, 122)) + transformed_password[random_index + 1: ]
+            entropy_change = 7.5
+
+        return [transformed_password, entropy_change]

@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from zxcvbn import zxcvbn
 
 import scripts.errorPrinter as errorPrinter
 import subprocess
@@ -62,24 +63,33 @@ class Library(object):
                 delimiter,
                 *args
                 )
-            pcl_dic[passinfo.original_data[0]].update({
-                self.__class__.__name__: output
-                })
+            self.storePCLOutput(
+                pcl_dic,
+                passinfo.original_data,
+                output
+                )
 
             output = self.getPCLOutput(
                 passinfo.transformed_data[0],
                 delimiter,
                 *args
                 )
-            pcl_dic[passinfo.transformed_data[0]].update({
-                self.__class__.__name__: output
-                })
+            self.storePCLOutput(
+                pcl_dic,
+                passinfo.transformed_data,
+                output
+                )
 
         except Exception as err:
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err
                 )
+
+    def storePCLOutput(self, pcl_dic, storeto, pcl_output):
+        pcl_dic[storeto[0]].update({
+            self.__class__.__name__: pcl_output
+        })
 
     @staticmethod
     def getPCLOutput(password, delimiter, *args):
@@ -132,15 +142,37 @@ class PassWDQC(Library):
             )
 
 
-class TestLib(Library):
+class Zxcvbn(Library):
 
     def __init__(self):
-        super(TestLib, self).__init__()
+        super(Zxcvbn, self).__init__()
 
     def checkResult(self, passinfo, pcl_dic):
-        super(TestLib, self).checkResult(
-            passinfo,
+        output = self.checkPassword(passinfo.getOriginalPassword())
+        self.storePCLOutput(
             pcl_dic,
-            ": ",
-            "cracklib-check"
+            passinfo.original_data,
+            output
             )
+
+        output = self.checkPassword(passinfo.getOriginalPassword())
+        self.storePCLOutput(
+            pcl_dic,
+            passinfo.transformed_data,
+            output
+            )
+
+    def checkPassword(self, password):
+        result = zxcvbn(password)
+        warning = result['feedback']['warning']
+        suggestions = result['feedback']['suggestions']
+
+        output = ''
+        if (warning or suggestions):
+            if (warning):
+                output = warning + ' '
+            output += ' '.join(str(sugg) for sugg in suggestions)
+        else:
+            output = "OK"
+        
+        return output
