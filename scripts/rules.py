@@ -152,6 +152,12 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         return [transformed_password, entropy_change]
 
 
+class ApplySimplel33tTable(ApplySimplel33tFromIndexToIndex):
+
+    def __init__(self):
+        super(ApplySimplel33tTable, self).__init__(0, -1)
+
+
 class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
     def __init__(self, from_index, to_index):
@@ -217,6 +223,12 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         return [transformed_password, entropy_change]
 
 
+class ApplyAdvancedl33tTable(ApplyAdvancedl33tFromIndexToIndex):
+
+    def __init__(self):
+        super(ApplyAdvancedl33tTable, self).__init__(0, -1)
+
+
 class CapitalizeFromIndexToIndex(Rule):
 
     def __init__(self, from_index, to_index):
@@ -232,31 +244,6 @@ class CapitalizeFromIndexToIndex(Rule):
         """
         transformed_password = passinfo.transformed_data[0][: from_index] + \
             passinfo.transformed_data[0][from_index: to_index + 1].upper() + \
-            passinfo.transformed_data[0][to_index + 1:]
-
-        # Check if transformation changed the password
-        entropy_change = 0.0
-        if (passinfo.transformed_data[0] != transformed_password):
-            entropy_change = 1.0
-
-        return [transformed_password, entropy_change]
-
-
-class LowerFromIndexToIndex(Rule):
-
-    def __init__(self, from_index, to_index):
-        super(LowerFromIndexToIndex, self).__init__(from_index, to_index)
-
-    def uniqueTransform(self, passinfo, from_index, to_index):
-        """Lower X letters in password
-
-        Arguments:
-        passinfo -- type of passStruct.Password
-        from_index -- start index of applying the rule
-        to_index -- last index of applying the rule
-        """
-        transformed_password = passinfo.transformed_data[0][: from_index] + \
-            passinfo.transformed_data[0][from_index: to_index + 1].lower() + \
             passinfo.transformed_data[0][to_index + 1:]
 
         # Check if transformation changed the password
@@ -285,6 +272,31 @@ class CapitalizeLastLetter(CapitalizeFromIndexToIndex):
         super(CapitalizeLastLetter, self).__init__(-1, -1)
 
 
+class LowerFromIndexToIndex(Rule):
+
+    def __init__(self, from_index, to_index):
+        super(LowerFromIndexToIndex, self).__init__(from_index, to_index)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        """Lower X letters in password
+
+        Arguments:
+        passinfo -- type of passStruct.Password
+        from_index -- start index of applying the rule
+        to_index -- last index of applying the rule
+        """
+        transformed_password = passinfo.transformed_data[0][: from_index] + \
+            passinfo.transformed_data[0][from_index: to_index + 1].lower() + \
+            passinfo.transformed_data[0][to_index + 1:]
+
+        # Check if transformation changed the password
+        entropy_change = 0.0
+        if (passinfo.transformed_data[0] != transformed_password):
+            entropy_change = 1.0
+
+        return [transformed_password, entropy_change]
+
+
 class LowerAllLetters(LowerFromIndexToIndex):
 
     def __init__(self):
@@ -303,16 +315,52 @@ class LowerLastLetter(LowerFromIndexToIndex):
         super(LowerLastLetter, self).__init__(-1, -1)
 
 
-class ApplySimplel33tTable(ApplySimplel33tFromIndexToIndex):
+class AddStringAsPostfixOrPrefix(Rule):
+
+    def __init__(self, string_to_add, entropy_change):
+        super(AddStringAsPostfixOrPrefix, self).__init__(0, 0)
+        self.string_to_add = string_to_add
+        self.entropy_change = entropy_change
+    
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.getTransformedPassword()
+
+        post_or_prefix = self.string_to_add
+        if (type(self.string_to_add) is list):
+            post_or_prefix = self.string_to_add[randint(
+                0,
+                len(self.string_to_add) - 1
+                )]
+
+        # If == 1, add string as prefix, else as postfix
+        if (randint(0, 1)):
+            transformed_password = post_or_prefix + transformed_password
+        else:
+            transformed_password += post_or_prefix
+
+        return [transformed_password, self.entropy_change]
+
+
+class AddOneAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
 
     def __init__(self):
-        super(ApplySimplel33tTable, self).__init__(0, -1)
+        super(AddOneAsPostfixOrPrefix, self).__init__('1', 1)
 
 
-class ApplyAdvancedl33tTable(ApplyAdvancedl33tFromIndexToIndex):
+class AddExclamationMarkAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
 
     def __init__(self):
-        super(ApplyAdvancedl33tTable, self).__init__(0, -1)
+        super(AddExclamationMarkAsPostfixOrPrefix, self).__init__('!', 1)
+
+
+class AddRandomTitleNameAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
+
+    def __init__(self):
+        super(AddRandomTitleNameAsPostfixOrPrefix, self).__init__(
+            ['Mc', 'Mac', 'Dr', 'Ms', 'Mr', 'Mrs'],
+            1
+            )
+
 
 class AddTwoRandomDigitsAsPrefix(Rule):
 

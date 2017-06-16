@@ -893,7 +893,7 @@ class CountOkAndNotOkPasswords(AnalysisTemplate):
             str(self.password_counter['original'][pcl][1]) + " didn't.\n" +
             str(self.password_counter['transformed'][pcl][0]) +
             " transformed passwords passed through " + pcl + " & " +
-            str(self.password_counter['transformed'][pcl][1]) + " didn't."
+            str(self.password_counter['transformed'][pcl][1]) + " didn't.\n"
         )
 
     def getUniqueTableOutput(self, pcl):
