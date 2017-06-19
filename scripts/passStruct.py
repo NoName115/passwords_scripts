@@ -1,6 +1,4 @@
 import scripts.errorPrinter as errorPrinter
-import re
-import json
 
 
 class PassInfo():

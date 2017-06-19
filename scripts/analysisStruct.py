@@ -367,7 +367,7 @@ class PCLOutputChangedFromOk2NotOK(AnalysisTemplate):
             "And the reason of rejection is: " +
             self.data.getPassDataAttribute(
                 pcl,
-                'geTransformedLibOutput'
+                'getTransformedLibOutput'
                 ) +
             '\n'
             )
@@ -805,9 +805,19 @@ class OverallSummary(AnalysisTemplate):
                 self.analyzer.default_analysis['transPass_Ok'].group_dic[pcl]
                 )
 
-        percent_change = (
+        count_origPass_Ok = 0
+        if (pcl in self.analyzer.default_analysis['origPass_Ok'].group_dic):
+            count_origPass_Ok = len(
+                self.analyzer.default_analysis['transPass_Ok'].group_dic[pcl]
+            )
+
+        trans_percent_change = (
             count_transPass_Ok / len(self.data.group_dic[pcl]) * 100
             )
+
+        orig_percent_change = (
+            count_origPass_Ok / len(self.data.group_dic[pcl]) * 100
+        )
 
         rejection_dic = {}
         for passdata in (
@@ -833,7 +843,9 @@ class OverallSummary(AnalysisTemplate):
         )
 
         return (
-            str(round(percent_change, 2)) +
+            str(round(orig_percent_change, 2)) +
+            "% of original passwords pass through " + pcl + ".\n" +
+            str(round(trans_percent_change, 2)) +
             "% of transformed passwords pass through " + pcl + ".\n" +
             "Reasons of rejection:\n" + reasons_of_rejection + '\n'
         )
