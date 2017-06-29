@@ -30,8 +30,9 @@ class PassCheckLib():
         pcl_dic = {}
 
         for passinfo in passinfo_list:
-            pcl_dic.update({passinfo.original_data[0]: {}})
-            pcl_dic.update({passinfo.transformed_data[0]: {}})
+            pcl_dic.update({passinfo.password: {}})
+            #pcl_dic.update({passinfo.original_data[0]: {}})
+            #pcl_dic.update({passinfo.transformed_data[0]: {}})
 
             for pcl in self.pclList:
                 pcl.checkResult(passinfo, pcl_dic)

@@ -3,17 +3,28 @@ import scripts.errorPrinter as errorPrinter
 
 class PassInfo():
 
-    def __init__(self, password=None, entropy=None):
+    def __init__(self, password=None, entropy=None, orig_passinfo=None):
         """
         Arguments:
         password -- (string)
         entropy -- (float/integer)
         """
+        '''
         self.original_data = [password, entropy]
         self.transformed_data = [password, entropy]
         self.transform_rules = []
         self.error_log = errorPrinter.RuleError()
+        '''
+        self.password = password
+        self.entropy = entropy
 
+        if (orig_passinfo):
+            self.orig_passinfo = orig_passinfo
+
+    def __str__(self):
+        return '{0:15} ({1:.f})'.format(self.password, self.entropy) +
+            '\n' + str(self.getAppliedTransformation()) + '\n'
+    '''
     def __str__(self):
         return '{0:15} ({1:.2f})'.format(
             self.original_data[0],
@@ -23,19 +34,28 @@ class PassInfo():
             self.transformed_data[0],
             self.transformed_data[1]
             ) + '\n' + self.getAppliedTransformation() + '\n'
+    '''
 
     def addTransformRule(self, class_name, entropy):
+        if (not hasattr(self, 'transform_rules')):
+            self.transform_rules = []
+
         self.transform_rules.append({class_name: entropy})
 
     def getAppliedTransformation(self):
-        """Return string of applied transformations
+        """Return string of applied transformations if exists,
+        else return None
         """
-        return " -> ".join(
-            str(list(trans.keys())[0]) + '(' +
-            str(list(trans.values())[0]) + ')'
-            for trans in self.transform_rules
-            )
+        if (hasattr(self, 'transform_rules')):
+            return " -> ".join(
+                str(list(trans.keys())[0]) + '(' +
+                str(list(trans.values())[0]) + ')'
+                for trans in self.transform_rules
+                )
+        else:
+            return None
 
+    '''
     def getAppliedTransformationByPassword(self, password):
         """Method return applied transformations if input password
         is same as transformed password, otherwise return '-'
@@ -44,7 +64,15 @@ class PassInfo():
             return self.getAppliedTransformation()
         else:
             return '-'
+    '''
 
+    def getPassword(self):
+        return self.password
+
+    def getEntropy(self):
+        return self.entropy
+
+    '''
     def getOriginalPassword(self):
         return self.original_data[0]
 
@@ -56,31 +84,40 @@ class PassInfo():
 
     def getActualEntropy(self):
         return self.transformed_data[1]
+    '''
 
+    '''
     def getEntropyByPassword(self, password):
         """Method return initial entropy if input password is same
         as original password, otherwise return actual entropy
         """
         return self.original_data[1] if (password == self.original_data[0]) \
             else self.transformed_data[1]
+    '''
 
     def getChangedEntropy(self):
-        """Return difference between actual entropy and initial entropy
+        """Return difference between entropy of transformed password
+        and original password
         """
-        return round(self.transformed_data[1] - self.original_data[1], 2)
+        if (hasattr(self, 'orig_passinfo')):
+            return round(self.entropy - self.orig_passinfo.entropy)
+        else:
+            return 0
 
     def isPasswordTransformed(self):
-        return not (self.original_data[0] == self.transformed_data[0])
+        return hasattr(self, 'transform_rules')
 
 
 class PassData(PassInfo):
 
-    def __init__(self, passinfo, original_lib_output, transformed_lib_output):
-        self.original_data = passinfo.original_data
-        self.transformed_data = passinfo.transformed_data
-        self.transform_rules = passinfo.transform_rules
-        self.original_lib_output = original_lib_output
-        self.transformed_lib_output = transformed_lib_output
+    def __init__(self, passinfo, lib_output, orig_passdata=None):
+        self.password = passinfo.password
+        self.entropy = passinfo.entropy
+        self.lib_output = lib_output
+
+        if (hasattr(passinfo, 'transform_rules')):
+            self.transform_rules = passinfo.transform_rules
+            self.orig_passdata = orig_passdata
 
     def debugData(self):
         """Return all password data
@@ -91,66 +128,74 @@ class PassData(PassInfo):
         LibraryName - OriginalPassword_LibraryOutput
         LibraryName - TransformedPassword_LibraryOutput
         """
-        if (not self.transform_rules):
-            transformations = "No password transform"
-
-        transformations = self.getAppliedTransformation()
-
-        lib_output = ""
-        for key in self.original_lib_output:
-            lib_output += '{0:8} - {1:20}'.format(
-                key,
-                self.original_lib_output[key]
-                ) + '\n'
-            lib_output += '{0:8} - {1:20}'.format(
-                key,
-                self.transformed_lib_output[key]
-                ) + '\n'
+        orig_password = ''
+        orig_entropy = ''
+        orig_lib_output = ''
+        trans_password = ''
+        trans_entropy = ''
+        trans_lib_output = ''
+        transformations = ''
+        if (not hasattr(self, 'transform_rules')):
+            orig_password = self.password
+            orig_entropy = self.entropy
+            orig_lib_output = '\n'.join(
+                key + ' - ' + value for key, value in self.lib_output.items()
+            )
+        else:
+            orig_password = self.orig_passdata.password
+            orig_entropy = self.orig_passdata.entropy
+            orig_lib_output = '\n'.join(
+                key + ' - ' + value
+                for key, value in self.orig_passdata.lib_output.items()
+            )
+            trans_password = self.password
+            trans_entropy = self.entropy
+            transformations = self.getAppliedTransformation()
 
         return '{0:1} ({1:.2f}) {2:1} ({3:.2f})'.format(
-            self.original_data[0],
-            self.original_data[1],
-            self.transformed_data[0],
-            self.transformed_data[1]
-            ) + '\n' + transformations + '\n' + lib_output
+            orig_password,
+            orig_entropy,
+            trans_password,
+            trans_entropy
+            ) + '\n' + transformations + '\n' +
+            orig_lib_output + '\n' + trans_lib_output '\n'
 
     def __str__(self):
         """Return password data
 
         Return format:
         Password : Entropy
-        Transform : actualEntropy (entropyChange) --> NextTransform
-        LibraryName - LibraryOutput
+        PCL_Name : PCL_Output     Next_PCL_Name : Next_PCL_Output
+        Transformation : actualEntropy (entropyChange) --> NextTransform
+        Transformation errors
         """
-
-        original_pcl_outputs = "    ".join(
+        pcl_output = "    ".join(
             '{0:1}: {1:10}'.format(key, value)
-            for key, value in self.original_lib_output.items()
-            )
-
-        transformed_pcl_outputs = "    ".join(
-            '{0:1}: {1:10}'.format(key, value)
-            for key, value in self.transformed_lib_output.items()
+            for key, value in self.pcl_output.items()
             )
 
         # Check if transformation take effect on password
-        error_output = ""
-        for trans in self.transform_rules:
-            for key, value in trans.items():
-                if (value == 0):
-                    error_output += (
-                        "Transformation  " + key + "  wasn\'t applied" + '\n'
-                        )
+        error_output = ''
+        transformations = ''
+        if (hasattr(self, 'transform_rules')):
+            transformations = self.getAppliedTransformation()
+            for trans in self.transform_rules:
+                for key, value in trans.items():
+                    if (value == 0):
+                        error_output += (
+                            "Transformation  " + key +
+                            "  wasn\'t applied" + '\n'
+                            )
 
         return '{0:10} ({1:.2f})'.format(
-            self.original_data[0],
-            self.original_data[1]
-            ) + " " + original_pcl_outputs + '\n' + \
-            '{0:10} ({1:.2f})'.format(
-                self.transformed_data[0],
-                self.transformed_data[1]
-                ) + " " + transformed_pcl_outputs + '\n' + error_output
+            self.password,
+            self.entropy
+        ) + '\n' + pcl_output + '\n' + transformations + '\n' + error_output
 
+    def getLibOutput(self):
+        return self.lib_output
+
+    '''
     def getOriginalLibOutput(self):
         return self.original_lib_output
 
@@ -164,7 +209,8 @@ class PassData(PassInfo):
         """
         return self.original_lib_output if (password == self.original_data[0]) \
             else self.transformed_lib_output
-
+    '''
+    '''
     def getOkOriginalPassword(self):
         passdic = {}
         for pcl, pcl_output in self.original_lib_output.items():
@@ -184,3 +230,4 @@ class PassData(PassInfo):
                 passdic.update({ pcl: "-" })
 
         return passdic
+    '''

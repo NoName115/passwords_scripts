@@ -16,13 +16,32 @@ class Transformation():
     def add(self, transformation):
         self.transformation_list.append(transformation)
 
-    def apply(self, password):
-        passinfo = PassInfo(password[0], password[1])
+    def apply(self, password_list):
+        passinfo_list = []
+
+        for password in password_list:
+            if (type(password) is list):
+                orig_passinfo = PassInfo(
+                    password=password[0],
+                    entropy=password[1]
+                    )
+                trans_passinfo = PassInfo(
+                    password=password[0],
+                    entropy=password[1],
+                    orig_passinfo=orig_passinfo)
+                passinfo_list.append(orig_passinfo)
+                passinfo_list.append(trans_passinfo)
+            else:
+                if (hasattr(password, 'transform_rules')):
+                    trans_passinfo = password
+                else:
+                    passinfo_list.append(password)
+                    continue
 
         for trans in self.transformation_list:
-            trans.transform(passinfo)
+            trans.transform(trans_passinfo)
 
-        return passinfo
+        return passinfo_list
 
 
 class Rule():
@@ -42,10 +61,10 @@ class Rule():
         """
         try:
             from_index = self.calculateFromIndex(
-                passinfo.getTransformedPassword()
+                passinfo.password
                 )
             to_index = self.calculateToIndex(
-                passinfo.getTransformedPassword()
+                passinfo.password
                 )
 
             if (from_index > to_index):
@@ -61,9 +80,9 @@ class Rule():
                 passinfo, from_index, to_index
                 )
 
-            passinfo.transformed_data[0] = transform_output[0]
-            passinfo.transformed_data[1] = round(
-                passinfo.transformed_data[1] + transform_output[1],
+            passinfo.password = transform_output[0]
+            passinfo.entropy = round(
+                passinfo.entropy + transform_output[1],
                 2
                 )
 
@@ -73,7 +92,6 @@ class Rule():
                 )
 
         except TypeError:
-            raise
             passinfo.error_log.addError(
                 self.__class__.__name__,
                 "Argument 'from_index' or 'to_index' is not a number. " +
@@ -81,7 +99,6 @@ class Rule():
                 "rules.rule_name(from_index, to_index).transform(passwordData)"
                 )
         except AttributeError:
-            raise
             errorPrinter.addMainError(
                 self.__class__.__name__,
                 "Wrong input type of data. " + '\n' +
@@ -133,7 +150,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.transformed_data[0]
+        transformed_password = passinfo.password
 
         for key in self.l33t_table:
             transformed_password = transformed_password[: from_index] + \
@@ -146,7 +163,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropy_change = 0.0
-        if (passinfo.transformed_data[0] != transformed_password):
+        if (passinfo.password != transformed_password):
             entropy_change = 1.0
 
         return [transformed_password, entropy_change]
@@ -200,7 +217,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.transformed_data[0]
+        transformed_password = passinfo.password
         for key in self.l33t_table:
             transformed_password = transformed_password[: from_index] + \
                 transformed_password[from_index: to_index + 1]. \
@@ -217,7 +234,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
 
         # Check if transformation changed the password
         entropy_change = 0.0
-        if (passinfo.transformed_data[0] != transformed_password):
+        if (passinfo.password != transformed_password):
             entropy_change = 2.0
 
         return [transformed_password, entropy_change]
@@ -242,13 +259,13 @@ class CapitalizeFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.transformed_data[0][: from_index] + \
-            passinfo.transformed_data[0][from_index: to_index + 1].upper() + \
-            passinfo.transformed_data[0][to_index + 1:]
+        transformed_password = passinfo.password[: from_index] + \
+            passinfo.password[from_index: to_index + 1].upper() + \
+            passinfo.password[to_index + 1:]
 
         # Check if transformation changed the password
         entropy_change = 0.0
-        if (passinfo.transformed_data[0] != transformed_password):
+        if (passinfo.password != transformed_password):
             entropy_change = 1.0
 
         return [transformed_password, entropy_change]
@@ -285,13 +302,13 @@ class LowerFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.transformed_data[0][: from_index] + \
-            passinfo.transformed_data[0][from_index: to_index + 1].lower() + \
-            passinfo.transformed_data[0][to_index + 1:]
+        transformed_password = passinfo.password[: from_index] + \
+            passinfo.password[from_index: to_index + 1].lower() + \
+            passinfo.password[to_index + 1:]
 
         # Check if transformation changed the password
         entropy_change = 0.0
-        if (passinfo.transformed_data[0] != transformed_password):
+        if (passinfo.password != transformed_password):
             entropy_change = 1.0
 
         return [transformed_password, entropy_change]
@@ -323,7 +340,7 @@ class AddStringAsPostfixOrPrefix(Rule):
         self.entropy_change = entropy_change
     
     def uniqueTransform(self, passinfo, from_index, to_index):
-        transformed_password = passinfo.getTransformedPassword()
+        transformed_password = passinfo.password
 
         post_or_prefix = self.string_to_add
         if (type(self.string_to_add) is list):
@@ -369,7 +386,7 @@ class AddTwoRandomDigitsAsPrefix(Rule):
 
     def uniqueTransform(self, passinfo, from_index, to_index):
         digits = str(randint(0, 9)) + str(randint(0, 9))
-        transformed_password = digits + passinfo.getTransformedPassword()
+        transformed_password = digits + passinfo.password
         entropy_change = 6.5
 
         return [transformed_password, entropy_change]
@@ -381,7 +398,7 @@ class ChangeFirstLetterToRandomLetter(Rule):
         super(ChangeFirstLetterToRandomLetter, self).__init__(0, 0)
     
     def uniqueTransform(self, passinfo, from_index, to_index):
-        transformed_password = passinfo.getTransformedPassword()
+        transformed_password = passinfo.password
         entropy_change = 0
 
         for c, i in zip(transformed_password, range(0, len(transformed_password))):
@@ -400,7 +417,7 @@ class ChangeRandomLetterToRandomLetter(Rule):
         super(ChangeRandomLetterToRandomLetter, self).__init__(0, 0)
 
     def uniqueTransform(self, passinfo, from_index, to_index):
-        transformed_password = passinfo.getTransformedPassword()
+        transformed_password = passinfo.password
         entropy_change = 0
         characterIndexList = []
 
