@@ -25,12 +25,16 @@ class Transformation():
                     password=password[0],
                     entropy=password[1]
                     )
-                trans_passinfo = PassInfo(
-                    password=password[0],
-                    entropy=password[1],
-                    orig_passinfo=orig_passinfo)
                 passinfo_list.append(orig_passinfo)
-                passinfo_list.append(trans_passinfo)
+
+                if (self.transformation_list):
+                    trans_passinfo = PassInfo(
+                        password=password[0],
+                        entropy=password[1],
+                        orig_passinfo=orig_passinfo
+                        )
+                    passinfo_list.append(trans_passinfo)
+
             else:
                 if (hasattr(password, 'transform_rules')):
                     trans_passinfo = password
@@ -38,8 +42,8 @@ class Transformation():
                     passinfo_list.append(password)
                     continue
 
-        for trans in self.transformation_list:
-            trans.transform(trans_passinfo)
+            for trans in self.transformation_list:
+                trans.transform(trans_passinfo)
 
         return passinfo_list
 

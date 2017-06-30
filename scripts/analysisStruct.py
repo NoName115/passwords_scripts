@@ -2,10 +2,13 @@ from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassData
 from prettytable import PrettyTable
 
+import scripts.errorPrinter as errorPrinter
+import scripts.filter as data_filter
+import scripts.table as table
 import datetime
 import copy
 
-
+'''
 class PassDataGroup():
 
     def __init__(self):
@@ -103,6 +106,7 @@ class PassDataGroup():
     # DEBUG
     def printData(self):
         print(self.group_dic)
+'''
 
 
 class Analyzer():
@@ -132,11 +136,9 @@ class Analyzer():
         """
         self.analysis_list = []
         self.default_analysis = {
-            'allPasswords': PassDataGroup(),
-            'origPass_Ok': PassDataGroup(),
-            'origPass_NotOk': PassDataGroup(),
-            'transPass_Ok': PassDataGroup(),
-            'transPass_NotOk': PassDataGroup()
+            'all_passwords': [],
+            'orig_passwords': [],
+            'trans_passwords': []
         }
         self.fillDefaultAnalysisGroups(passinfo_list, pcl_dic)
 
@@ -151,42 +153,28 @@ class Analyzer():
         """
         # Create passdata_list
         passdata_list = []
+        orig_passdata = None
         for passinfo in passinfo_list:
-            passdata_list.append(PassData(
-                passinfo,
-                pcl_dic[passinfo.original_data[0]],
-                pcl_dic[passinfo.transformed_data[0]]
+            if (hasattr(passinfo, 'transform_rules')):
+                passdata_list.append(PassData(
+                    passinfo=passinfo,
+                    pcl_output=pcl_dic[passinfo.password],
+                    orig_passdata=orig_passdata
                 ))
+            else:
+                orig_passdata = PassData(
+                    passinfo=passinfo,
+                    pcl_output=pcl_dic[passinfo.password]
+                )
+                passdata_list.append(orig_passdata)
 
         # Fill default analysis group with data
         for passdata in passdata_list:
-            for pcl in passdata.original_lib_output:
-                self.default_analysis['allPasswords'].addPassData(
-                    pcl,
-                    passdata
-                    )
-
-                if (passdata.original_lib_output[pcl] == "OK"):
-                    self.default_analysis['origPass_Ok'].addPassData(
-                        pcl,
-                        passdata
-                        )
-                else:
-                    self.default_analysis['origPass_NotOk'].addPassData(
-                        pcl,
-                        passdata
-                        )
-
-                if (passdata.transformed_lib_output[pcl] == "OK"):
-                    self.default_analysis['transPass_Ok'].addPassData(
-                        pcl,
-                        passdata
-                        )
-                else:
-                    self.default_analysis['transPass_NotOk'].addPassData(
-                        pcl,
-                        passdata
-                        )
+            self.default_analysis['all_passwords'].append(passdata)
+            if (hasattr(passdata, 'transform_rules')):
+                self.default_analysis['trans_passwords'].append(passdata)
+            else:
+                self.default_analysis['orig_passwords'].append(passdata)
 
     def addAnalysis(self, analysis):
         """Method add inputAnalysis to analysis_list
@@ -196,37 +184,88 @@ class Analyzer():
     def runAnalyzes(self):
         """Run every analysis in analysis_list
         """
-        for analysis in self.analysis_list:
-            if (not analysis.analyzer):
-                analysis.analyzer = self
-
-            analysis.runAnalysis()
-
-    def printAnalyzesOutput(self):
-        """Print output of every analysis from analysis_list
-        Short output is printed to stdout
-        Long output is written to outputfile
-        """
-        # Create outputfile name it by current datetime
+        # Create outputfile name by current datetime
         now = datetime.datetime.now()
         time = now.strftime("%Y-%m-%d_%H:%M:%S")
-        filename = "outputs/analysis_" + time + ".output"
+        self.filename = "outputs/analysis_" + time + ".output"
 
-        outputfile = open(filename, 'w')
-
-        # Print analysis output to stdout and outputfile
         for analysis in self.analysis_list:
-            print(analysis.getAnalysisOutput())
+            analysis.analyzer = self
+            analysis.runAnalysis()
 
-            # Write data in table with analysisDescription to outputfile
-            outputfile.write(
-                analysis.getDataInTable()
-            )
+    def printToFile(self, text):
+        """Print input text to file
+        """
+        output_file = open(self.filename, 'a')
+        output_file.write(text)
+        output_file.close()
 
-        # Close output file
-        outputfile.close()
+
+class AnalysisTemplate():
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self, analyzer=None):
+        """Template for new analysis
+
+        Arguments:
+        analyzer -- class Analyzer
+        """
+        self.analyzer = analyzer
+        self.data = None
+        self.keys = None
+        self.filters = []
+
+    def addFilter(self, data_filter):
+        self.filters.append(data_filter)
+
+    def cleanFilter(self):
+        self.filters = []
+
+    def applyFilter(self):
+        for data_filter in self.filters:
+            self.data = data_filter.apply(self.data)
+
+    def setData(self, data):
+        self.data = data
+        self.keys = self.data[0].pcl_output.keys()
+
+    def getPCLs(self):
+        return self.keys
+    
+    def printToFile(self, text):
+        self.analyzer.printToFile(str(text))
+
+    @abstractmethod
+    def runAnalysis(self):
+        pass
+
+    @abstractmethod
+    def getAnalysisDescription(self):
+        """Short analysis description
+        """
+        pass
 
 
+class TestNewAnalysis(AnalysisTemplate):
+
+    def __init__(self, analyzer=None):
+        super(TestNewAnalysis, self).__init__(analyzer)
+
+    def runAnalysis(self):
+        # Load data
+        self.setData(self.analyzer.default_analysis['all_passwords'])
+
+        # Apply filter
+        self.addFilter(data_filter.LowEntropyFilter())
+        self.applyFilter()
+
+        # Get table output
+        table_1 = table.SimpleTable(self.data).getTable()
+        self.printToFile(table_1)
+
+
+'''
 class AnalysisTemplate():
 
     __metaclass__ = ABCMeta
@@ -324,7 +363,7 @@ class AnalysisTemplate():
             return True
 
         return False
-
+'''
 
 class PCLOutputChangedFromOk2NotOK(AnalysisTemplate):
 
@@ -465,8 +504,8 @@ class PCLOutputChangedFromNotOk2NotOk(AnalysisTemplate):
                 self.analyzer.default_analysis['transPass_NotOk'])
                 ).group_dic.items():
             for passdata in passdata_list:
-                if (passdata.original_lib_output[pcl] !=
-                   passdata.transformed_lib_output[pcl]):
+                if (passdata.original_pcl_output[pcl] !=
+                   passdata.transformed_pcl_output[pcl]):
                     self.addPassData(pcl, passdata)
 
     def getAnalysisDescription(self, pcl):
@@ -823,12 +862,12 @@ class OverallSummary(AnalysisTemplate):
         for passdata in (
             self.analyzer.default_analysis['transPass_NotOk'].group_dic[pcl]
                 ):
-            if (passdata.transformed_lib_output[pcl] not in rejection_dic):
+            if (passdata.transformed_pcl_output[pcl] not in rejection_dic):
                 rejection_dic.update({
-                    passdata.transformed_lib_output[pcl]: 1
+                    passdata.transformed_pcl_output[pcl]: 1
                     })
             else:
-                rejection_dic[passdata.transformed_lib_output[pcl]] += 1
+                rejection_dic[passdata.transformed_pcl_output[pcl]] += 1
 
         # Calculate % for every reason of rejection
         sorted_rejection_dic = sorted(

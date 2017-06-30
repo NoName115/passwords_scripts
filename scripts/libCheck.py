@@ -31,8 +31,6 @@ class PassCheckLib():
 
         for passinfo in passinfo_list:
             pcl_dic.update({passinfo.password: {}})
-            #pcl_dic.update({passinfo.original_data[0]: {}})
-            #pcl_dic.update({passinfo.transformed_data[0]: {}})
 
             for pcl in self.pclList:
                 pcl.checkResult(passinfo, pcl_dic)
@@ -60,35 +58,25 @@ class Library(object):
         """
         try:
             output = self.getPCLOutput(
-                passinfo.original_data[0],
+                passinfo.password,
                 delimiter,
                 *args
                 )
             self.storePCLOutput(
                 pcl_dic,
-                passinfo.original_data,
-                output
-                )
-
-            output = self.getPCLOutput(
-                passinfo.transformed_data[0],
-                delimiter,
-                *args
-                )
-            self.storePCLOutput(
-                pcl_dic,
-                passinfo.transformed_data,
+                passinfo.password,
                 output
                 )
 
         except Exception as err:
+            raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err
                 )
 
-    def storePCLOutput(self, pcl_dic, storeto, pcl_output):
-        pcl_dic[storeto[0]].update({
+    def storePCLOutput(self, pcl_dic, password, pcl_output):
+        pcl_dic[password].update({
             self.__class__.__name__: pcl_output
         })
 
@@ -149,17 +137,10 @@ class Zxcvbn(Library):
         super(Zxcvbn, self).__init__()
 
     def checkResult(self, passinfo, pcl_dic):
-        output = self.checkPassword(passinfo.getOriginalPassword())
+        output = self.checkPassword(passinfo.password)
         self.storePCLOutput(
             pcl_dic,
-            passinfo.original_data,
-            output
-            )
-
-        output = self.checkPassword(passinfo.getOriginalPassword())
-        self.storePCLOutput(
-            pcl_dic,
-            passinfo.transformed_data,
+            passinfo.password,
             output
             )
 
