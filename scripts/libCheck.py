@@ -43,10 +43,6 @@ class Library():
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __init__(self):
-        pass
-
-    @abstractmethod
     def checkResult(self, passinfo, pcl_dic, delimiter=None, *args):
         """Get output of library and save it to passwordData
 
@@ -105,9 +101,6 @@ class Library():
 
 class CrackLib(Library):
 
-    def __init__(self):
-        super(CrackLib, self).__init__()
-
     def checkResult(self, passinfo, pcl_dic):
         super(CrackLib, self).checkResult(
             passinfo,
@@ -119,9 +112,6 @@ class CrackLib(Library):
 
 class PassWDQC(Library):
 
-    def __init__(self):
-        super(PassWDQC, self).__init__()
-
     def checkResult(self, passinfo, pcl_dic):
         super(PassWDQC, self).checkResult(
             passinfo,
@@ -132,9 +122,6 @@ class PassWDQC(Library):
 
 
 class Zxcvbn(Library):
-
-    def __init__(self):
-        super(Zxcvbn, self).__init__()
 
     def checkResult(self, passinfo, pcl_dic):
         output = self.checkPassword(passinfo.password)

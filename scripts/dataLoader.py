@@ -11,7 +11,6 @@ class Loader(object):
 
     __metaclas__ = ABCMeta
 
-    @abstractmethod
     def __init__(self):
         """Check Python version, must be greater or equal then 3.0
         """
@@ -92,9 +91,6 @@ class Loader(object):
 
 
 class LoadFromStdin(Loader):
-
-    def __init__(self):
-        super(LoadFromStdin, self).__init__()
 
     def load(self):
         """Load passwords and entropy from stdin

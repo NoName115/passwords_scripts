@@ -48,11 +48,6 @@ class TableTemplate():
 
 class SimplePasswordInfo(TableTemplate):
 
-    def __init__(self, data, sortby=None, reversesort=False):
-        super(SimplePasswordInfo, self).__init__(
-            data, sortby, reversesort
-            )
-
     def getHeader(self):
         return ['Password', 'Entropy'] + self.pcl_list
 
@@ -66,11 +61,6 @@ class SimplePasswordInfo(TableTemplate):
 
 
 class OrigAndTransPasswordInfo(TableTemplate):
-
-    def __init__(self, data, sortby=None, reversesort=False):
-        super(OrigAndTransPasswordInfo, self).__init__(
-            data, sortby, reversesort
-            )
 
     def getHeader(self):
         header = ['Original password', 'Transformed password']
@@ -90,11 +80,6 @@ class OrigAndTransPasswordInfo(TableTemplate):
 
 
 class PasswordLength(TableTemplate):
-
-    def __init__(self, data, sortby=None, reversesort=False):
-        super(PasswordLength, self).__init__(
-            data, sortby, reversesort
-            )
 
     def getHeader(self):
         return ['Length', 'Number', '[%]']

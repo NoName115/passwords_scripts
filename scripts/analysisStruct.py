@@ -252,9 +252,6 @@ class AnalysisTemplate():
 
 class TestNewAnalysis(AnalysisTemplate):
 
-    def __init__(self, analyzer=None):
-        super(TestNewAnalysis, self).__init__(analyzer)
-
     def runAnalysis(self):
         # Load data
         self.setData(self.analyzer.default_analysis['all_passwords'])
