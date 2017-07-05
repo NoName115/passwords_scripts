@@ -155,7 +155,7 @@ class LoadFromFile(Loader):
                         if (len(data) == 2):
                             password_data.append([
                                 data[0],
-                                round(float(data[1]))
+                                round(float(data[1]), 2)
                                 ])
                         elif (len(data) == 1):
                             password_data.append([
@@ -183,6 +183,8 @@ class LoadFromFile(Loader):
         return password_data
 
 
+# TODO
+# Prerobit podla StoreToJson
 class LoadFromJson(Loader):
 
     def __init__(self, filename=None):
@@ -236,6 +238,11 @@ class LoadFromJson(Loader):
             )
 
 
+# TODO
+# Pridat odkaz pri transformed password akoze transformed bude mat este
+# original password asi
+# Alebo to nechat ako to je akurat ze nejako vyriesit originalne heslo,
+# povedzme ze nebude mat transformedPassword... zrejme
 class StoreDataToJson():
 
     def __init__(self, filename="inputs/passData.json"):

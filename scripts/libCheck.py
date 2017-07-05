@@ -38,7 +38,7 @@ class PassCheckLib():
         return pcl_dic
 
 
-class Library(object):
+class Library():
 
     __metaclass__ = ABCMeta
 

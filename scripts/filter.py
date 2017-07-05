@@ -1,6 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from prettytable import PrettyTable
 
+import scripts.errorPrinter as errorPrinter
+
 
 class FilterTemplate():
     
@@ -10,11 +12,21 @@ class FilterTemplate():
         if (variable):
             self.variable = variable
 
+    def apply_check(self, data):
+        if (not data):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'No input data to be filtered'
+            )
+            return []
+
+        return self.apply(data)
+
     @abstractmethod
     def apply(self, data):
         pass
 
-class LowEntropyFilter(FilterTemplate):
+class LowEntropy(FilterTemplate):
 
     def apply(self, data):
         low_entropy_data = list(filter(
@@ -25,7 +37,7 @@ class LowEntropyFilter(FilterTemplate):
         return low_entropy_data
 
 
-class HighEntropyFilter(FilterTemplate):
+class HighEntropy(FilterTemplate):
 
     def apply(self, data):
         high_entropy_data = list(filter(
@@ -34,6 +46,22 @@ class HighEntropyFilter(FilterTemplate):
             ))
 
         return high_entropy_data
+
+
+class BetweenEntropy(FilterTemplate):
+
+    def __init__(self, lowBorder, highBorder):
+        self.lowBorder = lowBorder
+        self.highBorder = highBorder
+
+    def apply(self, data):
+        between_entropy_data = list(filter(
+            lambda passdata: passdata.entropy >= self.lowBorder and
+                passdata.entropy <= self.highBorder,
+            data
+        ))
+
+        return between_entropy_data
 
 
 class PCLOutputChangedFromOk2NotOk(FilterTemplate):
@@ -78,10 +106,7 @@ class PCLOutputsAreNotAllSame(FilterTemplate):
 
     def apply(self, data):
         filtered_data = []
-        
-        if (not self.data):
-            return filtered_data
-        
+
         pcl_list = data[0].pcl_output.keys()
         for passdata in data:
             counterOk = 0
@@ -93,5 +118,44 @@ class PCLOutputsAreNotAllSame(FilterTemplate):
                     counterNotOk += 1
             if (counterOk != len(pcl_list) and counterNotOk != len(pcl_list)):
                 filtered_data.append(passdata)
+
+        return filtered_data
+
+
+class PasswordsOnWhichTransformationHadEffect(FilterTemplate):
+
+    def apply(self, data):
+        filtered_data = []
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Set list of names of transformation as the' +
+                'first argument in constructor.'
+            )
+            return filtered_data
+
+        for passdata in data:
+            if (hasattr(passdata, 'transform_rules')):
+                for transformation in passdata.transform_rules:
+                    for input_transformation in self.variable:
+                        if (input_transformation in transformation):
+                            if (transformation[input_transformation] != 0):
+                                filtered_data.append(passdata)
+
+        return filtered_data
+
+
+class PCLOutputIsOK(FilterTemplate):
+
+    def apply(self, data):
+        filtered_data = []
+        pcl_list = [self.variable] if (hasattr(self, 'variable')) \
+            else data[0].pcl_output.keys()
+
+        for passdata in data:
+            for pcl in pcl_list:
+                if (passdata.pcl_output[pcl] == "OK"):
+                    filtered_data.append(passdata)
+                    break
 
         return filtered_data

@@ -197,7 +197,7 @@ class Analyzer():
         """Print input text to file
         """
         output_file = open(self.filename, 'a')
-        output_file.write(text)
+        output_file.write(text + '\n\n')
         output_file.close()
 
 
@@ -224,7 +224,7 @@ class AnalysisTemplate():
 
     def applyFilter(self):
         for data_filter in self.filters:
-            self.data = data_filter.apply(self.data)
+            self.data = data_filter.apply_check(self.data)
 
     def setData(self, data):
         self.data = data
@@ -260,115 +260,18 @@ class TestNewAnalysis(AnalysisTemplate):
         self.setData(self.analyzer.default_analysis['all_passwords'])
 
         # Apply filter
-        self.addFilter(data_filter.PCLOutputChangedFromNotOk2Ok())
+        self.addFilter(data_filter.PCLOutputIsOK())
         self.applyFilter()
 
         # Get table output
-        table_1 = table.SimpleTable(self.getData()).getTable()
+        table_1 = table.SimplePasswordInfo(
+            self.getData()
+            ).getTable()
         self.printToFile(table_1)
 
 
-'''
-class AnalysisTemplate():
-
-    __metaclass__ = ABCMeta
-
-    def __init__(self, analyzer=None, without_pcl_argument=False):
-        """Template for new analysis
-
-        Arguments:
-        analyzer -- class Analyzer
-        """
-        self.analyzer = analyzer
-        self.without_pcl_argument = without_pcl_argument
-        self.data = PassDataGroup()
-
-    def getData(self):
-        """Return analysis data
-        """
-        return self.data
-
-    def addPassData(self, pcl, passdata):
-        """Add class PassData to analysis data
-        """
-        self.data.addPassData(pcl, passdata)
-
-    def addGroup(self, groupData):
-        """Add whole group of PassData classes to analysis data
-        """
-        self.data = groupData
-
-    @abstractmethod
-    def getAnalysisDescription(self, pcl):
-        """Short analysis description
-        This description is written to outputFile
-        """
-        pass
-
-    @abstractmethod
-    def runAnalysis(self):
-        pass
-
-    def getAnalysisOutput(self):
-        if (self.without_pcl_argument):
-            return (str(self.uniqueAnalysisOutput(None)))
-        else:
-            return '\n'.join(
-                str(self.uniqueAnalysisOutput(pcl)) for pcl in self.data.group_dic
-                )
-
-    @abstractmethod
-    def uniqueAnalysisOutput(self, pcl):
-        """Long and detailed analysis output
-        """
-        pass
-
-    def getDataInTable(self):
-        """Return tables of analysis data
-        """
-        if (self.without_pcl_argument):
-            return (
-                self.getAnalysisDescription(None) +
-                str(self.getUniqueTableOutput(None)) + '\n\n'
-                )
-        else:
-            return (
-                '\n\n'.join(
-                    (
-                        self.getAnalysisDescription(pcl) +
-                        str(self.getUniqueTableOutput(pcl))
-                    )
-                    for pcl in self.data.group_dic
-                ) + '\n\n'
-            )
-
-    @abstractmethod
-    def getUniqueTableOutput(self, pcl):
-        """Return one table with analysis data
-        """
-        pass
-    
-    def havePasswordSamePCLOutputs(self, passdata, password):
-        """Function return True if output of every PCL is OK or N'Ok
-        """
-        counterOk = 0
-        counterNotOk = 0
-        pclLibOutput = passdata.getLibOutputByPassword(password)
-
-        for pcl, pcl_output in pclLibOutput.items():
-            if (pcl_output == "OK"):
-                counterOk += 1
-            else:
-                counterNotOk += 1
-
-        if (counterOk == len(pclLibOutput) or
-           counterNotOk == len(pclLibOutput)):
-            return True
-
-        return False
-'''
-
-
+# TODO
+# Prepisat
 class LowEntropyChangePassPCL(AnalysisTemplate):
 
     def __init__(self, analyzer=None, without_pcl_argument=False):
