@@ -14,7 +14,7 @@ class PassInfo():
         self.entropy = entropy
 
         if (orig_passinfo):
-            self.orig_passinfo = orig_passinfo
+            self.orig_pass = orig_passinfo
 
     def __str__(self):
         return (
@@ -47,12 +47,16 @@ class PassInfo():
     def getEntropy(self):
         return self.entropy
 
-    def getChangedEntropy(self):
+    def getInitialEntropy(self):
+        return self.orig_pass.entropy \
+            if (hasattr(self, 'orig_pass')) else self.entropy
+
+    def getEntropyChange(self):
         """Return difference between entropy of transformed password
         and original password
         """
-        if (hasattr(self, 'orig_passinfo')):
-            return round(self.entropy - self.orig_passinfo.entropy)
+        if (hasattr(self, 'orig_pass')):
+            return round(self.entropy - self.orig_pass.entropy)
         else:
             return 0
 
@@ -69,7 +73,7 @@ class PassData(PassInfo):
 
         if (hasattr(passinfo, 'transform_rules')):
             self.transform_rules = passinfo.transform_rules
-            self.orig_passdata = orig_passdata
+            self.orig_pass = orig_passdata
 
     def debugData(self):
         """Return all password data
@@ -94,11 +98,11 @@ class PassData(PassInfo):
                 key + ' - ' + value for key, value in self.pcl_output.items()
             )
         else:
-            orig_password = self.orig_passdata.password
-            orig_entropy = self.orig_passdata.entropy
+            orig_password = self.orig_pass.password
+            orig_entropy = self.orig_pass.entropy
             orig_pcl_output = '\n'.join(
                 key + ' - ' + value
-                for key, value in self.orig_passdata.pcl_output.items()
+                for key, value in self.orig_pass.pcl_output.items()
             )
             trans_password = self.password
             trans_entropy = self.entropy
