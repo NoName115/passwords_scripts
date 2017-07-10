@@ -58,6 +58,9 @@ class Library():
                 delimiter,
                 *args
                 )
+            output = self.convertOutput(
+                output
+                )
             self.storePCLOutput(
                 pcl_dic,
                 passinfo.password,
@@ -76,6 +79,10 @@ class Library():
             self.__class__.__name__: pcl_output
         })
 
+    @abstractmethod
+    def convertOutput(self, input_output):
+        return input_output
+
     @staticmethod
     def getPCLOutput(password, delimiter, *args):
         """Function get output of library and store it to passwordData
@@ -92,11 +99,19 @@ class Library():
             stderr=subprocess.PIPE
             )
 
-        output = p.communicate(
-            input=bytes(password, 'UTF-8')
-            )[0].decode('UTF-8').rstrip('\n')
+        output = p.communicate(input=bytes(password, 'UTF-8'))
 
-        return output if (delimiter is None) else output.split(delimiter)[1]
+        # Check output if is printed to stdout or stderr
+        output = output[0].decode('UTF-8').rstrip('\n') if (output[0]) \
+            else output[1].decode('UTF-8').rstrip('\n')
+
+        if (delimiter):
+            output_split = output.split(delimiter)
+
+            return output_split[0] if (len(output_split) == 1) \
+                else output_split[1]
+
+        return output
 
 
 class CrackLib(Library):
@@ -145,3 +160,20 @@ class Zxcvbn(Library):
             output = "OK"
 
         return output
+
+
+class Pwscore(Library):
+
+    def checkResult(self, passinfo, pcl_dic):
+        super(Pwscore, self).checkResult(
+            passinfo,
+            pcl_dic,
+            ":\n ",
+            "pwscore"
+        )
+
+    def convertOutput(self, input_output):
+        if (input_output.isdigit()):
+            return "OK"
+        else:
+            return input_output
