@@ -88,11 +88,11 @@ class PasswordLength(TableTemplate):
         length_dic = {}
         for passdata in self.data:
             length = len(passdata.password)
-            if (not length in length_dic):
+            if (length not in length_dic):
                 length_dic.update({length: 1})
             else:
                 length_dic[length] += 1
-        
+
         for length, count in length_dic.items():
             self.table.add_row([
                 length, count, round(count / len(self.data) * 100, 2)
@@ -143,8 +143,8 @@ class SummaryInfo(TableTemplate):
                     countNotOkPass += 1
                 else:
                     countOkPass += 1
-                if (not reason in rejection_dic):
-                    rejection_dic.update({ reason : 1 })
+                if (reason not in rejection_dic):
+                    rejection_dic.update({reason: 1})
                 else:
                     rejection_dic[reason] += 1
 

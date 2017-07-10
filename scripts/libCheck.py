@@ -143,5 +143,5 @@ class Zxcvbn(Library):
             output += ' '.join(str(sugg) for sugg in suggestions)
         else:
             output = "OK"
-        
+
         return output

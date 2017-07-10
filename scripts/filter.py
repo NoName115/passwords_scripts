@@ -5,7 +5,7 @@ import scripts.errorPrinter as errorPrinter
 
 
 class FilterTemplate():
-    
+
     __metaclass__ = ABCMeta
 
     def __init__(self, variable=None):
@@ -25,6 +25,7 @@ class FilterTemplate():
     @abstractmethod
     def apply(self, data):
         pass
+
 
 class LowEntropy(FilterTemplate):
 
@@ -57,7 +58,7 @@ class BetweenEntropy(FilterTemplate):
     def apply(self, data):
         between_entropy_data = list(filter(
             lambda passdata: passdata.entropy >= self.lowBorder and
-                passdata.entropy <= self.highBorder,
+            passdata.entropy <= self.highBorder,
             data
         ))
 
@@ -69,7 +70,7 @@ class LowEntropyChange(FilterTemplate):
     def apply(self, data):
         low_entropychange_data = list(filter(
             lambda passdata: hasattr(passdata, 'orig_pass') and
-                passdata.orig_pass.getEntropyChange() <= self.variable,
+            passdata.orig_pass.getEntropyChange() <= self.variable,
             data
         ))
 
@@ -192,5 +193,5 @@ class PCLOutputIsNotOk(FilterTemplate):
                 if (passdata.pcl_output[pcl] != "OK"):
                     filtered_data.append(passdata)
                     break
-        
+
         return filtered_data

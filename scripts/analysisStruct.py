@@ -235,7 +235,7 @@ class AnalysisTemplate():
 
     def getPCLs(self):
         return self.keys
-    
+
     def printToFile(self, text):
         self.analyzer.printToFile(str(text))
 
@@ -268,4 +268,3 @@ class TestNewAnalysis(AnalysisTemplate):
         # Print table to outputfile
         self.printToFile(table_2)
         self.printToFile(table)
-

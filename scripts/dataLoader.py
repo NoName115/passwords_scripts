@@ -179,8 +179,6 @@ class LoadFromFile(Loader):
         return password_data
 
 
-# TODO
-# Prerobit podla StoreToJson
 class LoadFromJson(Loader):
 
     def __init__(self, filename=None):
@@ -203,26 +201,26 @@ class LoadFromJson(Loader):
             pcl_data = {}
 
             # Parse json data
-            for passData in data['passwordList']:
-                new_password = PassInfo(
-                        passData['originalPassword'],
-                        passData['initialEntropy']
-                        )
-                new_password.transformed_data = [
-                    passData['transformedPassword'],
-                    passData['actualEntropy']
-                    ]
-                new_password.transform_rules = passData['transformRules']
-                new_password.error_log = errorPrinter.RuleError(
-                    passData['errorLog']
+            for passdata in data['password_list']:
+                if ('transform_rules' in passdata):
+                    trans_passinfo = PassInfo(
+                        passdata['password'],
+                        passdata['entropy'],
+                        orig_passinfo
                     )
-                passinfo_list.append(new_password)
+                    trans_passinfo.transform_rules = passdata[
+                        'transform_rules'
+                        ]
+                    passinfo_list.append(trans_passinfo)
+                else:
+                    orig_passinfo = PassInfo(
+                        passdata['password'],
+                        passdata['entropy']
+                    )
+                    passinfo_list.append(orig_passinfo)
 
                 pcl_data.update({
-                    passData['originalPassword']:
-                        passData['originalLibOutput'],
-                    passData['transformedPassword']:
-                        passData['transformedLibOutput']
+                    passdata['password']: passdata['pcl_output']
                 })
 
             return passinfo_list, pcl_data
@@ -234,11 +232,6 @@ class LoadFromJson(Loader):
             )
 
 
-# TODO
-# Pridat odkaz pri transformed password akoze transformed bude mat este
-# original password asi
-# Alebo to nechat ako to je akurat ze nejako vyriesit originalne heslo,
-# povedzme ze nebude mat transformedPassword... zrejme
 class StoreDataToJson():
 
     def __init__(self, filename="inputs/passData.json"):
@@ -255,25 +248,22 @@ class StoreDataToJson():
 
         password_json_list = []
         for passinfo in passinfo_list:
-            password_json_list.append({
-                'originalPassword': passinfo.getOriginalPassword(),
-                'transformedPassword': passinfo.getTransformedPassword(),
-                'initialEntropy': passinfo.getInitialEntropy(),
-                'actualEntropy': passinfo.getActualEntropy(),
-                'transformRules': passinfo.transform_rules,
-                'originalLibOutput': pcl_data[
-                    passinfo.getOriginalPassword()
-                    ],
-                'transformedLibOutput': pcl_data[
-                    passinfo.getTransformedPassword()
-                    ],
-                'errorLog': passinfo.error_log.getLog()
-            })
+            passdata_dic = {
+                'password': passinfo.password,
+                'entropy': passinfo.entropy,
+                'pcl_output': pcl_data[passinfo.password]
+            }
+            if (hasattr(passinfo, 'transform_rules')):
+                passdata_dic.update({
+                    'transform_rules': passinfo.transform_rules
+                })
+
+            password_json_list.append(passdata_dic)
 
         outputfile.write(
             json.dumps(
                 {
-                    'passwordList': password_json_list
+                    'password_list': password_json_list
                 },
                 sort_keys=True,
                 indent=4,

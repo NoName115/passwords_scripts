@@ -342,7 +342,7 @@ class AddStringAsPostfixOrPrefix(Rule):
         super(AddStringAsPostfixOrPrefix, self).__init__(0, 0)
         self.string_to_add = string_to_add
         self.entropy_change = entropy_change
-    
+
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
 
@@ -400,7 +400,7 @@ class ChangeFirstLetterToRandomLetter(Rule):
 
     def __init__(self):
         super(ChangeFirstLetterToRandomLetter, self).__init__(0, 0)
-    
+
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
         entropy_change = 0
@@ -408,7 +408,7 @@ class ChangeFirstLetterToRandomLetter(Rule):
         for c, i in zip(transformed_password, range(0, len(transformed_password))):
             if (c.islower() or c.isupper()):
                 transformed_password = transformed_password[0: i] + \
-                    chr(randint(97, 122)) + transformed_password[i + 1: ]
+                    chr(randint(97, 122)) + transformed_password[i + 1:]
                 entropy_change = 4.5
                 break
 
@@ -428,14 +428,14 @@ class ChangeRandomLetterToRandomLetter(Rule):
         for c, i in zip(transformed_password, range(0, len(transformed_password))):
             if (c.islower() or c.isupper()):
                 characterIndexList.append(i)
-        
+
         if (characterIndexList):
             random_index = characterIndexList[randint(
                 0,
                 len(characterIndexList) - 1
                 )]
             transformed_password = transformed_password[0: random_index] + \
-                chr(randint(97, 122)) + transformed_password[random_index + 1: ]
+                chr(randint(97, 122)) + transformed_password[random_index + 1:]
             entropy_change = 7.5
 
         return [transformed_password, entropy_change]
