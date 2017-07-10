@@ -6,44 +6,45 @@ import scripts.analysisStruct as analysisStruct
 
 
 # Load data to list of tuples [password, entropy]
-passwordList = dataLoader.LoadFromFile(
-	"inputs/10_million_password_list_top_1000"
+print("Loading...")
+password_list = dataLoader.LoadFromFile(
+	"inputs/10_million_password_list_top_1000.txt"
 	).load()
+print("Loading Done")
 
 # Create class that contain rules
+print("Transformation...")
 transformation = rules.Transformation()
 transformation.add(rules.CapitalizeFirstLetter())
 transformation.add(rules.ApplyAdvancedl33tTable())
 
 # Applying transformations to passwords
-passInfoList = list(map(
-	lambda password: transformation.apply(password),
-	passwordList
-	))
+passinfo_list = transformation.apply(password_list)
+print("Transformation Done")
 
 # Create class that contain password checking libraries
+print("Checking passwords...")
 pcl = libCheck.PassCheckLib()
 pcl.add(libCheck.CrackLib())
 pcl.add(libCheck.PassWDQC())
+pcl.add(libCheck.Pwscore())
+pcl.add(libCheck.Zxcvbn())
 
 # Check passwords with pcls
-pclData = pcl.check(passInfoList)
+pcl_data = pcl.check(passinfo_list)
+print("Checking passwords Done")
 
-# Store data to Json
-dataLoader.StoreDataToJson().store(passInfoList, pclData)
+# Load data from JSON
+#passinfo_list, pcl_data = dataLoader.LoadFromJson(
+#	'inputs/passData.json'
+#	).load()
 
-# Analysis
-analyzer = analysisStruct.Analyzer(passInfoList, pclData)
+# Store data to JSON
+dataLoader.StoreDataToJson().store(passinfo_list, pcl_data)
 
-analyzer.addAnalysis(analysisStruct.PCLOutputChangedFromOk2NotOK())
-analyzer.addAnalysis(analysisStruct.PCLOutputChangedFromNotOk2Ok())
-analyzer.addAnalysis(analysisStruct.PCLOutputChangedFromNotOk2NotOk())
-analyzer.addAnalysis(analysisStruct.LowEntropyOriginalPasswordPassPCL())
-analyzer.addAnalysis(analysisStruct.HighEntropyOriginalPasswordDontPassPCL())
-analyzer.addAnalysis(analysisStruct.LowEntropyTransformedPasswordPassPCL())
-analyzer.addAnalysis(analysisStruct.HighEntropyTransformedPasswordDontPassPCL())
-analyzer.addAnalysis(analysisStruct.LowEntropyChangePassPCL())
-analyzer.addAnalysis(analysisStruct.OverallSummary())
-
+print("Analyzing...")
+# Run analyzes
+analyzer = analysisStruct.Analyzer(passinfo_list, pcl_data)
+analyzer.addAnalysis(analysisStruct.TestNewAnalysis())
 analyzer.runAnalyzes()
-analyzer.printAnalyzesOutput()
+print("Done")
