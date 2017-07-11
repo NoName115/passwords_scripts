@@ -41,91 +41,23 @@ class Loader(object):
     def load(self):
         pass
 
-    @staticmethod
-    def generateEntropy(input_password):
-        """Method calculate password entropy
-
-        Arguments:
-        input_password -- password
-
-        Entropy calculated by formula
-            len(input_password) / 1.5 * log(char_entropy, 2), 2
-        First calculate char_entropy,
-        'char_entropy' is increased by upperCase characters,
-        digits, special symbols and by symbols out of ASCII table
-
-        Return value:
-        entropy -- float number
-        """
-        char_entropy = 0
-
-        # Lowercase character in password
-        if (any(c.islower() for c in input_password)):
-            char_entropy += 26
-
-        # Uppercase character in password
-        if (any(c.isupper() for c in input_password)):
-            char_entropy += 26
-
-        # Digit character in password
-        if (any(c.isdigit() for c in input_password)):
-            char_entropy += 10
-
-        # Special
-        if (any((c in '!@#$%^&*()') for c in input_password)):
-            char_entropy += 10
-
-        # Special2
-        if (any((c in "`~-_=+[{]}\\|;:'\",<.>/?") for c in input_password)):
-            char_entropy += 20
-
-        # Space contain
-        if (any((c in ' ') for c in input_password)):
-            char_entropy += 1
-
-        # Other symbols
-        if (any((not (' ' < c < '~')) for c in input_password)):
-            char_entropy += 180
-
-        return round(len(input_password) / 1.5 * log(char_entropy, 2), 2)
-
 
 class LoadFromStdin(Loader):
 
     def load(self):
-        """Load passwords and entropy from stdin
+        """Load passwords from stdin
 
-        Input format -- password(string), space, entropy(float, integer)
+        Input format -- password(string)
 
-        Method return -- password_data of type PassData
+        Method return -- password_list of type list
         """
-        password_data = []
+        password_list = []
 
         for line in sys.stdin:
-            data = line.rstrip('\n').split()
-            try:
-                if (len(data) == 2):
-                    password_data.append([
-                        data[0],
-                        round(float(data[1]), 2)
-                        ])
-                elif (len(data) == 1):
-                    password_data.append([
-                        data[0],
-                        self.generateEntropy(data[0])
-                        ])
-                else:
-                    errorPrinter.printWarning(
-                        self.__class__.__name__,
-                        "Invalid line in input file: Too many items at line"
-                        )
-            except ValueError:
-                errorPrinter.printWarning(
-                    self.__class__.__name__,
-                    'Wrong input \'{0:1}\' have to be number'.format(data[1])
-                    )
+            password = line.rstrip('\n')
+            password_list.append(password)
 
-        return password_data
+        return password_list
 
 
 class LoadFromFile(Loader):
@@ -135,48 +67,26 @@ class LoadFromFile(Loader):
         self.filename = filename
 
     def load(self):
-        """Load passwords and entropy from file
+        """Load passwords from file
 
-        Input format -- password(string), space, entropy(float, integer)
+        Input format -- password(string)
 
-        Method return -- password_data of type PassData
+        Method return -- password_list of type list
         """
-        password_data = []
+        password_list = []
 
         try:
             with open(self.filename, 'r') as inputfile:
                 for line in inputfile:
-                    data = line.rstrip('\n').split()
-                    try:
-                        if (len(data) == 2):
-                            password_data.append([
-                                data[0],
-                                round(float(data[1]), 2)
-                                ])
-                        elif (len(data) == 1):
-                            password_data.append([
-                                data[0],
-                                self.generateEntropy(data[0])
-                                ])
-                        else:
-                            errorPrinter.printWarning(
-                                self.__class__.__name__,
-                                "Invalid line in input file:" +
-                                " Too many items at line"
-                                )
-                    except ValueError:
-                        errorPrinter.printWarning(
-                            self.__class__.__name__,
-                            'Wrong input \'{0:1}\' have to be number'.
-                            format(data[1])
-                            )
+                    password = line.rstrip('\n')
+                    password_list.append(password)
         except IOError:
             errorPrinter.printError(
                 self.__class__.__name__,
                 'File \'{0:1}\' doesn\'t exist'.format(self.filename)
                 )
 
-        return password_data
+        return password_list
 
 
 class LoadFromJson(Loader):
@@ -205,18 +115,14 @@ class LoadFromJson(Loader):
                 if ('transform_rules' in passdata):
                     trans_passinfo = PassInfo(
                         passdata['password'],
-                        passdata['entropy'],
                         orig_passinfo
-                    )
+                        )
                     trans_passinfo.transform_rules = passdata[
                         'transform_rules'
                         ]
                     passinfo_list.append(trans_passinfo)
                 else:
-                    orig_passinfo = PassInfo(
-                        passdata['password'],
-                        passdata['entropy']
-                    )
+                    orig_passinfo = PassInfo(passdata['password'])
                     passinfo_list.append(orig_passinfo)
 
                 pcl_data.update({
@@ -250,7 +156,6 @@ class StoreDataToJson():
         for passinfo in passinfo_list:
             passdata_dic = {
                 'password': passinfo.password,
-                'entropy': passinfo.entropy,
                 'pcl_output': pcl_data[passinfo.password]
             }
             if (hasattr(passinfo, 'transform_rules')):

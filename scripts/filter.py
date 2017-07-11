@@ -27,50 +27,12 @@ class FilterTemplate():
         pass
 
 
-class LowEntropy(FilterTemplate):
-
-    def apply(self, data):
-        low_entropy_data = list(filter(
-            lambda passdata: passdata.entropy <= self.variable,
-            data
-            ))
-
-        return low_entropy_data
-
-
-class HighEntropy(FilterTemplate):
-
-    def apply(self, data):
-        high_entropy_data = list(filter(
-            lambda passdata: passdata.entropy >= self.variable,
-            data
-            ))
-
-        return high_entropy_data
-
-
-class BetweenEntropy(FilterTemplate):
-
-    def __init__(self, lowBorder, highBorder):
-        self.lowBorder = lowBorder
-        self.highBorder = highBorder
-
-    def apply(self, data):
-        between_entropy_data = list(filter(
-            lambda passdata: passdata.entropy >= self.lowBorder and
-            passdata.entropy <= self.highBorder,
-            data
-        ))
-
-        return between_entropy_data
-
-
 class LowEntropyChange(FilterTemplate):
 
     def apply(self, data):
         low_entropychange_data = list(filter(
             lambda passdata: hasattr(passdata, 'orig_pass') and
-            passdata.orig_pass.getEntropyChange() <= self.variable,
+            passdata.getEntropyChange() <= self.variable,
             data
         ))
 

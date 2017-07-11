@@ -49,11 +49,11 @@ class TableTemplate():
 class SimplePasswordInfo(TableTemplate):
 
     def getHeader(self):
-        return ['Password', 'Entropy'] + self.pcl_list
+        return ['Password', 'Entropy change'] + self.pcl_list
 
     def setContent(self):
         for passdata in self.data:
-            row = [passdata.password, passdata.entropy]
+            row = [passdata.password, passdata.getEntropyChange()]
             for pcl in self.pcl_list:
                 row.append(passdata.pcl_output[pcl])
 
@@ -103,7 +103,7 @@ class TransformedPasswordInfo(TableTemplate):
 
     def getHeader(self):
         return [
-            'Password', 'Transformation', 'Initial entropy', 'Actual entropy'
+            'Password', 'Transformation', 'Entropy change'
             ] + self.pcl_list
 
     def setContent(self):
@@ -111,7 +111,7 @@ class TransformedPasswordInfo(TableTemplate):
             if (hasattr(passdata, 'transform_rules')):
                 row = [
                     passdata.password, passdata.getAppliedTransformation(),
-                    passdata.getInitialEntropy(), passdata.entropy
+                    passdata.getEntropyChange()
                 ]
                 for pcl in self.pcl_list:
                     row.append(passdata.pcl_output[pcl])
@@ -171,7 +171,7 @@ class SummaryInfo(TableTemplate):
         self.table.add_row(row)
 
 
-class PasswordsWithPCLOutputs(TableTemplate):
+class PasswordWithPCLOutputs(TableTemplate):
 
     def getHeader(self):
         return ['Password', 'PCL list', 'PCL outputs']

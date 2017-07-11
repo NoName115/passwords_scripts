@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from scripts.passStruct import PassInfo
+from scripts.passStruct import PassInfo, PassData
 from random import randint
 
 import scripts.errorPrinter as errorPrinter
@@ -20,17 +20,15 @@ class Transformation():
         passinfo_list = []
 
         for password in password_list:
-            if (type(password) is list):
+            if (type(password) is not PassData):
                 orig_passinfo = PassInfo(
-                    password=password[0],
-                    entropy=password[1]
+                    password=password
                     )
                 passinfo_list.append(orig_passinfo)
 
                 if (self.transformation_list):
                     trans_passinfo = PassInfo(
-                        password=password[0],
-                        entropy=password[1],
+                        password=password,
                         orig_passinfo=orig_passinfo
                         )
                     passinfo_list.append(trans_passinfo)
@@ -85,11 +83,6 @@ class Rule():
                 )
 
             passinfo.password = transform_output[0]
-            passinfo.entropy = round(
-                passinfo.entropy + transform_output[1],
-                2
-                )
-
             passinfo.addTransformRule(
                 self.__class__.__name__,
                 transform_output[1]

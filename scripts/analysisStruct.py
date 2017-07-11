@@ -162,9 +162,14 @@ class TestNewAnalysis(AnalysisTemplate):
         self.applyFilter()
 
         # Get table output
-        table = data_table.TransformedPasswordInfo(self.getData()).getTable()
-        table_2 = data_table.SummaryInfo(self.getData()).getTable()
+        table_list = []
+        table_list.append(data_table.SimplePasswordInfo(self.getData()).getTable())
+        table_list.append(data_table.OrigAndTransPasswordInfo(self.getData()).getTable())
+        table_list.append(data_table.PasswordLength(self.getData(), sortby='Number', reversesort=True).getTable())
+        table_list.append(data_table.TransformedPasswordInfo(self.getData()).getTable())
+        table_list.append(data_table.SummaryInfo(self.getData()).getTable())
+        table_list.append(data_table.PasswordWithPCLOutputs(self.getData()).getTable())
 
         # Print table to outputfile
-        self.printToFile(table_2)
-        self.printToFile(table)
+        for table in table_list:
+            self.printToFile(table)
