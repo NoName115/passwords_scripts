@@ -33,7 +33,7 @@ class PassCheckLib():
             pcl_dic.update({passinfo.password: {}})
 
             for pcl in self.pclList:
-                pcl.checkResult(passinfo, pcl_dic)
+                pcl.checkPassword(passinfo, pcl_dic)
 
         return pcl_dic
 
@@ -43,7 +43,7 @@ class Library():
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def checkResult(self, passinfo, pcl_dic, delimiter=None, *args):
+    def checkPassword(self, passinfo, pcl_dic, delimiter=None, *args):
         """Get output of library and save it to passwordData
 
         Arguments:
@@ -60,7 +60,7 @@ class Library():
                 )
             output = self.convertOutput(
                 output
-                )
+            )
             self.storePCLOutput(
                 pcl_dic,
                 passinfo.password,
@@ -101,23 +101,23 @@ class Library():
 
         output = p.communicate(input=bytes(password, 'UTF-8'))
 
-        # Check output if is printed to stdout or stderr
+        # Check if output is printed to stdout or stderr
         output = output[0].decode('UTF-8').rstrip('\n') if (output[0]) \
             else output[1].decode('UTF-8').rstrip('\n')
 
         if (delimiter):
             output_split = output.split(delimiter)
 
-            return output_split[0] if (len(output_split) == 1) \
-                else output_split[1]
+            return (output_split[0], None) if (len(output_split) == 1) \
+                else (output_split[1], None)
 
-        return output
+        return (output, None)
 
 
 class CrackLib(Library):
 
-    def checkResult(self, passinfo, pcl_dic):
-        super(CrackLib, self).checkResult(
+    def checkPassword(self, passinfo, pcl_dic):
+        super(CrackLib, self).checkPassword(
             passinfo,
             pcl_dic,
             ": ",
@@ -127,8 +127,8 @@ class CrackLib(Library):
 
 class PassWDQC(Library):
 
-    def checkResult(self, passinfo, pcl_dic):
-        super(PassWDQC, self).checkResult(
+    def checkPassword(self, passinfo, pcl_dic):
+        super(PassWDQC, self).checkPassword(
             passinfo,
             pcl_dic,
             None,
@@ -138,34 +138,28 @@ class PassWDQC(Library):
 
 class Zxcvbn(Library):
 
-    def checkResult(self, passinfo, pcl_dic):
-        output = self.checkPassword(passinfo.password)
-        self.storePCLOutput(
-            pcl_dic,
-            passinfo.password,
-            output
-            )
-
-    def checkPassword(self, password):
-        result = zxcvbn(password)
+    def checkPassword(self, passinfo, pcl_dic):
+        result = zxcvbn(passinfo.password)
         warning = result['feedback']['warning']
         suggestions = result['feedback']['suggestions']
 
         output = ''
-        if (warning or suggestions):
-            if (warning):
-                output = warning + ' '
+        if (warning):
+            output = warning + ' '
+        if (suggestions):
             output += ' '.join(str(sugg) for sugg in suggestions)
-        else:
-            output = "OK"
 
-        return output
+        self.storePCLOutput(
+            pcl_dic,
+            passinfo.password,
+            (output, result['score'])
+            )
 
 
 class Pwscore(Library):
 
-    def checkResult(self, passinfo, pcl_dic):
-        super(Pwscore, self).checkResult(
+    def checkPassword(self, passinfo, pcl_dic):
+        super(Pwscore, self).checkPassword(
             passinfo,
             pcl_dic,
             ":\n ",
@@ -173,7 +167,10 @@ class Pwscore(Library):
         )
 
     def convertOutput(self, input_output):
-        if (input_output.isdigit()):
-            return "OK"
-        else:
-            return input_output
+        if (input_output[0].isdigit()):
+            return (
+                '',
+                int(input_output[0])
+                )
+
+        return input_output

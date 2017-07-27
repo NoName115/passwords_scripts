@@ -55,7 +55,7 @@ class SimplePasswordInfo(TableTemplate):
         for passdata in self.data:
             row = [passdata.password, passdata.getEntropyChange()]
             for pcl in self.pcl_list:
-                row.append(passdata.pcl_output[pcl])
+                row.append(passdata.getPCLOutput(pcl))
 
             self.table.add_row(row)
 
@@ -74,8 +74,8 @@ class OrigAndTransPasswordInfo(TableTemplate):
             if (hasattr(passdata, 'transform_rules')):
                 row = [passdata.orig_pass.password, passdata.password]
                 for pcl in self.pcl_list:
-                    row.append(passdata.orig_pass.pcl_output[pcl])
-                    row.append(passdata.pcl_output[pcl])
+                    row.append(passdata.orig_pass.getPCLOutput(pcl))
+                    row.append(passdata.getPCLOutput(pcl))
                 self.table.add_row(row)
 
 
@@ -114,7 +114,7 @@ class TransformedPasswordInfo(TableTemplate):
                     passdata.getEntropyChange()
                 ]
                 for pcl in self.pcl_list:
-                    row.append(passdata.pcl_output[pcl])
+                    row.append(passdata.getPCLOutput(pcl))
 
                 self.table.add_row(row)
 
@@ -138,7 +138,7 @@ class SummaryInfo(TableTemplate):
             countOkPass = 0
             countNotOkPass = 0
             for passdata in self.data:
-                reason = passdata.pcl_output[pcl]
+                reason = passdata.getPCLOutput(pcl)
                 if (reason != "OK"):
                     countNotOkPass += 1
                 else:
@@ -181,7 +181,7 @@ class PasswordWithPCLOutputs(TableTemplate):
             row = [
                 passdata.password,
                 '  '.join(pcl for pcl in self.pcl_list),
-                '  |  '.join(passdata.pcl_output[pcl] for pcl in self.pcl_list)
+                '  |  '.join(passdata.getPCLOutput(pcl) for pcl in self.pcl_list)
                 ]
 
             self.table.add_row(row)

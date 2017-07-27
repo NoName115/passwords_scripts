@@ -50,8 +50,8 @@ class PCLOutputChangedFromOk2NotOk(FilterTemplate):
                     else passdata.pcl_output.keys()
 
                 for pcl in pcl_list:
-                    if (passdata.orig_pass.pcl_output[pcl] == "OK" and
-                       passdata.pcl_output[pcl] != "OK"):
+                    if (passdata.orig_pass.getPCLOutput(pcl) == "OK" and
+                       passdata.getPCLOutput(pcl) != "OK"):
                         filtered_data.append(passdata)
                         break
 
@@ -69,8 +69,8 @@ class PCLOutputChangedFromNotOk2Ok(FilterTemplate):
                     else passdata.pcl_output.keys()
 
                 for pcl in pcl_list:
-                    if (passdata.orig_pass.pcl_output[pcl] != "OK" and
-                       passdata.pcl_output[pcl] == "OK"):
+                    if (passdata.orig_pass.getPCLOutput(pcl) != "OK" and
+                       passdata.getPCLOutput(pcl) == "OK"):
                         filtered_data.append(passdata)
                         break
 
@@ -87,7 +87,7 @@ class PCLOutputsAreNotAllSame(FilterTemplate):
             counterOk = 0
             counterNotOk = 0
             for pcl in pcl_list:
-                if (passdata.pcl_output[pcl] == "OK"):
+                if (passdata.getPCLOutput(pcl) == "OK"):
                     counterOk += 1
                 else:
                     counterNotOk += 1
@@ -136,7 +136,7 @@ class PCLOutputIsOk(FilterTemplate):
 
         for passdata in data:
             for pcl in pcl_list:
-                if (passdata.pcl_output[pcl] == "OK"):
+                if (passdata.getPCLOutput(pcl) == "OK"):
                     filtered_data.append(passdata)
                     break
 
@@ -152,8 +152,53 @@ class PCLOutputIsNotOk(FilterTemplate):
 
         for passdata in data:
             for pcl in pcl_list:
-                if (passdata.pcl_output[pcl] != "OK"):
+                if (passdata.getPCLOutput(pcl) != "OK"):
                     filtered_data.append(passdata)
                     break
 
         return filtered_data
+
+# TODO
+# Score lower than
+# Score higher than
+
+'''
+class LowerScoreThan(FilterTemplate):
+
+    def apply(self, data):
+        low_score_data = []
+        for pcl, threshold in self.variable.items():
+            for passdata in data:
+'''
+
+
+class ChangePCLOutputByScore(FilterTemplate):
+
+    def apply(self, data):
+        # Check pcl names
+        pcl_list = list(self.variable.keys())
+        for pcl in pcl_list:
+            if pcl not in data[0].pcl_output.keys():
+                errorPrinter.printWarning(
+                    self.__class__.__name__,
+                    'Key \'' + pcl + '\' does not exist.'
+                )
+                self.variable.pop(pcl)
+
+        # Filter data
+        for passdata in data:
+            for pcl, threshold in self.variable.items():
+                pcl_score = passdata.getPCLScore(pcl)
+                if (pcl_score != "-" and int(pcl_score) < threshold):
+                    if (passdata.getPCLOutput(pcl) == ''):
+                        passdata.pcl_output[pcl] = (
+                            'Low password score',
+                            pcl_score
+                        )
+                else:
+                    passdata.pcl_output[pcl] = (
+                        "OK",
+                        pcl_score
+                    )
+
+        return data

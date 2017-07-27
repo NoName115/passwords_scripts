@@ -125,8 +125,12 @@ class LoadFromJson(Loader):
                     orig_passinfo = PassInfo(passdata['password'])
                     passinfo_list.append(orig_passinfo)
 
+                pcl_output = {}
+                for pcl, pcl_tuple in passdata['pcl_output'].items():
+                    pcl_output.update({pcl: tuple(pcl_tuple)})
+
                 pcl_data.update({
-                    passdata['password']: passdata['pcl_output']
+                    passdata['password']: pcl_output
                 })
 
             return passinfo_list, pcl_data

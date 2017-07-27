@@ -182,6 +182,8 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
                 'b': ['8', ']3', '13'],
                 'c': ['(', '{', '[[', '<'],
                 'd': [')', '|)'],
+                'e': ['3', 'ii'],
+                'f': ['|=', 'ph'],
                 'g': ['6', '9', '&'],
                 'h': ['#', '|-|', ')-(', '/-/', '|~|'],
                 'i': ['1', '!', '|'],
@@ -201,9 +203,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
                 'w': ['\\/\\/', '|/\\|', 'VV', '///', '\\^/'],
                 'x': ['><'],
                 'y': ["'/", '%', '`/', 'j'],
-                'z': ['2', '7_'],
-                'f': ['|=', 'ph'],
-                'e': ['3', 'ii'],
+                'z': ['2', '7_']
         }
 
     def uniqueTransform(self, passinfo, from_index, to_index):

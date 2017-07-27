@@ -157,8 +157,9 @@ class TestNewAnalysis(AnalysisTemplate):
         self.setData(self.analyzer.default_analysis['trans_passwords'])
 
         # Apply filter
-        self.addFilter(data_filter.PCLOutputIsOk(['CrackLib']))
-        self.addFilter(data_filter.PCLOutputIsNotOk(['PassWDQC']))
+        self.addFilter(data_filter.ChangePCLOutputByScore(
+            {'Zxcvbn': 4, 'Pwscore': 45}
+        ))
         self.applyFilter()
 
         # Get table output

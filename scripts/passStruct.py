@@ -132,5 +132,9 @@ class PassData(PassInfo):
             self.getEntropyChange()
         ) + '\n' + pcl_output + '\n' + transformations + '\n' + error_output
 
-    def getLibOutput(self):
-        return self.pcl_output
+    def getPCLOutput(self, pcl):
+        return self.pcl_output[pcl][0]
+
+    def getPCLScore(self, pcl):
+        pcl_score = self.pcl_output[pcl][1]
+        return pcl_score if (pcl_score) else '-'
