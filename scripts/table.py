@@ -185,3 +185,17 @@ class PasswordWithPCLOutputs(TableTemplate):
                 ]
 
             self.table.add_row(row)
+
+
+class ScoreTable(TableTemplate):
+
+    def getHeader(self):
+        return ['Password'] + self.pcl_list
+
+    def setContent(self):
+        for passdata in self.data:
+            row = [passdata.password]
+            for pcl in self.pcl_list:
+                row.append(passdata.getPCLScore(pcl))
+
+            self.table.add_row(row)
