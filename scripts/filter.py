@@ -84,14 +84,14 @@ class PCLOutputsAreNotAllSame(FilterTemplate):
 
         pcl_list = data[0].pcl_output.keys()
         for passdata in data:
-            counterOk = 0
-            counterNotOk = 0
+            counter_ok = 0
+            counter_not_ok = 0
             for pcl in pcl_list:
                 if (passdata.getPCLOutput(pcl) == "OK"):
-                    counterOk += 1
+                    counter_ok += 1
                 else:
-                    counterNotOk += 1
-            if (counterOk != len(pcl_list) and counterNotOk != len(pcl_list)):
+                    counter_not_ok += 1
+            if (counter_ok != len(pcl_list) and counter_not_ok != len(pcl_list)):
                 filtered_data.append(passdata)
 
         return filtered_data
@@ -102,9 +102,9 @@ class TransformationHadEffect(FilterTemplate):
     def check_transformation(self, passdata):
         for transformation in passdata.transform_rules:
             for input_transformation in self.variable:
-                if (input_transformation in transformation):
-                    if (transformation[input_transformation] != 0):
-                        return passdata
+                if (input_transformation in transformation and
+                   transformation[input_transformation] != 0):
+                    return passdata
 
         return None
 
@@ -162,7 +162,7 @@ class PCLOutputIsNotOk(FilterTemplate):
 class HigherScoreThan(FilterTemplate):
 
     def apply(self, data):
-        keyErrors = []
+        key_errors = []
         high_score_data = []
 
         for passdata in data:
@@ -173,16 +173,16 @@ class HigherScoreThan(FilterTemplate):
                         high_score_data.append(passdata)
                         break
                 except KeyError:
-                    if (pcl not in keyErrors):
+                    if (pcl not in key_errors):
                         errorPrinter.printWarning(
                             self.__class__.__name__,
                             "Key \'" + pcl + "\' does not exist."
                         )
-                        keyErrors.append(pcl)
+                        key_errors.append(pcl)
 
             # Remove undefined keys from dictionary before next iteration
-            for keyError in keyErrors:
-                self.variable.pop(keyError, None)
+            for key_error in key_errors:
+                self.variable.pop(key_error, None)
 
         return high_score_data
 
@@ -190,7 +190,7 @@ class HigherScoreThan(FilterTemplate):
 class LowerScoreThan(FilterTemplate):
 
     def apply(self, data):
-        keyErrors = []
+        key_errors = []
         low_score_data = []
 
         for passdata in data:
@@ -201,15 +201,15 @@ class LowerScoreThan(FilterTemplate):
                         low_score_data.append(passdata)
                         break
                 except KeyError:
-                    if (pcl not in keyErrors):
+                    if (pcl not in key_errors):
                         errorPrinter.printWarning(
                             self.__class__.__name__,
                             "Key \'" + pcl + "\' does not exist."
                         )
-                        keyErrors.append(pcl)
+                        key_errors.append(pcl)
 
             # Remove undefined keys from dictionary before next iteration
-            for keyError in keyErrors:
+            for key_error in key_errors:
                 self.variable.pop(keyError, None)
 
         return low_score_data
@@ -218,34 +218,35 @@ class LowerScoreThan(FilterTemplate):
 class ChangePCLOutputByScore(FilterTemplate):
 
     def apply(self, data):
-        keyErrors = []
+        key_errors = []
 
         for passdata in data:
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
-                    if (pcl_score and int(pcl_score) < threshold):
-                        if (passdata.getPCLOutput(pcl) == ''):
+                    pcl_output = passdata.getPCLOutput(pcl)
+
+                    if (not pcl_output):
+                        if (pcl_score and int(pcl_score < threshold)):
                             passdata.pcl_output[pcl] = (
                                 'Low password score',
                                 pcl_score
                             )
-                    else:
-                        if (not passdata.getPCLOutput(pcl)):
+                        else:
                             passdata.pcl_output[pcl] = (
                                 "OK",
                                 pcl_score
                             )
                 except KeyError:
-                    if (pcl not in keyErrors):
+                    if (pcl not in key_errors):
                         errorPrinter.printWarning(
                             self.__class__.__name__,
                             "Key \'" + pcl + "\' does not exist."
                         )
-                        keyErrors.append(pcl)
+                        key_errors.append(pcl)
 
             # Remove undefined keys from dictionary before next iteration
-            for keyError in keyErrors:
+            for key_error in key_errors:
                 self.variable.pop(keyError, None)
 
         return data

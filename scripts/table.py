@@ -135,14 +135,14 @@ class SummaryInfo(TableTemplate):
         row = []
         for pcl in self.pcl_list:
             rejection_dic = {}
-            countOkPass = 0
-            countNotOkPass = 0
+            count_ok_pass = 0
+            count_not_ok_pass = 0
             for passdata in self.data:
                 reason = passdata.getPCLOutput(pcl)
                 if (reason != "OK"):
-                    countNotOkPass += 1
+                    count_not_ok_pass += 1
                 else:
-                    countOkPass += 1
+                    count_ok_pass += 1
                 if (reason not in rejection_dic):
                     rejection_dic.update({reason: 1})
                 else:
@@ -161,10 +161,10 @@ class SummaryInfo(TableTemplate):
             )
 
             row += [
-                str(countOkPass) + ' (' +
-                    str(round(countOkPass / len(self.data) * 100, 2)) + ')%',
-                str(countNotOkPass) + ' (' +
-                    str(round(countNotOkPass / len(self.data) * 100, 2)) + ')%',
+                str(count_ok_pass) + ' (' +
+                    str(round(count_ok_pass / len(self.data) * 100, 2)) + ')%',
+                str(count_not_ok_pass) + ' (' +
+                    str(round(count_not_ok_pass / len(self.data) * 100, 2)) + ')%',
                 reasons_of_rejection
             ]
 

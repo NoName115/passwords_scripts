@@ -339,18 +339,18 @@ class AddStringAsPostfixOrPrefix(Rule):
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
 
-        post_or_prefix = self.string_to_add
+        postfix_or_prefix = self.string_to_add
         if (type(self.string_to_add) is list):
-            post_or_prefix = self.string_to_add[randint(
+            postfix_or_prefix = self.string_to_add[randint(
                 0,
                 len(self.string_to_add) - 1
                 )]
 
         # If == 1, add string as prefix, else as postfix
         if (randint(0, 1)):
-            transformed_password = post_or_prefix + transformed_password
+            transformed_password = postfix_or_prefix + transformed_password
         else:
-            transformed_password += post_or_prefix
+            transformed_password += postfix_or_prefix
 
         return [transformed_password, self.entropy_change]
 
@@ -416,16 +416,16 @@ class ChangeRandomLetterToRandomLetter(Rule):
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
         entropy_change = 0
-        characterIndexList = []
+        character_index_list = []
 
         for c, i in zip(transformed_password, range(0, len(transformed_password))):
             if (c.islower() or c.isupper()):
-                characterIndexList.append(i)
+                character_index_list.append(i)
 
-        if (characterIndexList):
-            random_index = characterIndexList[randint(
+        if (character_index_list):
+            random_index = character_index_list[randint(
                 0,
-                len(characterIndexList) - 1
+                len(character_index_list) - 1
                 )]
             transformed_password = transformed_password[0: random_index] + \
                 chr(randint(97, 122)) + transformed_password[random_index + 1:]

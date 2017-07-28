@@ -22,11 +22,11 @@ class PassInfo():
                 ) + '\n' + str(self.getAppliedTransformation()) + '\n'
         )
 
-    def addTransformRule(self, class_name, entropyChange):
+    def addTransformRule(self, class_name, entropy_change):
         if (not hasattr(self, 'transform_rules')):
             self.transform_rules = []
 
-        self.transform_rules.append({class_name: entropyChange})
+        self.transform_rules.append({class_name: entropy_change})
 
     def getAppliedTransformation(self):
         """Return string of applied transformations if exists,
@@ -44,12 +44,12 @@ class PassInfo():
     def getEntropyChange(self):
         """Return the value of how much the transformations changed entropy
         """
-        entropyChange = 0.0
+        entropy_change = 0.0
         if (hasattr(self, 'transform_rules')):
             for transformation in self.transform_rules:
-                entropyChange += list(transformation.values())[0]
+                entropy_change += list(transformation.values())[0]
 
-        return entropyChange
+        return entropy_change
 
     def isPasswordTransformed(self):
         return hasattr(self, 'transform_rules')
@@ -69,8 +69,8 @@ class PassData(PassInfo):
         """Return all password data
 
         Output format:
-        Original password   Transformed password  (entropyChange)
-        Transform (entropyChange) --> NextTransform
+        Original password   Transformed password  (entropy_change)
+        Transform (entropy_change) --> NextTransform
         LibraryName - OriginalPassword_LibraryOutput
         LibraryName - TransformedPassword_LibraryOutput
         """
@@ -104,9 +104,9 @@ class PassData(PassInfo):
         """Return password data
 
         Return format:
-        Password (entropyChange)
+        Password (entropy_change)
         PCL_Name: PCL_Output    Next_PCL_Name: Next_PCL_Output
-        Transform (entropyChange) --> NextTransform
+        Transform (entropy_change) --> NextTransform
         Transformation errors
         """
         pcl_output = "    ".join(
