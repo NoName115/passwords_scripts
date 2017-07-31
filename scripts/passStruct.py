@@ -1,4 +1,3 @@
-import scripts.errorPrinter as errorPrinter
 
 
 class PassInfo():

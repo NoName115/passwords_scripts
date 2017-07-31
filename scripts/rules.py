@@ -1,11 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassInfo, PassData
-from random import randint
 
-import scripts.errorPrinter as errorPrinter
 import random
-import re
-import sys
 
 
 class Transformation():
@@ -94,12 +90,6 @@ class Rule():
                 "Argument 'from_index' or 'to_index' is not a number. " +
                 '\n ' + "Input format: " +
                 "rules.rule_name(from_index, to_index).transform(passwordData)"
-                )
-        except AttributeError:
-            errorPrinter.addMainError(
-                self.__class__.__name__,
-                "Wrong input type of data. " + '\n' +
-                "Input must be of type 'passStruct.PassData'"
                 )
 
     @abstractmethod
@@ -398,7 +388,10 @@ class ChangeFirstLetterToRandomLetter(Rule):
         transformed_password = passinfo.password
         entropy_change = 0
 
-        for c, i in zip(transformed_password, range(0, len(transformed_password))):
+        for c, i in zip(
+            transformed_password,
+            range(0, len(transformed_password))
+        ):
             if (c.islower() or c.isupper()):
                 transformed_password = transformed_password[0: i] + \
                     chr(randint(97, 122)) + transformed_password[i + 1:]
@@ -418,7 +411,10 @@ class ChangeRandomLetterToRandomLetter(Rule):
         entropy_change = 0
         character_index_list = []
 
-        for c, i in zip(transformed_password, range(0, len(transformed_password))):
+        for c, i in zip(
+            transformed_password,
+            range(0, len(transformed_password))
+        ):
             if (c.islower() or c.isupper()):
                 character_index_list.append(i)
 

@@ -104,7 +104,6 @@ class Analyzer():
             analysis.analyzer = self
             analysis.runAnalysis()
 
-
     def printToFile(self, text, filename):
         """Print input text to file
         """
@@ -179,13 +178,31 @@ class TestNewAnalysis(AnalysisTemplate):
 
         # Get table output
         table_list = []
-        table_list.append(data_table.ScoreTable(self.getData()).getTable())
-        #table_list.append(data_table.SimplePasswordInfo(self.getData()).getTable())
-        #table_list.append(data_table.OrigAndTransPasswordInfo(self.getData()).getTable())
-        #table_list.append(data_table.PasswordLength(self.getData(), sortby='Number', reversesort=True).getTable())
-        #table_list.append(data_table.TransformedPasswordInfo(self.getData()).getTable())
-        table_list.append(data_table.SummaryInfo(self.getData()).getTable())
-        #table_list.append(data_table.PasswordWithPCLOutputs(self.getData()).getTable())
+        table_list.append(
+            data_table.ScoreTable(self.getData()).getTable()
+            )
+        table_list.append(
+            data_table.SimplePasswordInfo(self.getData()).getTable()
+            )
+        table_list.append(
+            data_table.OrigAndTransPasswordInfo(self.getData()).getTable()
+            )
+        table_list.append(
+            data_table.PasswordLength(
+                self.getData(),
+                sortby='Number',
+                reversesort=True
+                ).getTable()
+            )
+        table_list.append(
+            data_table.TransformedPasswordInfo(self.getData()).getTable()
+            )
+        table_list.append(
+            data_table.SummaryInfo(self.getData()).getTable()
+            )
+        table_list.append(
+            data_table.PasswordWithPCLOutputs(self.getData()).getTable()
+            )
 
         # Print table to outputfile
         for table in table_list:

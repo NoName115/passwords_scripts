@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from math import log
 from scripts.passStruct import PassInfo
 
 import scripts.errorPrinter as errorPrinter

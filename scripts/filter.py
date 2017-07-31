@@ -91,7 +91,8 @@ class PCLOutputsAreNotAllSame(FilterTemplate):
                     counter_ok += 1
                 else:
                     counter_not_ok += 1
-            if (counter_ok != len(pcl_list) and counter_not_ok != len(pcl_list)):
+            if (counter_ok != len(pcl_list) and
+               counter_not_ok != len(pcl_list)):
                 filtered_data.append(passdata)
 
         return filtered_data

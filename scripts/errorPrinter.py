@@ -1,4 +1,3 @@
-from sys import exit
 
 
 """Dictionary that store main errors
