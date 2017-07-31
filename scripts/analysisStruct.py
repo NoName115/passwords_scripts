@@ -1,12 +1,10 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassData
-from prettytable import PrettyTable
 
-import scripts.errorPrinter as errorPrinter
 import scripts.filter as data_filter
 import scripts.table as data_table
 import datetime
-import copy
+import os.path
 
 
 class Analyzer():
@@ -19,7 +17,7 @@ class Analyzer():
         pcl_dic -- dictionary of password checking libraries output
 
         Self:
-        default_analysis -- dictionary of 5 default analysis groups
+        data_set -- dictionary of 5 default analysis groups
         allPasswords -- contain every password
         origPass_Ok -- contain passwords which originalPassword
                                pass through pcl
@@ -35,7 +33,7 @@ class Analyzer():
                        key is name of function in AnalyzerPrinter class
         """
         self.analysis_list = []
-        self.default_analysis = {
+        self.data_set = {
             'all_passwords': [],
             'orig_passwords': [],
             'trans_passwords': []
@@ -70,11 +68,11 @@ class Analyzer():
 
         # Fill default analysis group with data
         for passdata in passdata_list:
-            self.default_analysis['all_passwords'].append(passdata)
+            self.data_set['all_passwords'].append(passdata)
             if (hasattr(passdata, 'transform_rules')):
-                self.default_analysis['trans_passwords'].append(passdata)
+                self.data_set['trans_passwords'].append(passdata)
             else:
-                self.default_analysis['orig_passwords'].append(passdata)
+                self.data_set['orig_passwords'].append(passdata)
 
     def addAnalysis(self, analysis):
         """Method add inputAnalysis to analysis_list
@@ -84,19 +82,36 @@ class Analyzer():
     def runAnalyzes(self):
         """Run every analysis in analysis_list
         """
-        # Create outputfile name by current datetime
-        now = datetime.datetime.now()
-        time = now.strftime("%Y-%m-%d_%H:%M:%S")
-        self.filename = "outputs/analysis_" + time + ".output"
+        def getOutputFileName():
+            """Generate unique filename by current time & date
+            """
+            now = datetime.datetime.now()
+            time = now.strftime("%Y-%m-%d_%H:%M:%S")
+
+            file_counter = 0
+            while (True):
+                filename = 'outputs/analysis_' + str(file_counter) + \
+                    "_" + time + ".output"
+                if (os.path.exists(filename)):
+                    file_counter += 1
+                else:
+                    break
+
+            return filename
 
         for analysis in self.analysis_list:
+            self.filename = getOutputFileName()
             analysis.analyzer = self
             analysis.runAnalysis()
 
-    def printToFile(self, text):
+
+    def printToFile(self, text, filename):
         """Print input text to file
         """
-        output_file = open(self.filename, 'a')
+        if (not filename):
+            filename = self.filename
+
+        output_file = open(filename, 'a')
         output_file.write(text + '\n\n')
         output_file.close()
 
@@ -136,8 +151,8 @@ class AnalysisTemplate():
     def getPCLs(self):
         return self.keys
 
-    def printToFile(self, text):
-        self.analyzer.printToFile(str(text))
+    def printToFile(self, text, filename=None):
+        self.analyzer.printToFile(str(text), filename)
 
     @abstractmethod
     def runAnalysis(self):
@@ -154,7 +169,7 @@ class TestNewAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
         # Load data
-        self.setData(self.analyzer.default_analysis['all_passwords'])
+        self.setData(self.analyzer.data_set['all_passwords'])
 
         # Apply filter
         self.addFilter(data_filter.ChangePCLOutputByScore(
@@ -175,3 +190,15 @@ class TestNewAnalysis(AnalysisTemplate):
         # Print table to outputfile
         for table in table_list:
             self.printToFile(table)
+
+
+class TestSecondAnalysis(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PCLOutputChangedFromOk2NotOk())
+        self.applyFilter()
+
+        table = data_table.SummaryInfo(self.getData()).getTable()
+        self.printToFile(table, filename='outputs/mojVystup.output')

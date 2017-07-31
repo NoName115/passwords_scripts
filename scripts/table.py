@@ -14,14 +14,22 @@ class TableTemplate():
         self.pcl_list = sorted(list(self.data[0].pcl_output.keys())) \
             if (self.data) else []
 
-        # Table header and content
+        # Table header
         self.setHeader()
-        self.setContent()
 
-        # Table sorting
-        self.table.reversesort = reversesort
-        if (sortby):
-            self.table.sortby = sortby
+        # Table content
+        if (self.table):
+            self.setContent()
+
+            # Table sorting
+            self.table.reversesort = reversesort
+            if (sortby):
+                self.table.sortby = sortby
+        else:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'No data to be printed into table'
+            )
 
     def getTable(self):
         return self.table if (self.table) \
@@ -32,10 +40,6 @@ class TableTemplate():
             self.table.field_names = self.getHeader()
         else:
             self.table = None
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                'No data to be printed'
-            )
 
     @abstractmethod
     def getHeader(self):
