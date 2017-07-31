@@ -219,6 +219,13 @@ class LowerScoreThan(FilterTemplate):
 class ChangePCLOutputByScore(FilterTemplate):
 
     def apply(self, data):
+        # Use default threshold
+        if (not hasattr(self, 'variable')):
+            self.variable = {
+                'Pwscore': 40,
+                'Zxcvbn': 3
+            }
+
         key_errors = []
 
         for passdata in data:
@@ -251,3 +258,14 @@ class ChangePCLOutputByScore(FilterTemplate):
                 self.variable.pop(keyError, None)
 
         return data
+
+
+class LengthPassword(FilterTemplate):
+
+    def apply(self, data):
+        length_data = list(filter(
+            lambda passdata: len(passdata.password) == self.variable,
+            data
+        ))
+
+        return length_data

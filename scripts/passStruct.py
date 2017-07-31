@@ -136,4 +136,4 @@ class PassData(PassInfo):
 
     def getPCLScore(self, pcl):
         pcl_score = self.pcl_output[pcl][1]
-        return pcl_score if (pcl_score is not None) else ""
+        return pcl_score if (pcl_score is not None) else None

@@ -24,7 +24,14 @@ class TableTemplate():
             # Table sorting
             self.table.reversesort = reversesort
             if (sortby):
-                self.table.sortby = sortby
+                try:
+                    self.table.sortby = sortby
+                except Exception:
+                    errorPrinter.printWarning(
+                        self.__class__.__name__,
+                        "Can\'t sort table, column \'" + sortby +
+                        "\' does not exist"
+                    )
         else:
             errorPrinter.printWarning(
                 self.__class__.__name__,
@@ -123,7 +130,7 @@ class TransformedPasswordInfo(TableTemplate):
                 self.table.add_row(row)
 
 
-class SummaryInfo(TableTemplate):
+class OverallSummary(TableTemplate):
 
     def getHeader(self):
         header = []
@@ -166,9 +173,9 @@ class SummaryInfo(TableTemplate):
 
             row += [
                 str(count_ok_pass) + ' (' +
-                    str(round(count_ok_pass / len(self.data) * 100, 2)) + ')%',
+                    str(round(count_ok_pass / len(self.data) * 100, 2)) + '%)',
                 str(count_not_ok_pass) + ' (' +
-                    str(round(count_not_ok_pass / len(self.data) * 100, 2)) + ')%',
+                    str(round(count_not_ok_pass / len(self.data) * 100, 2)) + '%)',
                 reasons_of_rejection
             ]
 
@@ -203,3 +210,45 @@ class ScoreTable(TableTemplate):
                 row.append(passdata.getPCLScore(pcl))
 
             self.table.add_row(row)
+
+
+class SummaryScoreTableInfo(TableTemplate):
+
+    def getHeader(self):
+        header = []
+        for pcl in self.pcl_list:
+            header += [pcl + ' score']
+        
+        return header
+
+    def setContent(self):
+        row = []
+        for pcl in self.pcl_list:
+            score_dic = {}
+            for passdata in self.data:
+                pcl_score = passdata.getPCLScore(pcl)
+                if (pcl_score not in score_dic):
+                    score_dic.update({pcl_score: 1})
+                else:
+                    score_dic[pcl_score] += 1
+
+            # Calculate % for every score
+            sorted_score_dic = sorted(
+                score_dic.items(),
+                key=lambda value: value[1],
+                reverse=True
+                )
+            scores = '\n'.join(
+                str(score_value[0]) + " - " + str(score_value[1]) + " (" +
+                str(round(score_value[1] / len(self.data) * 100, 2)) + ')%'
+                for score_value in sorted_score_dic
+            )
+
+            # Calculate average score
+            average = round(sum(
+                scr * cnt if (scr) else cnt for scr, cnt in sorted_score_dic
+                ) / sum(cnt for _, cnt in sorted_score_dic), 2)
+
+            row.append(str(average) + " - average score\n\n" + scores)
+
+        self.table.add_row(row)

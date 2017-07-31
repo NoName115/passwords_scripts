@@ -90,8 +90,8 @@ class Analyzer():
 
             file_counter = 0
             while (True):
-                filename = 'outputs/analysis_' + str(file_counter) + \
-                    "_" + time + ".output"
+                filename = 'outputs/analysis_' + time + "_" + \
+                    str(file_counter) + "_.output"
                 if (os.path.exists(filename)):
                     file_counter += 1
                 else:
@@ -171,42 +171,37 @@ class TestNewAnalysis(AnalysisTemplate):
         self.setData(self.analyzer.data_set['all_passwords'])
 
         # Apply filter
-        self.addFilter(data_filter.ChangePCLOutputByScore(
-            {'CrackLib': 20, 'Zxcvbn': 4, 'Pwscore': 15}
+        self.addFilter(data_filter.HigherScoreThan(
+            {'Pwscore': 1, 'Zxcvbn': 1}
         ))
         self.applyFilter()
 
-        # Get table output
-        table_list = []
-        table_list.append(
-            data_table.ScoreTable(self.getData()).getTable()
-            )
-        table_list.append(
-            data_table.SimplePasswordInfo(self.getData()).getTable()
-            )
-        table_list.append(
-            data_table.OrigAndTransPasswordInfo(self.getData()).getTable()
-            )
-        table_list.append(
-            data_table.PasswordLength(
-                self.getData(),
-                sortby='Number',
-                reversesort=True
-                ).getTable()
-            )
-        table_list.append(
-            data_table.TransformedPasswordInfo(self.getData()).getTable()
-            )
-        table_list.append(
-            data_table.SummaryInfo(self.getData()).getTable()
-            )
-        table_list.append(
-            data_table.PasswordWithPCLOutputs(self.getData()).getTable()
-            )
+        # Get Table
+        table2 = data_table.ScoreTable(
+            self.getData(),
+            sortby='Pwscore',
+            reversesort=True
+            ).getTable()
 
-        # Print table to outputfile
-        for table in table_list:
-            self.printToFile(table)
+        # Second Table
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.cleanFilter()
+        self.addFilter(data_filter.ChangePCLOutputByScore(
+            {'Pwscore': 5, 'Zxcvbn': 3}
+        ))
+        self.applyFilter()
+
+        # Get Table
+        table = data_table.SummaryScoreTableInfo(
+            self.getData()
+            ).getTable()
+        table3 = data_table.SimplePasswordInfo(self.getData()).getTable()
+
+        # Print output to file
+        self.printToFile(table)
+        self.printToFile(table2)
+        self.printToFile(table3)
 
 
 class TestSecondAnalysis(AnalysisTemplate):
@@ -214,8 +209,13 @@ class TestSecondAnalysis(AnalysisTemplate):
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.PCLOutputChangedFromOk2NotOk())
+        self.addFilter(data_filter.LengthPassword(9))
         self.applyFilter()
 
-        table = data_table.SummaryInfo(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/mojVystup.output')
+        table = data_table.OverallSummary(self.getData()).getTable()
+        table2 = data_table.SummaryScoreTableInfo(
+            self.getData()
+            ).getTable()
+
+        self.printToFile(table)
+        self.printToFile(table2)

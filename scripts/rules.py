@@ -28,7 +28,6 @@ class Transformation():
                         orig_passinfo=orig_passinfo
                         )
                     passinfo_list.append(trans_passinfo)
-
             else:
                 if (hasattr(password, 'transform_rules')):
                     trans_passinfo = password
@@ -137,16 +136,20 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.password
+        transformed_password = list(
+            passinfo.password[from_index: to_index + 1]
+            )
+        for char, index in zip(
+            transformed_password,
+            range(0, len(transformed_password))
+        ):
+            if (char in self.l33t_table):
+                transformed_password[index] = self.l33t_table[char][
+                    random.randint(0, len(self.l33t_table[char]) - 1)
+                    ]
 
-        for key in self.l33t_table:
-            transformed_password = transformed_password[: from_index] + \
-                transformed_password[from_index: to_index + 1]. \
-                replace(key, self.l33t_table[key][random.randint(
-                    0,
-                    len(self.l33t_table[key]) - 1)]
-                    ) + \
-                transformed_password[to_index + 1:]
+        transformed_password = passinfo.password[: from_index] + \
+            ''.join(transformed_password) + passinfo.password[to_index + 1:]
 
         # Check if transformation changed the password
         entropy_change = 0.0
@@ -204,20 +207,20 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         from_index -- start index of applying the rule
         to_index -- last index of applying the rule
         """
-        transformed_password = passinfo.password
-        for key in self.l33t_table:
-            transformed_password = transformed_password[: from_index] + \
-                transformed_password[from_index: to_index + 1]. \
-                replace(key, self.l33t_table[key][random.randint(
-                    0,
-                    len(self.l33t_table[key]) - 1)]
-                    ) + \
-                transformed_password[to_index + 1:]
+        transformed_password = list(
+            passinfo.password[from_index: to_index + 1]
+            )
+        for char, index in zip(
+            transformed_password,
+            range(0, len(transformed_password))
+        ):
+            if (char in self.l33t_table):
+                transformed_password[index] = self.l33t_table[char][
+                    random.randint(0, len(self.l33t_table[char]) - 1)
+                    ]
 
-            # Calculate new from_index and to_index value,
-            # password can be longer after transformation
-            from_index = self.calculateFromIndex(transformed_password)
-            to_index = self.calculateToIndex(transformed_password)
+        transformed_password = passinfo.password[: from_index] + \
+            ''.join(transformed_password) + passinfo.password[to_index + 1:]
 
         # Check if transformation changed the password
         entropy_change = 0.0

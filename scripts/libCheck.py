@@ -173,4 +173,4 @@ class Pwscore(Library):
                 int(input_output[0])
                 )
 
-        return input_output
+        return (input_output[0], 0)
