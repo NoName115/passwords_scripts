@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassInfo, PassData
-
-import random
+from random import randint
 
 
 class Transformation():
@@ -145,7 +144,7 @@ class ApplySimplel33tFromIndexToIndex(Rule):
         ):
             if (char in self.l33t_table):
                 transformed_password[index] = self.l33t_table[char][
-                    random.randint(0, len(self.l33t_table[char]) - 1)
+                    randint(0, len(self.l33t_table[char]) - 1)
                     ]
 
         transformed_password = passinfo.password[: from_index] + \
@@ -216,7 +215,7 @@ class ApplyAdvancedl33tFromIndexToIndex(Rule):
         ):
             if (char in self.l33t_table):
                 transformed_password[index] = self.l33t_table[char][
-                    random.randint(0, len(self.l33t_table[char]) - 1)
+                    randint(0, len(self.l33t_table[char]) - 1)
                     ]
 
         transformed_password = passinfo.password[: from_index] + \
@@ -377,7 +376,22 @@ class AddTwoRandomDigitsAsPrefix(Rule):
     def uniqueTransform(self, passinfo, from_index, to_index):
         digits = str(randint(0, 9)) + str(randint(0, 9))
         transformed_password = digits + passinfo.password
-        entropy_change = 6.5
+        
+        # Postfix or prefix a random digit with zero
+        if (digits[1] == '0'):
+            entropy_change = 3.5
+        # Postfix or prefix a short(<3) sequence of digits
+        elif ((int(digits[1]) - int(digits[0])) == 1):
+            # Postfix or prefix a sequence of number starting from 1
+            if (digits[0] == '1'):
+                entropy_change = 1
+            else:
+                entropy_change = 3.5
+        # Postfix or prefix a short(<3) repetion of digit
+        elif (digits[0] == digits[1]):
+            entropy_change = 3.5
+        else:
+            entropy_change = 6.5
 
         return [transformed_password, entropy_change]
 
@@ -428,6 +442,11 @@ class ChangeRandomLetterToRandomLetter(Rule):
                 )]
             transformed_password = transformed_password[0: random_index] + \
                 chr(randint(97, 122)) + transformed_password[random_index + 1:]
-            entropy_change = 7.5
+
+            # If random letter is first letter, it is different transformation
+            if (random_index == 0):
+                entropy_change = 4.5
+            else:
+                entropy_change = 7.5
 
         return [transformed_password, entropy_change]

@@ -133,7 +133,7 @@ class AnalysisTemplate():
     def addFilter(self, data_filter):
         self.filters.append(data_filter)
 
-    def cleanFilter(self):
+    def clearFilter(self):
         self.filters = []
 
     def applyFilter(self):
@@ -186,7 +186,7 @@ class TestNewAnalysis(AnalysisTemplate):
         # Second Table
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.cleanFilter()
+        self.clearFilter()
         self.addFilter(data_filter.ChangePCLOutputByScore(
             {'Pwscore': 5, 'Zxcvbn': 3}
         ))
@@ -209,13 +209,19 @@ class TestSecondAnalysis(AnalysisTemplate):
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.LengthPassword(9))
+        self.addFilter(data_filter.PCLOutputChangedFromNotOk2Ok(['CrackLib']))
         self.applyFilter()
 
-        table = data_table.OverallSummary(self.getData()).getTable()
-        table2 = data_table.SummaryScoreTableInfo(
-            self.getData()
-            ).getTable()
+        first_data = self.getData()
+
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.clearFilter()
+        self.addFilter(data_filter.PCLOutputIsOk(['CrackLib']))
+        self.applyFilter()
+
+        all_data = self.getData() + first_data
+
+        table = data_table.TransformedPasswordInfo(all_data).getTable()
 
         self.printToFile(table)
-        self.printToFile(table2)
