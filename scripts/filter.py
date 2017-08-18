@@ -184,6 +184,7 @@ class HigherScoreThan(FilterTemplate):
             # Remove undefined keys from dictionary before next iteration
             for key_error in key_errors:
                 self.variable.pop(key_error, None)
+                key_errors = []
 
         return high_score_data
 
@@ -212,6 +213,7 @@ class LowerScoreThan(FilterTemplate):
             # Remove undefined keys from dictionary before next iteration
             for key_error in key_errors:
                 self.variable.pop(keyError, None)
+                key_errors = []
 
         return low_score_data
 
@@ -256,6 +258,7 @@ class ChangePCLOutputByScore(FilterTemplate):
             # Remove undefined keys from dictionary before next iteration
             for key_error in key_errors:
                 self.variable.pop(key_error, None)
+                key_errors = []
 
         return data
 
@@ -269,3 +272,35 @@ class LengthPassword(FilterTemplate):
         ))
 
         return length_data
+
+
+class RemovePCLOutput(FilterTemplate):
+
+    def apply(self, data):
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Name of PCL was not set'
+            )
+            return data
+
+        key_errors = []
+
+        for passdata in data:
+            for pcl in self.variable:
+                try:
+                    passdata.pcl_output.pop(pcl)
+                except KeyError:
+                    if (pcl not in key_errors):
+                        errorPrinter.printWarning(
+                            self.__class__.__name__,
+                            "Key \'" + pcl + "\' does not exist."
+                        )
+                        key_errors.append(pcl)
+
+            # Remove undefined keys from list before next iteration
+            for key_error in key_errors:
+                self.variable.remove(key_error)
+                key_errors = []
+
+        return data

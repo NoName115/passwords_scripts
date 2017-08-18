@@ -164,64 +164,18 @@ class AnalysisTemplate():
         pass
 
 
-class TestNewAnalysis(AnalysisTemplate):
+class FirstAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
         # Load data
         self.setData(self.analyzer.data_set['all_passwords'])
 
         # Apply filter
-        self.addFilter(data_filter.HigherScoreThan(
-            {'Pwscore': 1, 'Zxcvbn': 1}
-        ))
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.RemovePCLOutput(['Zxcvbn'])) # Every password is one word password, so no password pass through Zxcvbn
+        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
+        self.addFilter(data_filter.PCLOutputIsOk(['PassWDQC']))
         self.applyFilter()
 
-        # Get Table
-        table2 = data_table.ScoreTable(
-            self.getData(),
-            sortby='Pwscore',
-            reversesort=True
-            ).getTable()
-
-        # Second Table
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.clearFilter()
-        self.addFilter(data_filter.ChangePCLOutputByScore(
-            {'Pwscore': 5, 'Zxcvbn': 3}
-        ))
-        self.applyFilter()
-
-        # Get Table
-        table = data_table.SummaryScoreTableInfo(
-            self.getData()
-            ).getTable()
-        table3 = data_table.SimplePasswordInfo(self.getData()).getTable()
-
-        # Print output to file
-        self.printToFile(table)
-        self.printToFile(table2)
-        self.printToFile(table3)
-
-
-class TestSecondAnalysis(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.PCLOutputChangedFromNotOk2Ok(['CrackLib']))
-        self.applyFilter()
-
-        first_data = self.getData()
-
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.clearFilter()
-        self.addFilter(data_filter.PCLOutputIsOk(['CrackLib']))
-        self.applyFilter()
-
-        all_data = self.getData() + first_data
-
-        table = data_table.TransformedPasswordInfo(all_data).getTable()
-
-        self.printToFile(table)
+        table1 = data_table.SimplePasswordInfo(self.getData()).getTable()
+        self.printToFile(table1)

@@ -145,6 +145,8 @@ class StoreDataToJson():
 
     def __init__(self, filename="inputs/passData.json"):
         self.filename = filename
+        if (self.filename[-5:] != ".json"):
+            self.filename += ".json"
 
     def store(self, passinfo_list, pcl_data):
         """Store passinfo_list and pcl_data to Json
