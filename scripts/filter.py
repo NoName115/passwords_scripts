@@ -255,7 +255,7 @@ class ChangePCLOutputByScore(FilterTemplate):
 
             # Remove undefined keys from dictionary before next iteration
             for key_error in key_errors:
-                self.variable.pop(keyError, None)
+                self.variable.pop(key_error, None)
 
         return data
 
