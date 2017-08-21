@@ -71,6 +71,30 @@ class SimplePasswordInfo(TableTemplate):
             self.table.add_row(row)
 
 
+class PasswordPCLOutputAndScore(TableTemplate):
+
+    def getHeader(self):
+        header = ['Password']
+
+        for pcl in self.pcl_list:
+            header.append(pcl)
+            if (self.data[0].getPCLScore(pcl) is not None):
+                header.append(pcl + ' - score')
+
+        return header
+
+    def setContent(self):
+        for passdata in self.data:
+            row = [passdata.password]
+            for pcl in self.pcl_list:
+                row.append(passdata.getPCLOutput(pcl))
+                pcl_score = passdata.getPCLScore(pcl)
+                if (pcl_score is not None):
+                    row.append(pcl_score)
+
+            self.table.add_row(row)
+
+
 class OrigAndTransPasswordInfo(TableTemplate):
 
     def getHeader(self):

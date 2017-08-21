@@ -263,7 +263,7 @@ class ChangePCLOutputByScore(FilterTemplate):
         return data
 
 
-class LengthPassword(FilterTemplate):
+class PasswordLength(FilterTemplate):
 
     def apply(self, data):
         length_data = list(filter(
@@ -272,6 +272,17 @@ class LengthPassword(FilterTemplate):
         ))
 
         return length_data
+
+
+class PasswordLengthHigher(FilterTemplate):
+
+    def apply(self, data):
+        higher_length_data = list(filter(
+            lambda passdata: len(passdata.password) >= self.variable,
+            data
+        ))
+
+        return higher_length_data
 
 
 class RemovePCLOutput(FilterTemplate):
@@ -304,3 +315,22 @@ class RemovePCLOutput(FilterTemplate):
                 key_errors = []
 
         return data
+
+
+class PasswordContainString(FilterTemplate):
+
+    def apply(self, data):
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Input string was not set'
+            )
+            return data
+
+        containstring_data = []
+
+        for passdata in data:
+            if (self.variable in passdata.password):
+                containstring_data.append(passdata)
+
+        return containstring_data
