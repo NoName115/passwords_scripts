@@ -31,33 +31,30 @@ class PassCheckLib():
         Return value:
         pcl_dic -- dictionary, key=string value=dictionary
         """
+        print("Checking passwords...")
 
-        # Dat vsetko do __init__
-        # Vytvorit tak dictionary zo vsetkych hesiel
-        # Viem tak rozlisit ktore PCL idu na single a ktore nie
-        # rozlisit to vem uz pri add methode v tomto objekte
-
-        # Najprv urobim single PCL a potom multi
-
-        # Stym ze dictionary sa vytvori pri single
-        # alebo na zaciatku kompletna dictionary
-        # alebo dam podmienku do storePCLOutput ze ak tam v dict nieje
-        # dane heslo tak ho tam prida
-        # (je mozne ze bude vela krat kontrolovat nepotrebne)
+        used_pcl = []
 
         # Create pcl dictionary and check password with single_pcl_list
         pcl_dic = {}
         for passinfo in passinfo_list:
             pcl_dic.update({passinfo.password: {}})
             for pcl in self.single_pcl_list:
+                if (pcl not in used_pcl):
+                    used_pcl.append(pcl)
+                    print("PCL: " + pcl.__class__.__name__)
+
                 pcl.checkPassword(passinfo.password, pcl_dic)
 
         # Check passwords with multi_pcl_list
         for pcl in self.multi_pcl_list:
+            print("PCL: " + pcl.__class__.__name__)
             pcl.checkPassword(
                 [passinfo.password for passinfo in passinfo_list],
                 pcl_dic
                 )
+
+        print("Checking passwords DONE\n")
 
         return pcl_dic
 

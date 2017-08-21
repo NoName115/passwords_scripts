@@ -36,14 +36,20 @@ class Loader(object):
                 error_text
                 )
 
-    @abstractmethod
     def load(self):
+        print('Loading data... using ' + self.__class__.__name__)
+        data = self.load_data()
+        print('Loading DONE\n')
+        return data
+
+    @abstractmethod
+    def load_data(self):
         pass
 
 
 class LoadFromStdin(Loader):
 
-    def load(self):
+    def load_data(self):
         """Load passwords from stdin
 
         Input format -- password(string)
@@ -65,7 +71,7 @@ class LoadFromFile(Loader):
         super(LoadFromFile, self).__init__()
         self.filename = filename
 
-    def load(self):
+    def load_data(self):
         """Load passwords from file
 
         Input format -- password(string)
@@ -94,7 +100,7 @@ class LoadFromJson(Loader):
         super(LoadFromJson, self).__init__()
         self.filename = filename
 
-    def load(self):
+    def load_data(self):
         """Load passData from input json file
 
         Method return -- tuple [passInfoList, pcl_data]
@@ -141,14 +147,20 @@ class LoadFromJson(Loader):
             )
 
 
-class StoreDataToJson():
+class SaveDataToJson():
 
     def __init__(self, filename="inputs/passData.json"):
         self.filename = filename
         if (self.filename[-5:] != ".json"):
             self.filename += ".json"
 
-    def store(self, passinfo_list, pcl_data):
+    def save(self, passinfo_list, pcl_data):
+        print("Saving data... using " + self.__class__.__name__)
+        self.save_data(passinfo_list, pcl_data)
+        print("Saving DONE\n")
+
+
+    def save_data(self, passinfo_list, pcl_data):
         """Store passinfo_list and pcl_data to Json
 
         Arguments:

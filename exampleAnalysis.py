@@ -6,24 +6,19 @@ import scripts.analysisStruct as analysisStruct
 
 
 # Load data to list of tuples [password, entropy]
-print("Loading...")
 password_list = dataLoader.LoadFromFile(
-	"inputs/10_million_password_list_top_1000.txt"
+	"inputs/500-worst-passwords.txt"
 	).load()
-print("Loading Done")
 
 # Create class that contain rules
-print("Transformation...")
 transformation = rules.Transformation()
 transformation.add(rules.CapitalizeFirstLetter())
 transformation.add(rules.ApplyAdvancedl33tTable())
 
 # Applying transformations to passwords
 passinfo_list = transformation.apply(password_list)
-print("Transformation Done")
 
 # Create class that contain password checking libraries
-print("Checking passwords...")
 pcl = libCheck.PassCheckLib()
 pcl.add(libCheck.CrackLib())
 pcl.add(libCheck.PassWDQC())
@@ -32,19 +27,18 @@ pcl.add(libCheck.Zxcvbn())
 
 # Check passwords with pcls
 pcl_data = pcl.check(passinfo_list)
-print("Checking passwords Done")
-
-# Load data from JSON
-#passinfo_list, pcl_data = dataLoader.LoadFromJson(
-#	'inputs/passData.json'
-#	).load()
 
 # Store data to JSON
-dataLoader.StoreDataToJson().store(passinfo_list, pcl_data)
+dataLoader.SaveDataToJson(filename="outputs/temp").save(passinfo_list, pcl_data)
 
-print("Analyzing...")
+'''
+# Load data from JSON
+passinfo_list, pcl_data = dataLoader.LoadFromJson(
+	'outputs/Ashley_Madison.json'
+	).load()
+'''
+
 # Run analyzes
 analyzer = analysisStruct.Analyzer(passinfo_list, pcl_data)
-analyzer.addAnalysis(analysisStruct.TestNewAnalysis())
+analyzer.addAnalysis(analysisStruct.SecondAnalysis())
 analyzer.runAnalyzes()
-print("Done")

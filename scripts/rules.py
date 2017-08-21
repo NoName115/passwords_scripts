@@ -12,7 +12,9 @@ class Transformation():
         self.transformation_list.append(transformation)
 
     def apply(self, password_list):
+        print("Transformation...")
         passinfo_list = []
+        used_transformations = []
 
         for password in password_list:
             if (type(password) is not PassData):
@@ -35,7 +37,13 @@ class Transformation():
                     continue
 
             for trans in self.transformation_list:
+                if (trans not in used_transformations):
+                    print("Applying " + trans.__class__.__name__)
+                    used_transformations.append(trans)
+
                 trans.transform(trans_passinfo)
+
+        print("Transformation DONE\n")
 
         return passinfo_list
 

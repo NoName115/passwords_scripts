@@ -99,10 +99,16 @@ class Analyzer():
 
             return filename
 
+        print("Analyzing...")
+
         for analysis in self.analysis_list:
             self.filename = getOutputFileName()
             analysis.analyzer = self
+
+            print("Analysis: " + analysis.__class__.__name__)
             analysis.runAnalysis()
+
+        print("Analyzing DONE\n")
 
     def printToFile(self, text, filename):
         """Print input text to file
@@ -177,5 +183,29 @@ class FirstAnalysis(AnalysisTemplate):
         self.addFilter(data_filter.PCLOutputIsOk(['PassWDQC']))
         self.applyFilter()
 
+        # Print table
         table1 = data_table.SimplePasswordInfo(self.getData()).getTable()
+        self.printToFile(table1)
+
+
+class SecondAnalysis(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Load data
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        # Apply filter
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
+        #self.addFilter(data_filter.PasswordLengthHigher(30))
+        self.addFilter(data_filter.PCLOutputIsOk(['Zxcvbn']))
+        self.addFilter(data_filter.HigherScoreThan({'Zxcvbn': 4}))
+        
+
+
+        #self.addFilter(data_filter.PasswordContainString(' '))
+        self.applyFilter()
+
+        #table1 = data_table.SimplePasswordInfo(self.getData()).getTable()
+        table1 = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
         self.printToFile(table1)
