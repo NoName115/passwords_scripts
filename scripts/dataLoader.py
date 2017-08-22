@@ -81,7 +81,7 @@ class LoadFromFile(Loader):
         password_list = []
 
         try:
-            with open(self.filename, 'r') as inputfile:
+            with open(self.filename, 'r', encoding='latin1') as inputfile:
                 for line in inputfile:
                     password = line.rstrip('\n')
                     password_list.append(password)
