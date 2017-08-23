@@ -225,7 +225,7 @@ class SaveDataToCSV(Saver):
         csv_writer = csv.writer(
             csv_file,
             delimiter=',',
-            quotechar='|',
+            quotechar='\"',
             quoting=csv.QUOTE_MINIMAL
             )
 
@@ -268,6 +268,8 @@ class AppendDataToCSV(Saver):
         # File with old data
         csv_file_old = open(self.filename, 'r')
 
+        # TODO
+        # Not working correctly
         # Get name of new file
         splited_filename = self.filename.split('.')
         file_counter = 0
@@ -284,13 +286,13 @@ class AppendDataToCSV(Saver):
         csv_reader = csv.reader(
             csv_file_old,
             delimiter=',',
-            quotechar='|',
+            quotechar='\"',
             quoting=csv.QUOTE_MINIMAL
         )
         csv_writer = csv.writer(
             csv_file_new,
             delimiter=',',
-            quotechar='|',
+            quotechar='\"',
             quoting=csv.QUOTE_MINIMAL
         )
 
@@ -301,18 +303,71 @@ class AppendDataToCSV(Saver):
         pcl_list_old = header_old[2::2]
         pcl_list_new = list(pcl_data[passinfo_list[0].password].keys())
 
-        for row in csv_reader:
+        pcl_list = sorted(list(set(pcl_list_old + pcl_list_new)))
+        for pcl in pcl_list:
+            header_new += [pcl, pcl + ' - score']
+
+        # Write new header
+        csv_writer.writerow(header_new)
+
+        for line in csv_reader:
             # Create dictionary from header and row
             table_dic = {}
-            for head, item in zip(header_old, row):
+            for head, item in zip(header_old, line):
                 table_dic.update({head: item})
 
-            if (csv_reader[0] in pcl_data):
-                pass
+            password = line[0]
+            if (password in pcl_data):
+                row = [password, line[1]]
+                for pcl in pcl_list:
+                    # Check and add new data
+                    if (pcl in pcl_data[password]):
+                        row += [
+                            pcl_data[password][pcl][0],
+                            pcl_data[password][pcl][1]
+                        ]
+                    else:
+                        row += [
+                            table_dic[pcl],
+                            table_dic[pcl + ' - score']
+                        ]
 
+                # Pop password from pcl_data
+                pcl_data.pop(password, None)
 
-        print(pcl_list_old)
-        print(pcl_list_new)
+                # Write row to the new file
+                csv_writer.writerow(row)
+            else:
+                row = [password, line[1]]
+                for pcl in pcl_list:
+                    if (pcl in table_dic):
+                        row += [table_dic[pcl], table_dic[pcl + ' - score']]
+                    else:
+                        row += [None, None]
+
+                csv_writer.writerow(row)
+
+        # Add unassigned passwords to the table
+        for passinfo in passinfo_list:
+            if (passinfo.password in pcl_data):
+                row = [
+                    passinfo.password,
+                    ', '.join(
+                        list(rule.keys())[0] + ':' + str(list(rule.values())[0])
+                            for rule in passinfo.transform_rules
+                        ) \
+                        if (hasattr(passinfo, 'transform_rules')) else None
+                    ]
+                for pcl in pcl_list:
+                    if (pcl in pcl_data[passinfo.password]):
+                        row += [
+                            pcl_data[passinfo.password][pcl][0],
+                            pcl_data[passinfo.password][pcl][1]
+                            ]
+                    else:
+                        row += [None, None]
+
+                csv_writer.writerow(row)
 
         csv_file_old.close()
         csv_file_new.close()
