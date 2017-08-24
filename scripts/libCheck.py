@@ -66,7 +66,7 @@ class Library():
     def __init__(
         self, single_pass=True,
         delimiter=None, delimiter_index=None, *args
-        ):
+            ):
         self.single_pass = single_pass
         self.delimiter = (delimiter, delimiter_index)
         self.args = args

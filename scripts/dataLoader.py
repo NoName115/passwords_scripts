@@ -6,6 +6,7 @@ import sys
 import os
 import json
 import csv
+import copy
 
 
 class Loader():
@@ -219,17 +220,19 @@ class Saver():
 
     __metaclas__ = ABCMeta
 
-    def __init__(self, filename=None, file_extension=None):
+    def __init__(self, filename=None, file_extension='.out'):
         self.filename = filename if (filename) \
             else 'outputs/temp' + file_extension
 
         # Check if extention exists
-        if (self.filename[-len(file_extension): ] != file_extension):
+        if (self.filename[-len(file_extension):] != file_extension):
             self.filename += file_extension
+
+        self.file_extension = file_extension
 
     def save(self, passinfo_list, pcl_data):
         print("Saving data... using " + self.__class__.__name__)
-        
+
         try:
             self.save_data(passinfo_list, pcl_data)
         except IOError:
@@ -315,15 +318,13 @@ class SaveDataToCSV(Saver):
 
         csv_writer.writerow(header)
 
-
         # Print data to csv_file
         for passinfo in passinfo_list:
             row = [
                 passinfo.password,
                 ', '.join(
                     list(rule.keys())[0] + ':' + str(list(rule.values())[0])
-                        for rule in passinfo.transform_rules
-                    ) \
+                        for rule in passinfo.transform_rules)
                     if (hasattr(passinfo, 'transform_rules')) else None,
                 ]
             for pcl in pcl_list:
@@ -347,19 +348,9 @@ class AppendDataToCSV(Saver):
         # File with old data
         csv_file_old = open(self.filename, 'r')
 
-        # TODO
-        # Not working correctly
-        # Get name of new file
-        splited_filename = self.filename.split('.')
-        file_counter = 0
-        while (True):
-            filename_new = splited_filename[0] + "_" + str(file_counter) + \
-                "_." + splited_filename[1]
-            if (os.path.exists(filename_new)):
-                file_counter += 1
-            else:
-                break
-
+        # File with new data
+        filename_new = self.filename[:-len(self.file_extension)] + \
+            "_new" + self.file_extension
         csv_file_new = open(filename_new, 'w')
 
         csv_reader = csv.reader(
@@ -375,12 +366,15 @@ class AppendDataToCSV(Saver):
             quoting=csv.QUOTE_MINIMAL
         )
 
+        # Copy pcl_data, coz i am poping password from this dictionary
+        pcl_data_copy = copy.copy(pcl_data)
+
         # Read header
         header_old = next(csv_reader)
         header_new = ['password', 'transform_rules']
 
         pcl_list_old = header_old[2::2]
-        pcl_list_new = list(pcl_data[passinfo_list[0].password].keys())
+        pcl_list_new = list(pcl_data_copy[passinfo_list[0].password].keys())
 
         pcl_list = sorted(list(set(pcl_list_old + pcl_list_new)))
         for pcl in pcl_list:
@@ -396,14 +390,14 @@ class AppendDataToCSV(Saver):
                 table_dic.update({head: item})
 
             password = line[0]
-            if (password in pcl_data):
+            if (password in pcl_data_copy):
                 row = [password, line[1]]
                 for pcl in pcl_list:
                     # Check and add new data
-                    if (pcl in pcl_data[password]):
+                    if (pcl in pcl_data_copy[password]):
                         row += [
-                            pcl_data[password][pcl][0],
-                            pcl_data[password][pcl][1]
+                            pcl_data_copy[password][pcl][0],
+                            pcl_data_copy[password][pcl][1]
                         ]
                     else:
                         row += [
@@ -411,8 +405,8 @@ class AppendDataToCSV(Saver):
                             table_dic[pcl + ' - score']
                         ]
 
-                # Pop password from pcl_data
-                pcl_data.pop(password, None)
+                # Pop password from pcl_data_copy
+                pcl_data_copy.pop(password, None)
 
                 # Write row to the new file
                 csv_writer.writerow(row)
@@ -428,20 +422,19 @@ class AppendDataToCSV(Saver):
 
         # Add unassigned passwords to the table
         for passinfo in passinfo_list:
-            if (passinfo.password in pcl_data):
+            if (passinfo.password in pcl_data_copy):
                 row = [
                     passinfo.password,
                     ', '.join(
                         list(rule.keys())[0] + ':' + str(list(rule.values())[0])
-                            for rule in passinfo.transform_rules
-                        ) \
+                            for rule in passinfo.transform_rules)
                         if (hasattr(passinfo, 'transform_rules')) else None
                     ]
                 for pcl in pcl_list:
-                    if (pcl in pcl_data[passinfo.password]):
+                    if (pcl in pcl_data_copy[passinfo.password]):
                         row += [
-                            pcl_data[passinfo.password][pcl][0],
-                            pcl_data[passinfo.password][pcl][1]
+                            pcl_data_copy[passinfo.password][pcl][0],
+                            pcl_data_copy[passinfo.password][pcl][1]
                             ]
                     else:
                         row += [None, None]

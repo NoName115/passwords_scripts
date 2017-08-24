@@ -384,7 +384,7 @@ class AddTwoRandomDigitsAsPrefix(Rule):
     def uniqueTransform(self, passinfo, from_index, to_index):
         digits = str(randint(0, 9)) + str(randint(0, 9))
         transformed_password = digits + passinfo.password
-        
+
         # Postfix or prefix a random digit with zero
         if (digits[1] == '0'):
             entropy_change = 3.5

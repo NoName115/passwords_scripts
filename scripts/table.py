@@ -216,7 +216,7 @@ class PasswordWithPCLOutputs(TableTemplate):
             row = [
                 passdata.password,
                 '  '.join(pcl for pcl in self.pcl_list),
-                '  |  '.join(passdata.getPCLOutput(pcl) for pcl in self.pcl_list)
+                ' | '.join(passdata.getPCLOutput(pcl) for pcl in self.pcl_list)
                 ]
 
             self.table.add_row(row)
@@ -242,7 +242,7 @@ class SummaryScoreTableInfo(TableTemplate):
         header = []
         for pcl in self.pcl_list:
             header += [pcl + ' score']
-        
+
         return header
 
     def setContent(self):

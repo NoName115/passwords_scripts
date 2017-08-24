@@ -178,9 +178,9 @@ class FirstAnalysis(AnalysisTemplate):
 
         # Apply filter
         self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.RemovePCLOutput(['Zxcvbn'])) # Every password is one word password, so no password pass through Zxcvbn
-        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
-        self.addFilter(data_filter.PCLOutputIsOk(['PassWDQC']))
+        self.addFilter(data_filter.RemovePCLOutput(['Zxcvbn']))
+        #self.addFilter(data_filter.PCLOutputsAreNotAllSame())
+        #self.addFilter(data_filter.PCLOutputIsOk(['PassWDQC']))
         self.applyFilter()
 
         # Print table
@@ -197,15 +197,10 @@ class SecondAnalysis(AnalysisTemplate):
         # Apply filter
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.addFilter(data_filter.PCLOutputsAreNotAllSame())
-        #self.addFilter(data_filter.PasswordLengthHigher(30))
         self.addFilter(data_filter.PCLOutputIsOk(['Zxcvbn']))
         self.addFilter(data_filter.HigherScoreThan({'Zxcvbn': 4}))
-        
-
-
-        #self.addFilter(data_filter.PasswordContainString(' '))
         self.applyFilter()
 
-        #table1 = data_table.SimplePasswordInfo(self.getData()).getTable()
+        # Print table
         table1 = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
         self.printToFile(table1)
