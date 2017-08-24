@@ -144,6 +144,77 @@ class LoadFromJson(Loader):
         return passinfo_list, pcl_data
 
 
+class LoadFromCSV(Loader):
+
+    def __init__(self, filename=None, from_row=None, to_row=None):
+        super(LoadFromCSV, self).__init__()
+        self.filename = filename
+        self.from_row = from_row
+        self.to_row = to_row
+
+    def load_data(self):
+        def getTransformRules(transform_rules_string):
+            transform_rules = []
+            rules_splited = transform_rules_string.split(',')
+
+            for rule in rules_splited:
+                rule_splited = rule.split(':')
+                transform_rules.append({
+                    rule_splited[0]: float(rule_splited[1])
+                    })
+
+            return transform_rules
+
+        csv_file = open(self.filename, 'r')
+        csv_reader = csv.reader(
+            csv_file,
+            delimiter=',',
+            quotechar='\"',
+            quoting=csv.QUOTE_MINIMAL
+        )
+
+        header = next(csv_reader)
+        passinfo_list = []
+        pcl_data = {}
+
+        row_counter = 0
+        for row in csv_reader:
+            row_counter += 1
+
+            if (not row[1]):
+                orig_passinfo = PassInfo(row[0])
+
+            # Check from and to index
+            if (self.from_row and row_counter < self.from_row):
+                continue
+            if (self.to_row and row_counter > self.to_row):
+                break
+
+            if (row[1]):
+                trans_passinfo = PassInfo(
+                    row[0],
+                    orig_passinfo
+                )
+                trans_passinfo.transform_rules = getTransformRules(row[1])
+
+                passinfo_list.append(trans_passinfo)
+            else:
+                passinfo_list.append(orig_passinfo)
+
+            pcl_output = {}
+            for i in range(2, len(header), 2):
+                pcl_output.update({
+                    header[i]: (
+                        row[i],
+                        float(row[i + 1]) if (row[i + 1]) else None
+                        )
+                    })
+
+            pcl_data.update({row[0]: pcl_output})
+
+        return passinfo_list, pcl_data
+
+
 class Saver():
 
     __metaclas__ = ABCMeta
@@ -158,7 +229,15 @@ class Saver():
 
     def save(self, passinfo_list, pcl_data):
         print("Saving data... using " + self.__class__.__name__)
-        self.save_data(passinfo_list, pcl_data)
+        
+        try:
+            self.save_data(passinfo_list, pcl_data)
+        except IOError:
+            errorPrinter.printError(
+                self.__class__.__name__,
+                'File \'{0:1}\' doesn\'t exist'.format(self.filename)
+                )
+
         print("Saving DONE\n")
 
     @abstractmethod
