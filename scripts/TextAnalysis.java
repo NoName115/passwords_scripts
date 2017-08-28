@@ -394,7 +394,7 @@ public class TextAnalysis {
     for (PasswordPattern subPattern : path) {
       String a = subPattern.getClassification();
 
-      System.out.format("'%s': '%s' in '%s'; ", subPattern.getMatchString(), subPattern.getDescription(), subPattern.getClassification());
+      System.out.format("'%s': '%s' in '%s';@; ", subPattern.getMatchString(), subPattern.getDescription(), subPattern.getClassification());
 
       /* Old print
       System.out.format("'%s' matches the Rule: '%s' in '%s'\n", subPattern.getMatchString(), subPattern.getDescription(), subPattern.getClassification());

@@ -250,30 +250,15 @@ class Passfault(Library):
             pcl_output = ''
             pcl_score = None
 
-            try:
-
-                patterns = value[0].split('; ')
-                pcl_output = ', '.join(
-                    pattern.split(': ')[1] for pattern in patterns[:-1]
-                    )
-
-            except IndexError:
-                print(value[0])
-                print("---------")
-                for pattern in patterns:
-                    print(pattern)
-                raise
+            patterns = value[0].split(';@; ')
+            pcl_output = ', '.join(
+                pattern.split(': ')[1] for pattern in patterns[:-1]
+                )
 
             if (not patterns[-1]):
                 continue
 
-            try:
-
-                pcl_score = int(patterns[-1].split(': ')[1])
-                output.append((pcl_output, pcl_score))
-
-            except ValueError:
-                print(patterns[-1])
-                raise
+            pcl_score = int(patterns[-1].split(': ')[1])
+            output.append((pcl_output, pcl_score))
 
         return output

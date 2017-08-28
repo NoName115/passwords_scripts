@@ -353,7 +353,7 @@ class PCLOutputContainString(FilterTemplate):
         for passdata in data:
             for pcl, contain_string in self.variable.items():
                 try:
-                    if (contain_string in passdata.pcl_output[pcl]):
+                    if (contain_string in passdata.pcl_output[pcl][0]):
                         containstring_data.append(passdata)
                 except KeyError:
                     if (pcl not in key_errors):
