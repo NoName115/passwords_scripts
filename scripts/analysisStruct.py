@@ -204,3 +204,39 @@ class SecondAnalysis(AnalysisTemplate):
         # Print table
         table1 = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
         self.printToFile(table1)
+
+
+class ScoreAnalysis(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Load data
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        # Apply filter
+        '''
+        self.addFilter(data_filter.HigherScoreThan(
+            {'Pwscore': 40, 'Zxcvbn': 3}
+        ))
+        '''
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.HigherScoreThan(
+            {'Passfault': 3000000}
+            ))
+        '''
+        self.addFilter(data_filter.PCLOutputContainString(
+            {'Passfault': "'Match' in '10k-worst-passwords'"}
+            ))
+        '''
+        self.applyFilter()
+
+        '''
+        table1 = data_table.ScoreTable(self.getData(), sortby='Passfault').getTable()
+        table2 = data_table.SummaryScoreTableInfo(self.getData()).getTable()
+        self.printToFile(table2)
+        self.printToFile(table1)
+        '''
+
+        #table1 = data_table.OverallSummary(self.getData()).getTable()
+        table2 = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
+        #self.printToFile(table1)
+        self.printToFile(table2)

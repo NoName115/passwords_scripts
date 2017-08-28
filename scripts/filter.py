@@ -225,7 +225,8 @@ class ChangePCLOutputByScore(FilterTemplate):
         if (not hasattr(self, 'variable')):
             self.variable = {
                 'Pwscore': 40,
-                'Zxcvbn': 3
+                'Zxcvbn': 3,
+                'Passfault': 3000000
             }
 
         key_errors = []
@@ -236,15 +237,15 @@ class ChangePCLOutputByScore(FilterTemplate):
                     pcl_score = passdata.getPCLScore(pcl)
                     pcl_output = passdata.getPCLOutput(pcl)
 
-                    if (not pcl_output):
-                        if (pcl_score and int(pcl_score < threshold)):
+                    if (pcl_score):
+                        if (not pcl_output and int(pcl_score) < threshold):
                             passdata.pcl_output[pcl] = (
                                 'Low password score',
                                 pcl_score
                             )
-                        else:
+                        elif (int(pcl_score) >= threshold):
                             passdata.pcl_output[pcl] = (
-                                "OK",
+                                'OK',
                                 pcl_score
                             )
                 except KeyError:
@@ -332,5 +333,39 @@ class PasswordContainString(FilterTemplate):
         for passdata in data:
             if (self.variable in passdata.password):
                 containstring_data.append(passdata)
+
+        return containstring_data
+
+
+class PCLOutputContainString(FilterTemplate):
+
+    def apply(self, data):
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Input string was not set'
+            )
+            return data
+
+        key_errors = []
+        containstring_data = []
+
+        for passdata in data:
+            for pcl, contain_string in self.variable.items():
+                try:
+                    if (contain_string in passdata.pcl_output[pcl]):
+                        containstring_data.append(passdata)
+                except KeyError:
+                    if (pcl not in key_errors):
+                        errorPrinter.printWarning(
+                            self.__class__.__name__,
+                            "Key \'" + pcl + "\' does not exist."
+                        )
+                        key_errors.append(pcl)
+
+            # Remove undefined keys from list before next iteration
+            for key_error in key_errors:
+                self.variable.remove(key_error)
+                key_errors = []
 
         return containstring_data

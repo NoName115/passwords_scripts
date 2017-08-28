@@ -232,3 +232,48 @@ class Pwscore(Library):
                 )
 
         return (input_output[0], 0)
+
+
+class Passfault(Library):
+
+    def __init__(self):
+        super(Passfault, self).__init__(
+            False,
+            "Rules found in password - ",
+            1,
+            "./../passfault/commandLine/build/install/passfault/bin/passfault"
+        )
+
+    def convertOutput(self, input_output):
+        output = []
+        for value in input_output:
+            pcl_output = ''
+            pcl_score = None
+
+            try:
+
+                patterns = value[0].split('; ')
+                pcl_output = ', '.join(
+                    pattern.split(': ')[1] for pattern in patterns[:-1]
+                    )
+
+            except IndexError:
+                print(value[0])
+                print("---------")
+                for pattern in patterns:
+                    print(pattern)
+                raise
+
+            if (not patterns[-1]):
+                continue
+
+            try:
+
+                pcl_score = int(patterns[-1].split(': ')[1])
+                output.append((pcl_output, pcl_score))
+
+            except ValueError:
+                print(patterns[-1])
+                raise
+
+        return output
