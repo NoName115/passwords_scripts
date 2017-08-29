@@ -33,16 +33,12 @@ class PassCheckLib():
         """
         print("Checking passwords...")
 
-        used_pcl = []
-
-        # Create pcl dictionary and check password with single_pcl_list
         pcl_dic = {}
-        for passinfo in passinfo_list:
-            pcl_dic.update({passinfo.password: {}})
-            for pcl in self.single_pcl_list:
-                if (pcl not in used_pcl):
-                    used_pcl.append(pcl)
-                    print("PCL: " + pcl.__class__.__name__)
+        for pcl in self.single_pcl_list:
+            print("PCL: " + pcl.__class__.__name__)
+            for passinfo in passinfo_list:
+                if (passinfo.password not in pcl_dic):
+                    pcl_dic.update({passinfo.password: {}})
 
                 pcl.checkPassword(passinfo.password, pcl_dic)
 

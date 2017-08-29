@@ -355,6 +355,7 @@ class PCLOutputContainString(FilterTemplate):
                 try:
                     if (contain_string in passdata.pcl_output[pcl][0]):
                         containstring_data.append(passdata)
+                        break
                 except KeyError:
                     if (pcl not in key_errors):
                         errorPrinter.printWarning(
@@ -369,3 +370,38 @@ class PCLOutputContainString(FilterTemplate):
                 key_errors = []
 
         return containstring_data
+
+
+class PCLOutputDoesNotContainString(FilterTemplate):
+
+    def apply(self, data):
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Input string was not set'
+            )
+            return data
+
+        key_errors = []
+        doesnot_contain_string = []
+
+        for passdata in data:
+            for pcl, not_contain_string in self.variable.items():
+                try:
+                    if (not_contain_string not in passdata.pcl_output[pcl][0]):
+                        doesnot_contain_string.append(passdata)
+                        break
+                except KeyError:
+                    if (pcl not in key_errors):
+                        errorPrinter.printWarning(
+                            self.__class__.__name__,
+                            "Key \'" + pcl + "\' does not exist."
+                        )
+                        key_errors.append(pcl)
+
+            # Remove undefined keys from list before next iteration
+            for key_error in key_errors:
+                self.variable.remove(key_error)
+                key_errors = []
+
+        return doesnot_contain_string
