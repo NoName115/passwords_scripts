@@ -202,3 +202,30 @@ class HighScorePasswords(AnalysisTemplate):
 
         table = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
         self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+
+
+class PwscoreRejection(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore(
+            {'Zxcvbn': 4, 'Pwscore': 40}
+        ))
+        self.addFilter(data_filter.HigherScoreThan(
+            {'Zxcvbn': 4}
+        ))
+        self.addFilter(data_filter.HigherScoreThan(
+            {'Passfault': 3000000}
+        ))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Passfault': 'Match'
+        }))
+        self.addFilter(data_filter.PCLOutputIsNotOk(['Pwscore']))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Pwscore': 'Low password score'
+        }))
+        self.applyFilter()
+
+        table = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
+        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
