@@ -170,7 +170,7 @@ class HigherScoreThan(FilterTemplate):
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
-                    if (pcl_score and int(pcl_score) >= threshold):
+                    if (pcl_score != None and int(pcl_score) >= threshold):
                         high_score_data.append(passdata)
                         break
                 except KeyError:
@@ -199,7 +199,7 @@ class LowerScoreThan(FilterTemplate):
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
-                    if (pcl_score and int(pcl_score) < threshold):
+                    if (pcl_score != None and int(pcl_score) < threshold):
                         low_score_data.append(passdata)
                         break
                 except KeyError:
@@ -226,7 +226,7 @@ class ChangePCLOutputByScore(FilterTemplate):
             self.variable = {
                 'Pwscore': 40,
                 'Zxcvbn': 3,
-                'Passfault': 3000000
+                'Passfault': 10000001
             }
 
         key_errors = []
@@ -237,7 +237,7 @@ class ChangePCLOutputByScore(FilterTemplate):
                     pcl_score = passdata.getPCLScore(pcl)
                     pcl_output = passdata.getPCLOutput(pcl)
 
-                    if (pcl_score):
+                    if (pcl_score != None):
                         if (not pcl_output and int(pcl_score) < threshold):
                             passdata.pcl_output[pcl] = (
                                 'Low password score',
@@ -264,11 +264,11 @@ class ChangePCLOutputByScore(FilterTemplate):
         return data
 
 
-class PasswordLength(FilterTemplate):
+class PasswordLengthLower(FilterTemplate):
 
     def apply(self, data):
         length_data = list(filter(
-            lambda passdata: len(passdata.password) == self.variable,
+            lambda passdata: len(passdata.password) < self.variable,
             data
         ))
 

@@ -170,62 +170,82 @@ class AnalysisTemplate():
         pass
 
 
-class PassfaultScore(AnalysisTemplate):
-
-    def runAnalysis(self):
-        # Load data
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        # Apply filter
-        #self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
-        self.addFilter(data_filter.PCLOutputContainString({
-            'Passfault': "10k-worst-passwords"
-        }))
-        self.applyFilter()
-
-        table = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
-
-
-class HighScorePasswords(AnalysisTemplate):
+class PassfaultScoring(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
-        self.addFilter(data_filter.HigherScoreThan({
-            'Zxcvbn': 4
-        }))
-        self.applyFilter()
-
-        table = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
-
-
-class PwscoreRejection(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore(
-            {'Zxcvbn': 4, 'Pwscore': 40}
-        ))
-        self.addFilter(data_filter.HigherScoreThan(
-            {'Zxcvbn': 4}
-        ))
-        self.addFilter(data_filter.HigherScoreThan(
-            {'Passfault': 3000000}
-        ))
         self.addFilter(data_filter.PCLOutputDoesNotContainString({
             'Passfault': 'Match'
         }))
-        self.addFilter(data_filter.PCLOutputIsNotOk(['Pwscore']))
-        self.addFilter(data_filter.PCLOutputDoesNotContainString({
-            'Pwscore': 'Low password score'
+        self.addFilter(data_filter.PasswordLengthLower(8))
+        self.addFilter(data_filter.HigherScoreThan({
+            'Passfault': 10000001
+        }))
+        self.applyFilter()
+
+        table_1 = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
+        table_2 = data_table.SummaryScoreTableInfo(self.getData()).getTable()
+        self.printToFile(table_1, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table_2, filename='outputs/' + self.__class__.__name__)
+
+# TODO
+# Podla poctu roznych znakou v hesle
+# Pridat to do passInfo
+class ZxcvbnPalindrom(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        # Low score palindroms
+        self.addFilter(data_filter.PCLOutputContainString({
+            'Pwscore': 'The password is a palindrome'
+        }))
+        self.addFilter(data_filter.LowerScoreThan({
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
+        table = data_table.PasswordPCLOutputAndScore(
+            self.getData(),
+            sortby='Zxcvbn - score'
+            ).getTable()
+        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+
+        # High score palindroms
+        self.setData(self.analyzer.data_set['all_passwords'])
+        self.clearFilter()
+        
+        self.addFilter(data_filter.PCLOutputContainString({
+            'Pwscore': 'The password is a palindrome'
+        }))
+        self.addFilter(data_filter.HigherScoreThan({
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
+        table = data_table.PasswordPCLOutputAndScore(
+            self.getData(),
+            sortby='Zxcvbn - score'
+            ).getTable()
+        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+
+
+class TestAnalysis(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        # TODO
+        # PassWDQC: dictionary a Zxcvbn score >= 3
+
+        self.addFilter(data_filter.PCLOutputContainString({
+            'PassWDQC': 'dictionary',
+            'CrackLib': 'dictionary',
+            'Passfault': 'Match',
+            'Pwscore': 'dictionary'
         }))
         self.applyFilter()
 
         table = data_table.PasswordPCLOutputAndScore(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table)

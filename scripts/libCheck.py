@@ -15,7 +15,7 @@ class PassCheckLib():
 
     def add(self, pcl):
         """Add password checking library to list
-        """
+        """ 
         if (pcl.single_pass):
             self.single_pcl_list.append(pcl)
         else:
