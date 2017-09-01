@@ -8,45 +8,54 @@ class TableTemplate():
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, data, sortby=None, reversesort=False):
+    def __init__(self, data):
+        # Initialize table & data
         self.table = PrettyTable()
         self.data = data
         self.pcl_list = sorted(list(self.data[0].pcl_output.keys())) \
             if (self.data) else []
 
-        # Table header
-        self.setHeader()
-
-        # Table content
-        if (self.table):
+        if (self.data):
+            # Set table header & content
+            self.table.field_names = self.getHeader()
             self.setContent()
-
-            # Table sorting
-            self.table.reversesort = reversesort
-            if (sortby):
-                try:
-                    self.table.sortby = sortby
-                except Exception:
-                    errorPrinter.printWarning(
-                        self.__class__.__name__,
-                        "Can\'t sort table, column \'" + sortby +
-                        "\' does not exist"
-                    )
         else:
             errorPrinter.printWarning(
                 self.__class__.__name__,
-                'No data to be printed into table'
+                "No data to be printed into \'" + \
+                    self.__class__.__name__ +  "\' table"
             )
 
-    def getTable(self):
-        return self.table if (self.table) \
-            else "No data for \'" + self.__class__.__name__ + "\' table."
-
-    def setHeader(self):
-        if (self.data):
-            self.table.field_names = self.getHeader()
-        else:
-            self.table = None
+    def getTable(self, sortby=None, reversesort=False, start=None, end=None):
+        try:
+            # Check start & end index
+            if (type(start) == type(end)):
+                if (start == None):    
+                    return self.table.get_string(
+                        sortby=sortby,
+                        reversesort=reversesort
+                    )
+                elif (start >= 0 and end >= 0):
+                    return self.table.get_string(
+                        sortby=sortby,
+                        reversesort=reversesort,
+                        start=start,
+                        end=end
+                    )
+                else:
+                    raise Exception(
+                        "Argument 'start' or 'end' is lower than 0"
+                    )
+            else:
+                raise Exception(
+                    "Arguments 'start' & 'end' have different datatypes"
+                    )
+        except Exception as error:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                str(error)
+            )
+            return "No data for \'" + self.__class__.__name__ + "\' table."
 
     @abstractmethod
     def getHeader(self):
