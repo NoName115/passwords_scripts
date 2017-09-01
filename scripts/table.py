@@ -176,11 +176,15 @@ class OverallSummary(TableTemplate):
         return header
 
     def setContent(self):
-        row = []
-        for pcl in self.pcl_list:
+        pcl_rows = []
+        first_row = []
+
+        # Calculate and sort data
+        for pcl, index in zip(self.pcl_list, range(0, len(self.pcl_list))):
             rejection_dic = {}
             count_ok_pass = 0
             count_not_ok_pass = 0
+
             for passdata in self.data:
                 reason = passdata.getPCLOutput(pcl)
                 if (reason != "OK"):
@@ -198,21 +202,34 @@ class OverallSummary(TableTemplate):
                 key=lambda value: value[1],
                 reverse=True
                 )
-            reasons_of_rejection = '\n'.join(
+
+            pcl_rows.append([
                 reason_value[0] + " - " +
                 str(round(reason_value[1] / len(self.data) * 100, 2)) + '%'
                 for reason_value in sorted_rejection_dic
-            )
+                ])
 
-            row += [
+            # Add data to first row
+            first_row += [
                 str(count_ok_pass) + ' (' +
                     str(round(count_ok_pass / len(self.data) * 100, 2)) + '%)',
                 str(count_not_ok_pass) + ' (' +
                     str(round(count_not_ok_pass / len(self.data) * 100, 2)) + '%)',
-                reasons_of_rejection
+                pcl_rows[index][0]
             ]
 
-        self.table.add_row(row)
+        # Write first row
+        self.table.add_row(first_row)
+
+        # Add data to table
+        for i in range(1, max(len(row) for row in pcl_rows)):
+            row = []
+            for pcl_row in pcl_rows:
+                # 2 blank columns for 'pcl_accepted' and 'pcl_rejected' column
+                row += ['', '']
+                row.append(pcl_row[i] if (i < len(pcl_row)) else '')
+
+            self.table.add_row(row)
 
 
 class PasswordWithPCLOutputs(TableTemplate):
@@ -255,7 +272,9 @@ class SummaryScoreTableInfo(TableTemplate):
         return header
 
     def setContent(self):
-        row = []
+        pcl_rows = []
+        first_row = []
+
         for pcl in self.pcl_list:
             score_dic = {}
             for passdata in self.data:
@@ -271,17 +290,26 @@ class SummaryScoreTableInfo(TableTemplate):
                 key=lambda value: value[1],
                 reverse=True
                 )
-            scores = '\n'.join(
+
+            pcl_rows.append([
                 str(score_value[0]) + " - " + str(score_value[1]) + " (" +
                 str(round(score_value[1] / len(self.data) * 100, 2)) + ')%'
                 for score_value in sorted_score_dic
-            )
+            ])
 
             # Calculate average score
             average = round(sum(
                 scr * cnt if (scr) else cnt for scr, cnt in sorted_score_dic
                 ) / sum(cnt for _, cnt in sorted_score_dic), 2)
 
-            row.append(str(average) + " - average score\n\n" + scores)
+            first_row.append(str(average) + " - average score\n")
 
-        self.table.add_row(row)
+        # Write data to table
+        self.table.add_row(first_row)
+
+        for i in range(0, max(len(row) for row in pcl_rows)):
+            row = []
+            for pcl_row in pcl_rows:
+                row.append(pcl_row[i] if (i < len(pcl_row)) else '')
+
+            self.table.add_row(row)
