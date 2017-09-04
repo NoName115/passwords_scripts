@@ -153,6 +153,20 @@ class LoadFromCSV(Loader):
         self.from_row = from_row
         self.to_row = to_row
 
+        if (from_row and from_row < 0):
+            errorPrinter.printError(
+                'Argument \'from_row\' is lower than 0',
+                self.__class__.__name__
+            )
+            self.from_row = 0
+
+        if (to_row and to_row < 0):
+            errorPrinter.printError(
+                'Argument \'to_row\' is lower than 0',
+                self.__class__.__name__
+            )
+            self.to_row = 0
+
     def load_data(self):
         def getTransformRules(transform_rules_string):
             transform_rules = []

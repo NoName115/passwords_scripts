@@ -160,7 +160,7 @@ class PCLOutputIsNotOk(FilterTemplate):
         return filtered_data
 
 
-class HigherScoreThan(FilterTemplate):
+class ScoreHigher(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
@@ -189,7 +189,7 @@ class HigherScoreThan(FilterTemplate):
         return high_score_data
 
 
-class LowerScoreThan(FilterTemplate):
+class ScoreLower(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
@@ -405,3 +405,46 @@ class PCLOutputDoesNotContainString(FilterTemplate):
                 key_errors = []
 
         return doesnot_contain_string
+
+
+class NumberOfDifferentCharactersLower(FilterTemplate):
+
+    def apply(self, data):
+        diff_char_data = list(filter(
+            lambda passdata: passdata.diff_char < self.variable,
+            data
+        ))
+
+        return diff_char_data
+
+
+class NumberOfDifferentCharactersHigher(FilterTemplate):
+
+    def apply(self, data):
+        diff_char_data = list(filter(
+            lambda passdata: passdata.diff_char >= self.variable,
+            data
+        ))
+
+        return diff_char_data
+
+
+class PasswordContainCharacterClass(FilterTemplate):
+
+    def apply(self, data):
+        if (not hasattr(self, 'variable')):
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                'Input list of character classes was not set'
+            )
+            return data
+
+        contain_char_class = []
+
+        for passdata in data:
+            for char_class in self.variable:
+                if (char_class in passdata.char_classes):
+                    contain_char_class.append(passdata)
+                    break
+
+        return contain_char_class

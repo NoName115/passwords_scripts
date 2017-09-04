@@ -69,11 +69,18 @@ class TableTemplate():
 class SimplePasswordInfo(TableTemplate):
 
     def getHeader(self):
-        return ['Password', 'Entropy change'] + self.pcl_list
+        return [
+            'Password', 'Entropy change', 'Diff. char.', 'Char. classes'
+            ] + self.pcl_list
 
     def setContent(self):
         for passdata in self.data:
-            row = [passdata.password, passdata.getEntropyChange()]
+            row = [
+                passdata.password,
+                passdata.getEntropyChange(),
+                passdata.diff_char,
+                passdata.char_classes
+                ]
             for pcl in self.pcl_list:
                 row.append(passdata.getPCLOutput(pcl))
 

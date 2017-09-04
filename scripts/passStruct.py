@@ -9,6 +9,8 @@ class PassInfo():
         orig_passinfo -- class PassInfo
         """
         self.password = password
+        self.diff_char = self.differentCharacters(password)
+        self.char_classes = self.characterClasses(password)
 
         if (orig_passinfo):
             self.orig_pass = orig_passinfo
@@ -20,6 +22,35 @@ class PassInfo():
                 self.getEntropyChange()
                 ) + '\n' + str(self.getAppliedTransformation()) + '\n'
         )
+
+    @staticmethod
+    def differentCharacters(password):
+        return len(set(password))
+
+    @staticmethod
+    def characterClasses(password):
+        type_of_classes = []
+
+        # Lowercase character in password
+        if (any(c.islower() for c in password)):
+            type_of_classes.append('lower letter')
+
+        # Uppercase character in password
+        if (any(c.isupper() for c in password)):
+            type_of_classes.append('upper letter')
+
+        # Digit character in password
+        if (any(c.isdigit() for c in password)):
+            type_of_classes.append('number')
+
+        # Other(special) symbols
+        if (any(
+           (c < '0' or (c > '9' and c < 'A') or (c > 'Z' and c <'a') or c > 'z')
+           for c in password)):
+            type_of_classes.append('special char')
+
+        return type_of_classes
+
 
     def addTransformRule(self, class_name, entropy_change):
         if (not hasattr(self, 'transform_rules')):
@@ -59,6 +90,8 @@ class PassData(PassInfo):
     def __init__(self, passinfo, pcl_output, orig_passdata=None):
         self.password = passinfo.password
         self.pcl_output = pcl_output
+        self.diff_char = passinfo.diff_char
+        self.char_classes = passinfo.char_classes
 
         if (hasattr(passinfo, 'transform_rules')):
             self.transform_rules = passinfo.transform_rules
