@@ -19,26 +19,32 @@ class TableTemplate():
             # Set table header & content
             self.table.field_names = self.getHeader()
             self.setContent()
-        else:
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                "No data to be printed into \'" + \
-                    self.__class__.__name__ +  "\' table"
-            )
 
-    def getTable(self, sortby=None, reversesort=False, start=None, end=None):
+    def getTable(
+        self, sortby=None, reversesort=False,
+        start=None, end=None, fields=[]
+        ):
         try:
+            # Check data
+            if (not self.data):
+                raise Exception(
+                    "No data to be printed into \'" +
+                    self.__class__.__name__ +  "\' table"
+                )
+
             # Check start & end index
             if (type(start) == type(end)):
                 if (start == None):    
                     return self.table.get_string(
                         sortby=sortby,
-                        reversesort=reversesort
+                        reversesort=reversesort,
+                        fields=fields
                     )
                 elif (start >= 0 and end >= 0):
                     return self.table.get_string(
                         sortby=sortby,
                         reversesort=reversesort,
+                        fields=fields,
                         start=start,
                         end=end
                     )
@@ -79,7 +85,7 @@ class SimplePasswordInfo(TableTemplate):
                 passdata.password,
                 passdata.getEntropyChange(),
                 passdata.diff_char,
-                passdata.char_classes
+                ', '.join(passdata.char_classes)
                 ]
             for pcl in self.pcl_list:
                 row.append(passdata.getPCLOutput(pcl))

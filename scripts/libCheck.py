@@ -104,6 +104,9 @@ class Library():
     def storePCLOutput(self, pcl_dic, password_input, pcl_output):
         if (type(password_input) is list):
             for password, output in zip(password_input, pcl_output):
+                if (password not in pcl_dic):
+                    pcl_dic.update({password: {}})
+
                 pcl_dic[password].update({
                     self.__class__.__name__: output
                 })
