@@ -25,7 +25,7 @@ class FilterTemplate():
         # Check variable
         if (self.need_variable):
             try:
-                if (self.variable != None):
+                if (self.variable is not None):
                     if (type(self.variable) != self.variable_type):
                         raise Exception(
                             'Wrong datatype of input argument, must be ' +
@@ -161,6 +161,24 @@ class OriginalPCLOutputIsOk(FilterTemplate):
     def apply(self, data):
         return list(filter(
             lambda passdata: any(
+                passdata.getPCLOutput(pcl) == "OK"
+                    if (not hasattr(passdata, 'orig_pass'))
+                    else passdata.orig_pass.getPCLOutput(pcl) == "OK"
+                for pcl in self.variable
+            ),
+            data
+        ))
+
+
+class TransformedPCLOutputIsOk(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(TransformedPCLOutputIsOk, self).__init__(variable, True, list)
+
+    def apply(self, data):
+        return list(filter(
+            lambda passdata: hasattr(passdata, 'orig_pass') and
+            any(
                 passdata.getPCLOutput(pcl) == "OK" for pcl in self.variable
             ),
             data
@@ -175,6 +193,24 @@ class OriginalPCLOutputIsNotOk(FilterTemplate):
     def apply(self, data):
         return list(filter(
             lambda passdata: any(
+                passdata.getPCLOutput(pcl) != "OK"
+                    if (not hasattr(passdata, 'orig_pass'))
+                    else passdata.orig_pass.getPCLOutput(pcl) != "OK"
+                for pcl in self.variable
+            ),
+            data
+        ))
+
+
+class TransformedPCLOutputIsNotOk(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(TransformedPCLOutputIsNotOk, self).__init__(variable, True, list)
+
+    def apply(self, data):
+        return list(filter(
+            lambda passdata: hasattr(passdata, 'orig_pass') and
+            any(
                 passdata.getPCLOutput(pcl) != "OK" for pcl in self.variable
             ),
             data
@@ -194,7 +230,7 @@ class ScoreHigher(FilterTemplate):
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
-                    if (pcl_score != None and int(pcl_score) >= threshold):
+                    if (pcl_score is not None and int(pcl_score) >= threshold):
                         filtered_data.append(passdata)
                         break
                 except KeyError:
@@ -226,7 +262,7 @@ class ScoreLower(FilterTemplate):
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
-                    if (pcl_score != None and int(pcl_score) < threshold):
+                    if (pcl_score is not None and int(pcl_score) < threshold):
                         filtered_data.append(passdata)
                         break
                 except KeyError:
@@ -267,7 +303,7 @@ class ChangePCLOutputByScore(FilterTemplate):
                     pcl_score = passdata.getPCLScore(pcl)
                     pcl_output = passdata.getPCLOutput(pcl)
 
-                    if (pcl_score != None):
+                    if (pcl_score is not None):
                         if (not pcl_output and int(pcl_score) < threshold):
                             passdata.pcl_output[pcl] = (
                                 'Low password score',

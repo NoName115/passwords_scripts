@@ -51,7 +51,6 @@ class PassInfo():
 
         return type_of_classes
 
-
     def addTransformRule(self, class_name, entropy_change):
         if (not hasattr(self, 'transform_rules')):
             self.transform_rules = []

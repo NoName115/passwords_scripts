@@ -29,12 +29,12 @@ class TableTemplate():
             if (not self.data):
                 raise Exception(
                     "No data to be printed into \'" +
-                    self.__class__.__name__ +  "\' table"
+                    self.__class__.__name__ + "\' table"
                 )
 
             # Check start & end index
             if (type(start) == type(end)):
-                if (start == None):    
+                if (start is None):
                     return self.table.get_string(
                         sortby=sortby,
                         reversesort=reversesort,
@@ -72,68 +72,70 @@ class TableTemplate():
         pass
 
 
-class SimplePasswordInfo(TableTemplate):
+class ComplexPasswordTable(TableTemplate):
 
     def getHeader(self):
-        return [
-            'Password', 'Entropy change', 'Diff. char.', 'Char. classes'
-            ] + self.pcl_list
+        header = ['Password', 'Diff. char.', 'Char. classes', 'Length']
+        for pcl in self.pcl_list:
+            header += [pcl, pcl + ' score']
+
+        return header
 
     def setContent(self):
         for passdata in self.data:
             row = [
                 passdata.password,
-                passdata.getEntropyChange(),
                 passdata.diff_char,
-                ', '.join(passdata.char_classes)
+                ', '.join(passdata.char_classes),
+                len(passdata.password)
+            ]
+            for pcl in self.pcl_list:
+                row += [
+                    passdata.getPCLOutput(pcl),
+                    passdata.getPCLScore(pcl)
                 ]
-            for pcl in self.pcl_list:
-                row.append(passdata.getPCLOutput(pcl))
 
             self.table.add_row(row)
 
 
-class PasswordPCLOutputAndScore(TableTemplate):
+class ComplexTransformedPasswordTable(TableTemplate):
 
     def getHeader(self):
-        header = ['Password']
-
+        header = [
+            'Original password', 'O. length',
+            'Transformed password', 'T. length',
+            'Entropy change', 'Transformation',
+            'Diff. char.', 'Char. classes'
+            ]
         for pcl in self.pcl_list:
-            header.append(pcl)
-            if (self.data[0].getPCLScore(pcl) is not None):
-                header.append(pcl + ' - score')
+            header += [
+                pcl + ' Orig. pass.', pcl + ' O. score',
+                pcl + ' Trans. pass.', pcl + ' T. score'
+            ]
 
         return header
 
     def setContent(self):
         for passdata in self.data:
-            row = [passdata.password]
+            if (not hasattr(passdata, 'orig_pass')):
+                continue
+
+            row = [
+                passdata.orig_pass.password, len(passdata.orig_pass.password),
+                passdata.password, len(passdata.password),
+                passdata.getEntropyChange(),
+                passdata.getAppliedTransformation(),
+                passdata.diff_char, ', '.join(passdata.char_classes)
+            ]
             for pcl in self.pcl_list:
-                row.append(passdata.getPCLOutput(pcl))
-                pcl_score = passdata.getPCLScore(pcl)
-                if (pcl_score is not None):
-                    row.append(pcl_score)
+                row += [
+                    passdata.orig_pass.getPCLOutput(pcl),
+                    passdata.orig_pass.getPCLScore(pcl),
+                    passdata.getPCLOutput(pcl),
+                    passdata.getPCLScore(pcl)
+                ]
 
             self.table.add_row(row)
-
-
-class OrigAndTransPasswordInfo(TableTemplate):
-
-    def getHeader(self):
-        header = ['Original password', 'Transformed password']
-        for pcl in self.pcl_list:
-            header += [pcl + ' - orig.password', pcl + ' - trans.password']
-
-        return header
-
-    def setContent(self):
-        for passdata in self.data:
-            if (hasattr(passdata, 'transform_rules')):
-                row = [passdata.orig_pass.password, passdata.password]
-                for pcl in self.pcl_list:
-                    row.append(passdata.orig_pass.getPCLOutput(pcl))
-                    row.append(passdata.getPCLOutput(pcl))
-                self.table.add_row(row)
 
 
 class PasswordLength(TableTemplate):
@@ -154,26 +156,6 @@ class PasswordLength(TableTemplate):
             self.table.add_row([
                 length, count, round(count / len(self.data) * 100, 2)
             ])
-
-
-class TransformedPasswordInfo(TableTemplate):
-
-    def getHeader(self):
-        return [
-            'Password', 'Transformation', 'Entropy change'
-            ] + self.pcl_list
-
-    def setContent(self):
-        for passdata in self.data:
-            if (hasattr(passdata, 'transform_rules')):
-                row = [
-                    passdata.password, passdata.getAppliedTransformation(),
-                    passdata.getEntropyChange()
-                ]
-                for pcl in self.pcl_list:
-                    row.append(passdata.getPCLOutput(pcl))
-
-                self.table.add_row(row)
 
 
 class OverallSummary(TableTemplate):
@@ -257,20 +239,6 @@ class PasswordWithPCLOutputs(TableTemplate):
                 '  '.join(pcl for pcl in self.pcl_list),
                 ' | '.join(passdata.getPCLOutput(pcl) for pcl in self.pcl_list)
                 ]
-
-            self.table.add_row(row)
-
-
-class ScoreTable(TableTemplate):
-
-    def getHeader(self):
-        return ['Password'] + self.pcl_list
-
-    def setContent(self):
-        for passdata in self.data:
-            row = [passdata.password]
-            for pcl in self.pcl_list:
-                row.append(passdata.getPCLScore(pcl))
 
             self.table.add_row(row)
 
