@@ -10,7 +10,7 @@ class FilterTemplate():
 
     def __init__(self, variable, need_variable=False, variable_type=None):
         self.variable = variable
-        self.need_variable = variable
+        self.need_variable = need_variable
         self.variable_type = variable_type
 
     def apply_check(self, data):
@@ -56,13 +56,11 @@ class LowEntropyChange(FilterTemplate):
         super(LowEntropyChange, self).__init__(variable, True, int)
 
     def apply(self, data):
-        low_entropychange_data = list(filter(
+        return list(filter(
             lambda passdata: hasattr(passdata, 'orig_pass') and
             passdata.getEntropyChange() <= self.variable,
             data
         ))
-
-        return low_entropychange_data
 
 
 class PCLOutputChangedFromOk2NotOk(FilterTemplate):
@@ -73,24 +71,7 @@ class PCLOutputChangedFromOk2NotOk(FilterTemplate):
             )
 
     def apply(self, data):
-        filtered_data = []
-        for passdata in data:
-            if (hasattr(passdata, 'orig_pass')):
-                '''
-                # Check only one PCL or check it for all PCLs
-                pcl_list = self.variable if (hasattr(self, 'variable')) \
-                    else passdata.pcl_output.keys()
-                '''
-
-                for pcl in self.variable:
-                    if (passdata.orig_pass.getPCLOutput(pcl) == "OK" and
-                       passdata.getPCLOutput(pcl) != "OK"):
-                        filtered_data.append(passdata)
-                        break
-
-        # Rewriten
-        '''
-        filtered_data = list(filter(
+        return list(filter(
             lambda passdata: hasattr(passdata, 'orig_pass') and
             any(
                 passdata.orig_pass.getPCLOutput(pcl) == "OK" and
@@ -99,9 +80,6 @@ class PCLOutputChangedFromOk2NotOk(FilterTemplate):
             ),
             data
         ))
-        '''
-
-        return filtered_data
 
 
 class PCLOutputChangedFromNotOk2Ok(FilterTemplate):
@@ -112,22 +90,15 @@ class PCLOutputChangedFromNotOk2Ok(FilterTemplate):
         )
 
     def apply(self, data):
-        filtered_data = []
-        for passdata in data:
-            if (hasattr(passdata, 'transform_rules')):
-                '''
-                # Check only one PCL or check it for all PCLs
-                pcl_list = self.variable if (hasattr(self, 'variable')) \
-                    else passdata.pcl_output.keys()
-                '''
-
-                for pcl in self.variable:
-                    if (passdata.orig_pass.getPCLOutput(pcl) != "OK" and
-                       passdata.getPCLOutput(pcl) == "OK"):
-                        filtered_data.append(passdata)
-                        break
-
-        return filtered_data
+        return list(filter(
+            lambda passdata: hasattr(passdata, 'orig_pass') and
+            any(
+                passdata.orig_pass.getPCLOutput(pcl) != "OK" and
+                 passdata.getPCLOutput(pcl) == "OK"
+                for pcl in self.variable
+            ),
+            data
+        ))
 
 
 class PCLOutputsAreNotAllSame(FilterTemplate):
@@ -158,7 +129,7 @@ class TransformationHadEffect(FilterTemplate):
 
     def __init__(self, variable=None):
         super(TransformationHadEffect, self).__init__(
-            variable, True, dict
+            variable, True, list
         )
 
     def check_transformation(self, passdata):
@@ -172,15 +143,6 @@ class TransformationHadEffect(FilterTemplate):
 
     def apply(self, data):
         filtered_data = []
-        '''
-        if (not hasattr(self, 'variable')):
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                'Set list of names of transformation as the' +
-                'first argument in constructor.'
-            )
-            return filtered_data
-        '''
 
         for passdata in data:
             if (hasattr(passdata, 'transform_rules')):
@@ -191,46 +153,32 @@ class TransformationHadEffect(FilterTemplate):
         return filtered_data
 
 
-class PCLOutputIsOk(FilterTemplate):
+class OriginalPCLOutputIsOk(FilterTemplate):
 
     def __init__(self, variable=None):
-        super(PCLOutputIsOk, self).__init__(variable, True, list)
+        super(OriginalPCLOutputIsOk, self).__init__(variable, True, list)
 
     def apply(self, data):
-        filtered_data = []
-        '''
-        pcl_list = self.variable if (hasattr(self, 'variable')) \
-            else data[0].pcl_output.keys()
-        '''
-
-        for passdata in data:
-            for pcl in self.variable:
-                if (passdata.getPCLOutput(pcl) == "OK"):
-                    filtered_data.append(passdata)
-                    break
-
-        return filtered_data
+        return list(filter(
+            lambda passdata: any(
+                passdata.getPCLOutput(pcl) == "OK" for pcl in self.variable
+            ),
+            data
+        ))
 
 
-class PCLOutputIsNotOk(FilterTemplate):
+class OriginalPCLOutputIsNotOk(FilterTemplate):
 
     def __init__(self, variable=None):
-        super(PCLOutputIsNotOk, self).__init__(variable, True, list)
+        super(OriginalPCLOutputIsNotOk, self).__init__(variable, True, list)
 
     def apply(self, data):
-        filtered_data = []
-        '''
-        pcl_list = self.variable if (hasattr(self, 'variable')) \
-            else data[0].pcl_output.keys()
-        '''
-
-        for passdata in data:
-            for pcl in self.variable:
-                if (passdata.getPCLOutput(pcl) != "OK"):
-                    filtered_data.append(passdata)
-                    break
-
-        return filtered_data
+        return list(filter(
+            lambda passdata: any(
+                passdata.getPCLOutput(pcl) != "OK" for pcl in self.variable
+            ),
+            data
+        ))
 
 
 class ScoreHigher(FilterTemplate):
@@ -240,14 +188,14 @@ class ScoreHigher(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
-        high_score_data = []
+        filtered_data = []
 
         for passdata in data:
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
                     if (pcl_score != None and int(pcl_score) >= threshold):
-                        high_score_data.append(passdata)
+                        filtered_data.append(passdata)
                         break
                 except KeyError:
                     if (pcl not in key_errors):
@@ -262,7 +210,7 @@ class ScoreHigher(FilterTemplate):
                 self.variable.pop(key_error, None)
                 key_errors = []
 
-        return high_score_data
+        return filtered_data
 
 
 class ScoreLower(FilterTemplate):
@@ -272,14 +220,14 @@ class ScoreLower(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
-        low_score_data = []
+        filtered_data = []
 
         for passdata in data:
             for pcl, threshold in self.variable.items():
                 try:
                     pcl_score = passdata.getPCLScore(pcl)
                     if (pcl_score != None and int(pcl_score) < threshold):
-                        low_score_data.append(passdata)
+                        filtered_data.append(passdata)
                         break
                 except KeyError:
                     if (pcl not in key_errors):
@@ -294,7 +242,7 @@ class ScoreLower(FilterTemplate):
                 self.variable.pop(keyError, None)
                 key_errors = []
 
-        return low_score_data
+        return filtered_data
 
 
 class ChangePCLOutputByScore(FilterTemplate):
@@ -352,12 +300,10 @@ class PasswordLengthLower(FilterTemplate):
         super(PasswordLengthLower, self).__init__(variable, True, int)
 
     def apply(self, data):
-        length_data = list(filter(
+        return list(filter(
             lambda passdata: len(passdata.password) < self.variable,
             data
         ))
-
-        return length_data
 
 
 class PasswordLengthHigher(FilterTemplate):
@@ -366,12 +312,10 @@ class PasswordLengthHigher(FilterTemplate):
         super(PasswordLengthHigher, self).__init__(variable, True, int)
 
     def apply(self, data):
-        higher_length_data = list(filter(
+        return list(filter(
             lambda passdata: len(passdata.password) >= self.variable,
             data
         ))
-
-        return higher_length_data
 
 
 class RemovePCLOutput(FilterTemplate):
@@ -408,16 +352,10 @@ class PasswordContainString(FilterTemplate):
         super(PasswordContainString, self).__init__(variable, True, str)
 
     def apply(self, data):
-        containstring_data = list(filter(
+        return list(filter(
             lambda passdata: self.variable in passdata.password,
             data
         ))
-        '''
-        for passdata in data:
-            if (self.variable in passdata.password):
-                containstring_data.append(passdata)
-        '''
-        return containstring_data
 
 
 class PCLOutputContainString(FilterTemplate):
@@ -427,13 +365,13 @@ class PCLOutputContainString(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
-        containstring_data = []
+        filtered_data = []
 
         for passdata in data:
             for pcl, contain_string in self.variable.items():
                 try:
                     if (contain_string in passdata.pcl_output[pcl][0]):
-                        containstring_data.append(passdata)
+                        filtered_data.append(passdata)
                         break
                 except KeyError:
                     if (pcl not in key_errors):
@@ -448,7 +386,7 @@ class PCLOutputContainString(FilterTemplate):
                 self.variable.remove(key_error)
                 key_errors = []
 
-        return containstring_data
+        return filtered_data
 
 
 class PCLOutputDoesNotContainString(FilterTemplate):
@@ -460,13 +398,13 @@ class PCLOutputDoesNotContainString(FilterTemplate):
 
     def apply(self, data):
         key_errors = []
-        doesnot_contain_string = []
+        filtered_data = []
 
         for passdata in data:
             for pcl, not_contain_string in self.variable.items():
                 try:
                     if (not_contain_string not in passdata.pcl_output[pcl][0]):
-                        doesnot_contain_string.append(passdata)
+                        filtered_data.append(passdata)
                         break
                 except KeyError:
                     if (pcl not in key_errors):
@@ -481,7 +419,7 @@ class PCLOutputDoesNotContainString(FilterTemplate):
                 self.variable.remove(key_error)
                 key_errors = []
 
-        return doesnot_contain_string
+        return filtered_data
 
 
 class NumberOfDifferentCharactersLower(FilterTemplate):
@@ -492,12 +430,10 @@ class NumberOfDifferentCharactersLower(FilterTemplate):
         )
 
     def apply(self, data):
-        diff_char_data = list(filter(
+        return list(filter(
             lambda passdata: passdata.diff_char < self.variable,
             data
         ))
-
-        return diff_char_data
 
 
 class NumberOfDifferentCharactersHigher(FilterTemplate):
@@ -508,12 +444,10 @@ class NumberOfDifferentCharactersHigher(FilterTemplate):
         )
 
     def apply(self, data):
-        diff_char_data = list(filter(
+        return list(filter(
             lambda passdata: passdata.diff_char >= self.variable,
             data
         ))
-
-        return diff_char_data
 
 
 class PasswordContainCharacterClass(FilterTemplate):
@@ -524,15 +458,13 @@ class PasswordContainCharacterClass(FilterTemplate):
         )
 
     def apply(self, data):
-        contain_char_class = list(filter(
+        return list(filter(
             lambda passdata: any(
                 char_class in passdata.char_classes
                 for char_class in self.variable
                 ),
             data
         ))
-
-        return contain_char_class
 
 
 class PasswordContainOnlyCharacterClass(FilterTemplate):
@@ -543,9 +475,7 @@ class PasswordContainOnlyCharacterClass(FilterTemplate):
         )
 
     def apply(self, data):
-        containonly_char_class = list(filter(
+        return list(filter(
             lambda passdata: passdata.char_classes == self.variable,
             data
         ))
-
-        return containonly_char_class
