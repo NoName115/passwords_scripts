@@ -138,26 +138,6 @@ class ComplexTransformedPasswordTable(TableTemplate):
             self.table.add_row(row)
 
 
-class PasswordLength(TableTemplate):
-
-    def getHeader(self):
-        return ['Length', 'Number', '[%]']
-
-    def setContent(self):
-        length_dic = {}
-        for passdata in self.data:
-            length = len(passdata.password)
-            if (length not in length_dic):
-                length_dic.update({length: 1})
-            else:
-                length_dic[length] += 1
-
-        for length, count in length_dic.items():
-            self.table.add_row([
-                length, count, round(count / len(self.data) * 100, 2)
-            ])
-
-
 class OverallSummary(TableTemplate):
 
     def getHeader(self):
@@ -293,4 +273,90 @@ class SummaryScoreTableInfo(TableTemplate):
             for pcl_row in pcl_rows:
                 row.append(pcl_row[i] if (i < len(pcl_row)) else '')
 
+            self.table.add_row(row)
+
+
+class DiffCharTable(TableTemplate):
+    
+    def getHeader(self):
+        header = ['Diff. char.', 'Total num. of pass.']
+        for pcl in self.pcl_list:
+            header += [pcl + ' OK', pcl + ' Diff. char. / All']
+
+        return header
+
+    def setContent(self):
+        complet_dict = {}
+
+        for passdata in self.data:
+            for pcl in self.pcl_list:
+                if (passdata.diff_char not in complet_dict):
+                    complet_dict.update({passdata.diff_char: {}})
+
+                if (pcl not in complet_dict[passdata.diff_char]):
+                    complet_dict[passdata.diff_char].update({pcl: [0, 0]})
+
+                if (passdata.getPCLOutput(pcl) == "OK"):
+                    complet_dict[passdata.diff_char][pcl][0] += 1
+                else:
+                    complet_dict[passdata.diff_char][pcl][1] += 1
+
+        for diff_char, pcl_dict in complet_dict.items():
+            row = [diff_char, sum(list(pcl_dict.values())[0])]
+            for pcl in self.pcl_list:
+                row.append(pcl_dict[pcl][0])
+                row.append(
+                    str(
+                        round(pcl_dict[pcl][0] / sum(pcl_dict[pcl]) * 100, 2)
+                        ) + '%  /  ' +
+                    str(
+                        round(pcl_dict[pcl][0] / len(self.data) * 100, 2)
+                        ) + '%'
+                )
+
+            self.table.add_row(row)
+
+
+class PasswordLength(TableTemplate):
+
+    def getHeader(self):
+        header = ['Length', 'Total num. of pass.', '[%]']
+        for pcl in self.pcl_list:
+            header += [pcl + ' OK', pcl + ' Length / All']
+
+        return header
+
+    def setContent(self):
+        complet_dict = {}
+
+        for passdata in self.data:
+            for pcl in self.pcl_list:
+                if (len(passdata.password) not in complet_dict):
+                    complet_dict.update({len(passdata.password): {}})
+                
+                if (pcl not in complet_dict[len(passdata.password)]):
+                    complet_dict[len(passdata.password)].update({pcl: [0, 0]})
+                
+                if (passdata.getPCLOutput(pcl) == "OK"):
+                    complet_dict[len(passdata.password)][pcl][0] += 1
+                else:
+                    complet_dict[len(passdata.password)][pcl][1] += 1
+
+        for length, pcl_dict in complet_dict.items():
+            number_of_pass = sum(list(pcl_dict.values())[0])
+            row = [
+                length,
+                number_of_pass,
+                str(round(number_of_pass / len(self.data) * 100, 2))
+                ]
+            for pcl in self.pcl_list:
+                row += [
+                    pcl_dict[pcl][0],
+                    str(
+                        round(pcl_dict[pcl][0] / sum(pcl_dict[pcl]) * 100, 2)
+                        ) + '%  /  ' +
+                    str(
+                        round(pcl_dict[pcl][0] / len(self.data) * 100, 2)
+                        ) + '%'
+                ]
             self.table.add_row(row)
