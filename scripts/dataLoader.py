@@ -47,7 +47,7 @@ class Loader():
         except IOError:
             errorPrinter.printError(
                 self.__class__.__name__,
-                'File \'{0:1}\' doesn\'t exist'.format(self.filename)
+                'File \'{0:1}\' doesn\'t exist'.format(self.file_path)
                 )
 
         print('Loading DONE\n')
@@ -78,9 +78,9 @@ class LoadFromStdin(Loader):
 
 class LoadFromFile(Loader):
 
-    def __init__(self, filename=None):
+    def __init__(self, file_path=None):
         super(LoadFromFile, self).__init__()
-        self.filename = filename
+        self.file_path = file_path
 
     def load_data(self):
         """Load passwords from file
@@ -91,7 +91,7 @@ class LoadFromFile(Loader):
         """
         password_list = []
 
-        with open(self.filename, 'r', encoding='latin1') as inputfile:
+        with open(self.file_path, 'r', encoding='latin1') as inputfile:
             for line in inputfile:
                 password = line.rstrip('\n')
                 password_list.append(password)
@@ -101,9 +101,9 @@ class LoadFromFile(Loader):
 
 class LoadFromJson(Loader):
 
-    def __init__(self, filename=None):
+    def __init__(self, file_path=None):
         super(LoadFromJson, self).__init__()
-        self.filename = filename
+        self.file_path = file_path
 
     def load_data(self):
         """Load passData from input json file
@@ -113,7 +113,7 @@ class LoadFromJson(Loader):
                          pcl_data - dictionary of passwords and PCL outputs
         """
 
-        with open(self.filename) as jsonfile:
+        with open(self.file_path) as jsonfile:
             data = json.load(jsonfile)
 
         passinfo_list = []
@@ -147,9 +147,9 @@ class LoadFromJson(Loader):
 
 class LoadFromCSV(Loader):
 
-    def __init__(self, filename=None, from_row=None, to_row=None):
+    def __init__(self, file_path=None, from_row=None, to_row=None):
         super(LoadFromCSV, self).__init__()
-        self.filename = filename
+        self.file_path = file_path
         self.from_row = from_row
         self.to_row = to_row
 
@@ -180,7 +180,7 @@ class LoadFromCSV(Loader):
 
             return transform_rules
 
-        csv_file = open(self.filename, 'r')
+        csv_file = open(self.file_path, 'r')
         csv_reader = csv.reader(
             csv_file,
             delimiter=',',
@@ -234,13 +234,13 @@ class Saver():
 
     __metaclas__ = ABCMeta
 
-    def __init__(self, filename=None, file_extension='.out'):
-        self.filename = filename if (filename) \
+    def __init__(self, file_path=None, file_extension='.out'):
+        self.file_path = file_path if (file_path) \
             else 'outputs/temp' + file_extension
 
         # Check if extention exists
-        if (self.filename[-len(file_extension):] != file_extension):
-            self.filename += file_extension
+        if (self.file_path[-len(file_extension):] != file_extension):
+            self.file_path += file_extension
 
         self.file_extension = file_extension
 
@@ -252,7 +252,7 @@ class Saver():
         except IOError:
             errorPrinter.printError(
                 self.__class__.__name__,
-                'File \'{0:1}\' doesn\'t exist'.format(self.filename)
+                'File \'{0:1}\' doesn\'t exist'.format(self.file_path)
                 )
 
         print("Saving DONE\n")
@@ -264,9 +264,9 @@ class Saver():
 
 class SaveDataToJson(Saver):
 
-    def __init__(self, filename=None):
+    def __init__(self, file_path=None):
         super(SaveDataToJson, self).__init__(
-            filename,
+            file_path,
             ".json"
         )
 
@@ -277,7 +277,7 @@ class SaveDataToJson(Saver):
         passinfo_list -- list of PassInfo classes
         pcl_data -- dictionary of passwords and pcl outputs
         """
-        json_file = open(self.filename, 'w')
+        json_file = open(self.file_path, 'w')
 
         password_json_list = []
         for passinfo in passinfo_list:
@@ -308,16 +308,16 @@ class SaveDataToJson(Saver):
 
 class SaveDataToCSV(Saver):
 
-    def __init__(self, filename=None):
+    def __init__(self, file_path=None):
         super(SaveDataToCSV, self).__init__(
-            filename,
+            file_path,
             '.csv'
         )
 
     def save_data(self, passinfo_list, pcl_data):
         pcl_list = sorted(pcl_data[passinfo_list[0].password].keys())
 
-        csv_file = open(self.filename, 'w')
+        csv_file = open(self.file_path, 'w')
         csv_writer = csv.writer(
             csv_file,
             delimiter=',',
@@ -352,20 +352,20 @@ class SaveDataToCSV(Saver):
 
 class AppendDataToCSV(Saver):
 
-    def __init__(self, filename):
+    def __init__(self, file_path):
         super(AppendDataToCSV, self).__init__(
-            filename,
+            file_path,
             '.csv'
         )
 
     def save_data(self, passinfo_list, pcl_data):
         # File with old data
-        csv_file_old = open(self.filename, 'r')
+        csv_file_old = open(self.file_path, 'r')
 
         # File with new data
-        filename_new = self.filename[:-len(self.file_extension)] + \
+        file_path_new = self.file_path[:-len(self.file_extension)] + \
             "_new" + self.file_extension
-        csv_file_new = open(filename_new, 'w')
+        csv_file_new = open(file_path_new, 'w')
 
         csv_reader = csv.reader(
             csv_file_old,

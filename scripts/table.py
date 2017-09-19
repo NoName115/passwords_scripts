@@ -44,9 +44,9 @@ class TableTemplate():
                     return self.table.get_string(
                         sortby=sortby,
                         reversesort=reversesort,
-                        fields=fields,
                         start=start,
-                        end=end
+                        end=end,
+                        fields=fields
                     )
                 else:
                     raise Exception(
@@ -72,7 +72,7 @@ class TableTemplate():
         pass
 
 
-class ComplexPasswordTable(TableTemplate):
+class ComplexPassword(TableTemplate):
 
     def getHeader(self):
         header = ['Password', 'Diff. char.', 'Char. classes', 'Length']
@@ -98,7 +98,7 @@ class ComplexPasswordTable(TableTemplate):
             self.table.add_row(row)
 
 
-class ComplexTransformedPasswordTable(TableTemplate):
+class ComplexTransformedPassword(TableTemplate):
 
     def getHeader(self):
         header = [
@@ -223,7 +223,7 @@ class PasswordWithPCLOutputs(TableTemplate):
             self.table.add_row(row)
 
 
-class SummaryScoreTableInfo(TableTemplate):
+class SummaryScore(TableTemplate):
 
     def getHeader(self):
         header = []
@@ -276,7 +276,7 @@ class SummaryScoreTableInfo(TableTemplate):
             self.table.add_row(row)
 
 
-class DiffCharTable(TableTemplate):
+class DiffChar(TableTemplate):
     
     def getHeader(self):
         header = ['Diff. char.', 'Total num. of pass.']
