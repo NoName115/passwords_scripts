@@ -515,3 +515,34 @@ class PasswordContainOnlyCharacterClass(FilterTemplate):
             lambda passdata: passdata.char_classes == self.variable,
             data
         ))
+
+
+class NumberOfPasswordCharacterClass(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(NumberOfPasswordCharacterClass, self).__init__(
+            variable, True, int
+        )
+
+    def apply(self, data):
+        return list(filter(
+            lambda passdata: len(passdata.char_classes) == self.variable,
+            data
+        ))
+
+
+class TestFilter(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(TestFilter, self).__init__(
+            variable, False, None
+        )
+    
+    def apply(self, data):
+        filtered_data = []
+
+        for passdata in data:
+            if (passdata.password[:2].isdigit() and passdata.password[-2:].isdigit()):
+                filtered_data.append(passdata)
+
+        return filtered_data
