@@ -195,6 +195,9 @@ class PassfaultScoring(AnalysisTemplate):
             ]
         )
         table_2 = data_table.SummaryScore(self.getData()).getTable(
+            fields=[
+                'Passfault score', 'Pwscore score', 'Zxcvbn score'
+            ],
             start=0,
             end=150
         )
@@ -202,6 +205,11 @@ class PassfaultScoring(AnalysisTemplate):
             table_1,
             filename='outputs/' + self.__class__.__name__
         )
+        self.printToFile(
+            'Number of passwords: ' + str(len(self.getData())),
+            filename='outputs/' + self.__class__.__name__
+        )
+
         self.printToFile(
             table_2,
             filename='outputs/' + self.__class__.__name__
@@ -222,7 +230,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         }))
         self.applyFilter()
 
-        table = data_table.ComplexPassword(self.getData()).getTable(
+        table_1 = data_table.ComplexPassword(self.getData()).getTable(
             sortby='Zxcvbn score',
             reversesort=True,
             fields=[
@@ -233,7 +241,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
             start=120,
             end=260
         )
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table_1, filename='outputs/' + self.__class__.__name__)
         self.printToFile(
             'Number of passwords: ' + str(len(self.getData())),
             filename='outputs/' + self.__class__.__name__
@@ -252,7 +260,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         }))
         self.applyFilter()
 
-        table = data_table.ComplexPassword(self.getData()).getTable(
+        table_2 = data_table.ComplexPassword(self.getData()).getTable(
             sortby='Zxcvbn score',
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
@@ -260,7 +268,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
                 'Zxcvbn', 'Zxcvbn score'
                 ]
         )
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table_2, filename='outputs/' + self.__class__.__name__)
         self.printToFile(
             'Number of passwords: ' + str(len(self.getData())),
             filename='outputs/' + self.__class__.__name__
@@ -277,30 +285,31 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         }))
         self.addFilter(data_filter.NumberOfDifferentCharactersHigher(2))
         self.addFilter(data_filter.PasswordLengthHigher(9))
-        self.addFilter(data_filter.OriginalPCLOutputIsNotOk(['Zxcvbn']))
+        #self.addFilter(data_filter.OriginalPCLOutputIsNotOk(['Zxcvbn']))
         self.applyFilter()
 
-        table = data_table.ComplexPassword(self.getData()).getTable(
+        table_3 = data_table.ComplexPassword(self.getData()).getTable(
             sortby='Zxcvbn score',
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
+                'CrackLib',
                 'Pwscore', 'Pwscore score',
                 'Zxcvbn', 'Zxcvbn score'
                 ]
         )
         # Most common reason
-        table_2 = data_table.OverallSummary(self.getData()).getTable(
+        table_4 = data_table.OverallSummary(self.getData()).getTable(
             fields=[
                 'Zxcvbn reasons of rejection'
             ]
         )
 
-        self.printToFile(table, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table_3, filename='outputs/' + self.__class__.__name__)
         self.printToFile(
             'Number of passwords: ' + str(len(self.getData())),
             filename='outputs/' + self.__class__.__name__
         )
-        self.printToFile(table_2, filename='outputs/' + self.__class__.__name__)
+        self.printToFile(table_4, filename='outputs/' + self.__class__.__name__)
 
 
 class ZxcvbnDictionary(AnalysisTemplate):
@@ -325,7 +334,7 @@ class ZxcvbnDictionary(AnalysisTemplate):
         table_1 = data_table.ComplexPassword(self.getData()).getTable(
             fields=[
                 'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn', 'Passfault'
+                'CrackLib', 'PassWDQC', 'Pwscore', 'Passfault', 'Zxcvbn'
             ],
             start=0,
             end=100
@@ -378,6 +387,35 @@ class ZxcvbnDictionary(AnalysisTemplate):
         )
         self.printToFile(
             table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+        # PassWDQC - 'Dic. word', CrackLib - 'OK', Pwscore - 'OK'
+        self.setData(self.analyzer.data_set['all_passwords'])
+        self.clearFilter()
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PCLOutputContainString({
+            'PassWDQC': 'dictionary'
+        }))
+        #self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
+        #self.addFilter(data_filter.OriginalPCLOutputIsOk(['Pwscore']))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable(
+            fields=[
+                'CrackLib accepted', 'CrackLib rejected',
+                'CrackLib reasons of rejection',
+                'PassWDQC accepted', 'PassWDQC rejected',
+                'PassWDQC reasons of rejection',
+                'Pwscore accepted', 'Pwscore rejected',
+                'Pwscore reasons of rejection'
+                ],
+            start=0,
+            end=7
+        )
+        self.printToFile(
+            table_1,
             filename='outputs/' + self.__class__.__name__
         )
 
@@ -512,8 +550,14 @@ class PassfaultKeyboardSequence(AnalysisTemplate):
                 'Zxcvbn', 'Zxcvbn score'
                 ]
         )
+        table_3 = data_table.OverallSummary(self.getData()).getTable()
+        
         self.printToFile(
             table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            table_3,
             filename='outputs/' + self.__class__.__name__
         )
 
@@ -526,7 +570,10 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
         # >80% passwords pass through pcl
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40,
+            'Zxcvbn': 3
+        }))
         #self.addFilter(data_filter.NumberOfPasswordCharacterClass(3))
         self.addFilter(data_filter.PasswordContainCharacterClass([
             'lower letter', 'upper letter'
@@ -611,10 +658,21 @@ class ZxcvbnPasswordPattern(AnalysisTemplate):
 class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
 
     def runAnalysis(self):
+        def getFirstTable():
+            return data_table.ComplexPassword(self.getData()).getTable(
+                fields=[
+                    'Password', 'Char. classes', 'Length',
+                    'Pwscore', 'Pwscore score',
+                    'Zxcvbn', 'Zxcvbn score'
+                ],
+                start=10,
+                end=100
+            )
+
         def getSecondTable():
             return data_table.OverallSummary(self.getData()).getTable(
                 start=0,
-                end=20,
+                end=13,
                 fields=[
                     'Pwscore accepted', 'Pwscore rejected',
                     'Pwscore reasons of rejection',
@@ -623,8 +681,8 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
                 ]
             )
 
-        # Passwords have patter 2NXL2N, length > 8/9/10
-        # and contain letter(s)
+        # Passwords have pattern 2NXL2N, length > 8/9/10
+        # and contain at least one letter
         self.setData(self.analyzer.data_set['all_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
@@ -641,35 +699,59 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
         # Get unfiltered data by length
         unfiltered_data = self.getData()
 
+        # Passwords with length >= 10
         self.addFilter(data_filter.PasswordLengthHigher(10))
         self.applyFilter()
 
-        table_1 = data_table.ComplexPassword(self.getData()).getTable(
-            fields=[
-                'Password', 'Char. classes', 'Length',
-                'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
-            ],
-            start=10,
-            end=100
+        self.printToFile(
+            getFirstTable(),
+            filename='outputs/' + self.__class__.__name__
         )
-        self.printToFile(table_1)
-        self.printToFile(getSecondTable())
+        self.printToFile(
+            getSecondTable(),
+            filename='outputs/' + self.__class__.__name__
+        )
 
+        # Passwords with length >= 9
         self.setData(unfiltered_data)
         self.clearFilter()
         self.addFilter(data_filter.PasswordLengthHigher(9))
         self.applyFilter()
-        self.printToFile(getSecondTable())
 
+        self.printToFile(
+            getFirstTable(),
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            getSecondTable(),
+            filename='outputs/' + self.__class__.__name__
+        )
+
+        # Passwords with length >= 8
         self.setData(unfiltered_data)
         self.clearFilter()
         self.addFilter(data_filter.PasswordLengthHigher(8))
         self.applyFilter()
-        self.printToFile(getSecondTable())
+
+        self.printToFile(
+            getFirstTable(),
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            getSecondTable(),
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
-        pass
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ScoreLower({
+            'Passfault': 10000001
+        }))
+        self.applyFilter()
+
+        table = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(table)
