@@ -354,34 +354,6 @@ class PasswordLengthHigher(FilterTemplate):
         ))
 
 
-class RemovePCLOutput(FilterTemplate):
-
-    def __init__(self, variable=None):
-        super(RemovePCLOutput, self).__init__(variable, True, list)
-
-    def apply(self, data):
-        key_errors = []
-
-        for passdata in data:
-            for pcl in self.variable:
-                try:
-                    passdata.pcl_output.pop(pcl)
-                except KeyError:
-                    if (pcl not in key_errors):
-                        errorPrinter.printWarning(
-                            self.__class__.__name__,
-                            "Key \'" + pcl + "\' does not exist."
-                        )
-                        key_errors.append(pcl)
-
-            # Remove undefined keys from list before next iteration
-            for key_error in key_errors:
-                self.variable.remove(key_error)
-                key_errors = []
-
-        return data
-
-
 class PasswordContainString(FilterTemplate):
 
     def __init__(self, variable=None):

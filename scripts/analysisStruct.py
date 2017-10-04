@@ -5,6 +5,7 @@ import scripts.filter as data_filter
 import scripts.table as data_table
 import datetime
 import os.path
+import copy
 
 
 class Analyzer():
@@ -38,6 +39,7 @@ class Analyzer():
             'orig_passwords': [],
             'trans_passwords': []
         }
+        self.pcl_dic = pcl_dic
         self.fillDefaultAnalysisGroups(passinfo_list, pcl_dic)
 
     def fillDefaultAnalysisGroups(self, passinfo_list, pcl_dic):
@@ -56,13 +58,13 @@ class Analyzer():
             if (hasattr(passinfo, 'transform_rules')):
                 passdata_list.append(PassData(
                     passinfo=passinfo,
-                    pcl_output=pcl_dic[passinfo.password],
+                    pcl_output=pcl_dic[passinfo.password].copy(),
                     orig_passdata=orig_passdata
                 ))
             else:
                 orig_passdata = PassData(
                     passinfo=passinfo,
-                    pcl_output=pcl_dic[passinfo.password]
+                    pcl_output=pcl_dic[passinfo.password].copy()
                 )
                 passdata_list.append(orig_passdata)
 
@@ -105,10 +107,18 @@ class Analyzer():
             self.filename = getOutputFileName()
             analysis.analyzer = self
 
+            # Update PCL's outputs, coz
+            # these outputs could be changed by filters
+            self.updatePCLOutputs()
+
             print("Analysis: " + analysis.__class__.__name__)
             analysis.runAnalysis()
 
         print("Analyzing DONE\n")
+
+    def updatePCLOutputs(self):
+        for passdata in self.data_set['all_passwords']:
+            passdata.pcl_output = self.pcl_dic[passdata.password].copy()
 
     def printToFile(self, text, filename):
         """Print input text to file
@@ -743,15 +753,58 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
         )
 
 
+class TestAnalysis_2(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        table = data_table.ComplexPassword(self.getData()).getTable(
+            sortby='Passfault score',
+            start=0,
+            end=20
+        )
+        self.printToFile(table)
+
+
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.ScoreLower({
-            'Passfault': 10000001
+        self.addFilter(data_filter.PasswordLengthLower(2))
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Passfault': 9
         }))
         self.applyFilter()
 
         table = data_table.ComplexPassword(self.getData()).getTable()
         self.printToFile(table)
+
+
+class OutputTest(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 15,
+            'Zxcvbn': 4
+        }))
+        self.applyFilter()
+
+        table = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(table, filename='outputs/outputtest')
+
+
+class OutputTest_2(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
+        table = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(table, filename='outputs/outputtest')
