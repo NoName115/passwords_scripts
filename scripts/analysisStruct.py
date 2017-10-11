@@ -187,7 +187,7 @@ class PassfaultScoring(AnalysisTemplate):
         self.setData(self.analyzer.data_set['all_passwords'])
         self.clearFilter()
 
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Match'
         }))
         self.addFilter(data_filter.ScoreHigher({
@@ -202,7 +202,9 @@ class PassfaultScoring(AnalysisTemplate):
                 'Pwscore', 'Pwscore score',
                 'Zxcvbn', 'Zxcvbn score',
                 'Passfault', 'Passfault score',
-            ]
+            ],
+            start=500,
+            end=600
         )
         table_2 = data_table.SummaryScore(self.getData()).getTable(
             fields=[
@@ -232,7 +234,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         self.setData(self.analyzer.data_set['all_passwords'])
 
         # Low score palindroms
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Pwscore': 'The password is a palindrome'
         }))
         self.addFilter(data_filter.ScoreLower({
@@ -262,7 +264,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         self.clearFilter()
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Pwscore': 'The password is a palindrome'
         }))
         self.addFilter(data_filter.ScoreHigher({
@@ -290,7 +292,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         self.clearFilter()
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Pwscore': 'The password is a palindrome'
         }))
         self.addFilter(data_filter.NumberOfDifferentCharactersHigher(2))
@@ -332,7 +334,7 @@ class ZxcvbnDictionary(AnalysisTemplate):
             'Zxcvbn': 3,
             'Pwscore': 40
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'CrackLib': 'dictionary word',
             'PassWDQC': 'dictionary',
             'Passfault': 'Match',
@@ -370,7 +372,7 @@ class ZxcvbnDictionary(AnalysisTemplate):
             'Zxcvbn': 3,
             'Pwscore': 40
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'CrackLib': 'dictionary word',
             'PassWDQC': 'dictionary',
             'Pwscore': 'dictionary word'
@@ -405,7 +407,7 @@ class ZxcvbnDictionary(AnalysisTemplate):
         self.clearFilter()
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'PassWDQC': 'dictionary'
         }))
         #self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
@@ -437,16 +439,16 @@ class ZxcvbnDictionary(AnalysisTemplate):
             'Zxcvbn': 3,
             'Pwscore': 40
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'CrackLib': 'dictionary word'
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'PassWDQC': 'dictionary'
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Match'
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Pwscore': 'dictionary word'
         }))
         self.applyFilter()
@@ -513,7 +515,7 @@ class PassfaultKeyboardSequence(AnalysisTemplate):
         self.addFilter(data_filter.PCLOutputDoesNotContainString({
             'Passfault': 'Match'
         }))
-        self.addFilter(data_filter.PCLOutputContainString({
+        self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Keyboard'
         }))
         self.applyFilter()
@@ -753,58 +755,164 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
         )
 
 
-class TestAnalysis_2(AnalysisTemplate):
+class PassfaultOneMatch(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Passfault': ','
+        }))
+        self.addFilter(data_filter.PCLOutputRegex({
+            'Passfault': 'Match'
+        }))
+        self.addFilter(data_filter.ScoreHigher({
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
         table = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Passfault score',
+            sortby='Zxcvbn score',
+            reversesort=True
+        )
+        self.printToFile(table)
+
+
+class PassfaultMatchWorstPasswords(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Passfault': ','
+        }))
+        self.addFilter(data_filter.PCLOutputRegex({
+            'Passfault': 'worst-passwords'
+        }))
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40,
+            'Zxcvbn': 3
+        }))
+        self.addFilter(data_filter.OriginalPCLOutputIsOk([
+            'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn'
+        ]))
+        self.applyFilter()
+
+        table = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+            )
+
+
+class ZxcvbnCommonPasswords(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Passwords that only Zxcvbn recognize as 'commonly used password'
+        # and are accepteb by other libraries
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PCLOutputRegex({
+            'Zxcvbn': 'commonly used password'
+        }))
+
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'CrackLib': 'dictionary word'
+        }))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Pwscore': 'dictionary word'
+        }))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'PassWDQC': 'dictionary'
+        }))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Passfault': 'Match'
+        }))
+
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40
+        }))
+        self.addFilter(data_filter.OriginalPCLOutputIsOk([
+            'CrackLib', 'PassWDQC', 'Pwscore'
+        ]))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable(
             start=0,
             end=20
         )
-        self.printToFile(table)
+        table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+            )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+            )
+
+        # Passwords are accepted by PassWDQC or Pwscore
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk([
+            'PassWDQC', 'Pwscore'
+        ]))
+        self.applyFilter()
+
+        table_3 = data_table.ComplexPassword(self.getData()).getTable(
+            fields=[
+                'Password', 'Diff. char.', 'Char. classes', 'Length',
+                'CrackLib', 'PassWDQC',
+                'Passfault', 'Passfault score',
+                'Pwscore', 'Pwscore score',
+                'Zxcvbn', 'Zxcvbn score'
+            ]
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+            )
+
+        # Passwords are accepted by both PCLs PassWDQC and Pwscore
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk([
+            'PassWDQC'
+        ]))
+        self.addFilter(data_filter.OriginalPCLOutputIsOk([
+            'Pwscore'
+        ]))
+        self.applyFilter()
+
+        table_4 = data_table.ComplexPassword(self.getData()).getTable(
+            fields=[
+                'Password', 'Diff. char.', 'Char. classes', 'Length',
+                'CrackLib', 'PassWDQC',
+                'Passfault', 'Passfault score',
+                'Pwscore', 'Pwscore score',
+                'Zxcvbn', 'Zxcvbn score'
+            ]
+        )
+        self.printToFile(
+            table_4,
+            filename='outputs/' + self.__class__.__name__
+            )
+
+
+class EmailAddresses(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PasswordRegex('.+\@.+\..+'))
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(table_1)
+        self.printToFile(table_2)
 
 
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.PasswordLengthLower(2))
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Passfault': 9
-        }))
-        self.applyFilter()
-
-        table = data_table.ComplexPassword(self.getData()).getTable()
-        self.printToFile(table)
-
-
-class OutputTest(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Pwscore': 15,
-            'Zxcvbn': 4
-        }))
-        self.applyFilter()
-
-        table = data_table.ComplexPassword(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/outputtest')
-
-
-class OutputTest_2(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Zxcvbn': 3
-        }))
-        self.applyFilter()
-
-        table = data_table.ComplexPassword(self.getData()).getTable()
-        self.printToFile(table, filename='outputs/outputtest')
+        pass

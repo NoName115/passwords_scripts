@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from prettytable import PrettyTable
 
 import scripts.errorPrinter as errorPrinter
+import re
 
 
 class FilterTemplate():
@@ -366,37 +367,6 @@ class PasswordContainString(FilterTemplate):
         ))
 
 
-class PCLOutputContainString(FilterTemplate):
-
-    def __init__(self, variable=None):
-        super(PCLOutputContainString, self).__init__(variable, True, dict)
-
-    def apply(self, data):
-        key_errors = []
-        filtered_data = []
-
-        for passdata in data:
-            for pcl, contain_string in self.variable.items():
-                try:
-                    if (contain_string in passdata.pcl_output[pcl][0]):
-                        filtered_data.append(passdata)
-                        break
-                except KeyError:
-                    if (pcl not in key_errors):
-                        errorPrinter.printWarning(
-                            self.__class__.__name__,
-                            "Key \'" + pcl + "\' does not exist."
-                        )
-                        key_errors.append(pcl)
-
-            # Remove undefined keys from list before next iteration
-            for key_error in key_errors:
-                self.variable.remove(key_error)
-                key_errors = []
-
-        return filtered_data
-
-
 class PCLOutputDoesNotContainString(FilterTemplate):
 
     def __init__(self, variable=None):
@@ -516,5 +486,88 @@ class TestFilter(FilterTemplate):
         for passdata in data:
             if (passdata.password[:2].isdigit() and passdata.password[-2:].isdigit()):
                 filtered_data.append(passdata)
+
+        return filtered_data
+
+
+class Last2CharactersAreDigits(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(Last2CharactersAreDigits, self).__init__(
+            variable, False, None
+        )
+    
+    def apply(self, data):
+        return list(filter(
+            lambda passdata: passdata.password[-2:].isdigit() and
+                passdata.password[:-2].isalpha(),
+            data
+        ))
+
+
+class PasswordRegex(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(PasswordRegex, self).__init__(
+            variable, True, str
+        )
+
+    def apply(self, data):
+        try:
+            prog = re.compile(self.variable)
+        except Exception as err:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                err
+            )
+            return data
+
+        return list(filter(
+            lambda passdata: prog.search(passdata.password),
+            data
+        ))
+
+
+class PCLOutputRegex(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(PCLOutputRegex, self).__init__(
+            variable, True, dict
+        )
+
+    def apply(self, data):
+        try:
+            for pcl, regex in self.variable.items():
+                self.variable[pcl] = re.compile(regex)
+        except Exception as err:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                err
+            )
+            return data
+
+        print(self.variable)
+
+        key_errors = []
+        filtered_data = []
+
+        for passdata in data:
+            for pcl, regex_object in self.variable.items():
+                try:
+                    if (regex_object.search(passdata.pcl_output[pcl][0])):
+                        filtered_data.append(passdata)
+                        break
+                except KeyError:
+                    if (pcl not in key_errors):
+                        errorPrinter.printWarning(
+                            self.__class__.__name__,
+                            "Key \'" + pcl + "\' does not exist."
+                        )
+                        key_errors.append(pcl)
+
+            # Remove undefined keys from list before next iteration
+            for key_error in key_errors:
+                self.variable.remove(key_error)
+                key_error = []
 
         return filtered_data
