@@ -7,6 +7,7 @@ import os
 import json
 import csv
 import copy
+import re
 
 
 class Loader():
@@ -95,6 +96,39 @@ class LoadFromFile(Loader):
             for line in inputfile:
                 password = line.rstrip('\n')
                 password_list.append(password)
+
+        return password_list
+
+
+class LoadRockYou(Loader):
+
+    def __init__(self, file_path=None, start=0, end=0, users_used=3):
+        super(LoadRockYou, self).__init__()
+        self.file_path = file_path
+        self.start = start
+        self.end = end
+        self.users_used = users_used
+
+    def load_data(self):
+        password_list = []
+
+        printed = False
+
+        with open(self.file_path, 'r', encoding='latin1') as inputfile:
+            regex_object = re.compile(r" *(\d+) (.*)")
+            linecounter = 0
+
+            for line in inputfile:
+                linecounter += 1
+                if (linecounter < self.start):
+                    continue
+                if (linecounter > self.end):
+                    break
+
+                match = regex_object.match(line.rstrip('\n'))
+                if (match and
+                   int(match.group(1)) >= self.users_used and match.group(2)):
+                    password_list.append(match.group(2))
 
         return password_list
 

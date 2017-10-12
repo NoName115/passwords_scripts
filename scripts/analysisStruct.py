@@ -902,14 +902,126 @@ class EmailAddresses(AnalysisTemplate):
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
-        self.addFilter(data_filter.PasswordRegex('.+\@.+\..+'))
+        self.addFilter(data_filter.PasswordRegex('^.+\@.+\..+$'))
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.applyFilter()
 
         table_1 = data_table.OverallSummary(self.getData()).getTable()
         table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+
+class CracklibPwscorePattern(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Password pattern 2NXL2N, X>7, Length > 10
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PasswordRegex('^\d\d[a-zA-Z]{7,}\d\d$'))
+        self.addFilter(data_filter.PasswordLengthHigher(10))
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40,
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+
+class PassWDQCPasswordLength(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40,
+            'Zxcvbn': 3
+        }))
+        self.applyFilter()
+
+        for pass_length in range(10, 21):
+            self.clearFilter()
+            self.addFilter(data_filter.PasswordLengthHigher(pass_length))
+            self.applyFilter()
+            table_1 = data_table.OverallSummary(self.getData()).getTable(
+                start=0,
+                end=15
+            )
+            self.printToFile("Password length == " + str(pass_length))
+            self.printToFile(table_1)
+
+            if (pass_length in [15, 20]):
+                table_2 = data_table.ComplexPassword(self.getData()).getTable(
+                    fields=[
+                        'Password', 'Length',
+                        'CrackLib', 'PassWDQC',
+                        'Passfault', 'Passfault score',
+                        'Pwscore', 'Pwscore score',
+                        'Zxcvbn', 'Zxcvbn score'
+                    ]
+                )
+                self.printToFile(table_2)
+
+
+class CracklibPwScoreLowPasswordScore(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PCLOutputRegex({
+            'Pwscore': 'Low password score'
+        }))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end= 25,
+            fields=[
+                'CrackLib accepted', 'CrackLib rejected',
+                'CrackLib reasons of rejection',
+                #'PassWDQC accepted', 'PassWDQC rejected',
+                #'PassWDQC reasons of rejection',
+                #'Passfault accepted', 'Passfault rejected',
+                #'Passfault reasons of rejection',
+                'Pwscore accepted', 'Pwscore rejected',
+                'Pwscore reasons of rejection',
+                'Zxcvbn accepted', 'Zxcvbn rejected',
+                'Zxcvbn reasons of rejection'
+            ]
+        )
         self.printToFile(table_1)
-        self.printToFile(table_2)
+
+
+class CracklibZxcvbnSummary(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class TestAnalysis(AnalysisTemplate):

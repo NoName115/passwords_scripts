@@ -546,8 +546,6 @@ class PCLOutputRegex(FilterTemplate):
             )
             return data
 
-        print(self.variable)
-
         key_errors = []
         filtered_data = []
 
