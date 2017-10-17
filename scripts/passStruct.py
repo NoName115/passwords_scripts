@@ -45,7 +45,7 @@ class PassInfo():
 
         # Other(special) symbols
         if (any(
-           (c < '0' or (c > '9' and c < 'A') or (c > 'Z' and c <'a') or c > 'z')
+           (not c.isdigit() and not c.isupper() and not c.islower())
            for c in password)):
             type_of_classes.append('special char')
 
@@ -169,3 +169,7 @@ class PassData(PassInfo):
     def getPCLScore(self, pcl):
         pcl_score = self.pcl_output[pcl][1]
         return pcl_score if (pcl_score is not None) else None
+
+    def addAttribute(self, attr_dict):
+        for attr_name, attr_value in attr_dict.items():
+            self.__setattr__(attr_name, attr_value)

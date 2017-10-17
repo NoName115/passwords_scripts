@@ -43,8 +43,14 @@ class FilterTemplate():
                     err
                 )
                 return data
-
-        return self.apply(data)
+        try:
+            return self.apply(data)
+        except Exception as err:
+            errorPrinter.printWarning(
+                self.__class__.__name__,
+                err
+            )
+            return data
 
     @abstractmethod
     def apply(self, data):
@@ -394,7 +400,7 @@ class PCLOutputDoesNotContainString(FilterTemplate):
 
             # Remove undefined keys from list before next iteration
             for key_error in key_errors:
-                self.variable.remove(key_error)
+                self.variable.pop(key_error, None)
                 key_errors = []
 
         return filtered_data
@@ -565,7 +571,38 @@ class PCLOutputRegex(FilterTemplate):
 
             # Remove undefined keys from list before next iteration
             for key_error in key_errors:
-                self.variable.remove(key_error)
+                self.variable.pop(key_error, None)
                 key_error = []
 
         return filtered_data
+
+
+class AddNumberOfUsesToPassData(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(AddNumberOfUsesToPassData, self).__init__(
+            variable, True, str
+        )
+
+    def apply(self, data):
+        try:
+            regex_object = re.compile(r" *(\d+) (.*)")
+
+            with open(self.variable, 'r', encoding='latin1') as inputfile:
+                for passdata in data:
+                    for line in inputfile:
+                        nous, password = regex_object.match(line.rstrip('\n')).groups()
+
+                        if (password == passdata.password):
+                            passdata.addAttribute({
+                                'numberOfUses': int(nous)
+                            })
+                            break
+
+        except IOError as err:
+            errorPrinter.printError(
+                self.__class__.__name__,
+                err
+                )
+
+        return data

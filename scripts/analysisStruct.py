@@ -1024,6 +1024,105 @@ class CracklibZxcvbnSummary(AnalysisTemplate):
         )
 
 
+class CracklibZxcvbnDictionaryWord(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Dictionary word by CrackLib, OK by Zxcvbn
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PCLOutputRegex({
+            'CrackLib': 'dictionary word'
+        }))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
+        self.addFilter(data_filter.AddNumberOfUsesToPassData(
+            'inputs/rockyou-withcount/data.txt'
+        ))
+        self.applyFilter()
+
+        table_2 = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
+            start=0,
+            end=1000
+        )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+            )
+        self.printToFile(
+            'Number of passwords: ' + str(len(self.getData())),
+            filename='outputs/' + self.__class__.__name__
+            )
+
+        # Dictionary word by Zxcvbn, OK by CrackLib
+        self.setData(self.analyzer.data_set['all_passwords'])
+        self.clearFilter()
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PCLOutputRegex({
+            'Zxcvbn': 'Uncommon words are better'
+        }))
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+            )
+
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
+        self.addFilter(data_filter.AddNumberOfUsesToPassData(
+            'inputs/rockyou-withcount/data.txt'
+        ))
+        self.applyFilter()
+
+        table_2 = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
+            start=0,
+            end=1000
+        )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+            )
+        self.printToFile(
+            'Number of passwords: ' + str(len(self.getData())),
+            filename='outputs/' + self.__class__.__name__
+            )
+
+
+class CrackLibZxcvbnAcceptedPasswords(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
+        self.addFilter(data_filter.AddNumberOfUsesToPassData(
+            'inputs/rockyou-withcount/data.txt'
+        ))
+        self.applyFilter()
+
+        table = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable()
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+            )
+        self.printToFile(
+            'Number of passwords: ' + str(len(self.getData())),
+            filename='outputs/' + self.__class__.__name__
+            )
+
+
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):

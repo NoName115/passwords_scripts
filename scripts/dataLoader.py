@@ -102,7 +102,7 @@ class LoadFromFile(Loader):
 
 class LoadRockYou(Loader):
 
-    def __init__(self, file_path=None, start=0, end=0, users_used=3):
+    def __init__(self, file_path=None, start=None, end=None, users_used=3):
         super(LoadRockYou, self).__init__()
         self.file_path = file_path
         self.start = start
@@ -112,17 +112,15 @@ class LoadRockYou(Loader):
     def load_data(self):
         password_list = []
 
-        printed = False
-
         with open(self.file_path, 'r', encoding='latin1') as inputfile:
             regex_object = re.compile(r" *(\d+) (.*)")
             linecounter = 0
 
             for line in inputfile:
                 linecounter += 1
-                if (linecounter < self.start):
+                if (self.start and linecounter < self.start):
                     continue
-                if (linecounter > self.end):
+                if (self.end and linecounter > self.end):
                     break
 
                 match = regex_object.match(line.rstrip('\n'))

@@ -360,3 +360,27 @@ class PasswordLength(TableTemplate):
                         ) + '%'
                 ]
             self.table.add_row(row)
+
+
+class ComplexPasswordWithNumberOfUses(TableTemplate):
+
+    def getHeader(self):
+        header = ['NOUses', 'Password']
+        for pcl in self.pcl_list:
+            header += [pcl, pcl + ' score']
+
+        return header
+
+    def setContent(self):
+        for passdata in self.data:
+            row = [
+                passdata.numberOfUses,
+                passdata.password
+            ]
+            for pcl in self.pcl_list:
+                row += [
+                    passdata.getPCLOutput(pcl),
+                    passdata.getPCLScore(pcl)
+                ]
+
+            self.table.add_row(row)
