@@ -479,38 +479,6 @@ class NumberOfPasswordCharacterClass(FilterTemplate):
         ))
 
 
-class TestFilter(FilterTemplate):
-
-    def __init__(self, variable=None):
-        super(TestFilter, self).__init__(
-            variable, False, None
-        )
-    
-    def apply(self, data):
-        filtered_data = []
-
-        for passdata in data:
-            if (passdata.password[:2].isdigit() and passdata.password[-2:].isdigit()):
-                filtered_data.append(passdata)
-
-        return filtered_data
-
-
-class Last2CharactersAreDigits(FilterTemplate):
-
-    def __init__(self, variable=None):
-        super(Last2CharactersAreDigits, self).__init__(
-            variable, False, None
-        )
-    
-    def apply(self, data):
-        return list(filter(
-            lambda passdata: passdata.password[-2:].isdigit() and
-                passdata.password[:-2].isalpha(),
-            data
-        ))
-
-
 class PasswordRegex(FilterTemplate):
 
     def __init__(self, variable=None):
@@ -606,3 +574,69 @@ class AddNumberOfUsesToPassData(FilterTemplate):
                 )
 
         return data
+
+
+class AllRejectedOneAccepted(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(AllRejectedOneAccepted, self).__init__(
+            variable, True, str
+        )
+    
+    def apply(self, data):
+        filtered_data = []
+        pcl_list = data[0].pcl_output.keys()
+
+        if (self.variable not in pcl_list):
+            errorPrinter.printError(
+                self.__class__.__name__,
+                'Password checking library \'' +
+                    self.variable + '\' does not exist'
+            )
+            return data
+
+        for passdata in data:
+            counter_ok = 0
+            pcl_ok = ''
+            for pcl in pcl_list:
+                if (passdata.getPCLOutput(pcl) == "OK"):
+                    counter_ok += 1
+                    pcl_ok = pcl
+            if (counter_ok == 1 and pcl_ok == self.variable):
+                filtered_data.append(passdata)
+
+        return filtered_data
+
+
+class AtLeastOneRejectedAtLeastOneAccepted(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(AtLeastOneRejectedAtLeastOneAccepted, self).__init__(
+            variable, True, str
+        )
+
+    def apply(self, data):
+        filtered_data = []
+        pcl_list = data[0].pcl_output.keys()
+
+        if (self.variable not in pcl_list):
+            errorPrinter.printError(
+                self.__class__.__name__,
+                'Password checking library \'' +
+                    self.variable + '\' does not exist'
+            )
+            return data
+
+        for passdata in data:
+            counter_ok = 0
+            counter_not_ok = 0
+            for pcl in pcl_list:
+                if (passdata.getPCLOutput(pcl) != "OK"):
+                    counter_not_ok += 1
+                if (self.variable == pcl and
+                   passdata.getPCLOutput(pcl) == "OK"):
+                    counter_ok = 1
+            if (counter_not_ok > 0 and counter_ok == 1):
+                filtered_data.append(passdata)
+        
+        return filtered_data

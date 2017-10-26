@@ -28,8 +28,7 @@ class TableTemplate():
             # Check data
             if (not self.data):
                 raise Exception(
-                    "No data to be printed into \'" +
-                    self.__class__.__name__ + "\' table"
+                    "No data to be printed into table"
                 )
 
             # Check start & end index
