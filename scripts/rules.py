@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from scripts.passStruct import PassInfo, PassData
-from random import randint
+from random import randint, choice
+from string import ascii_letters
 
 
 class Transformation():
@@ -376,14 +377,20 @@ class AddRandomTitleNameAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
             )
 
 
-class AddTwoRandomDigitsAsPrefix(Rule):
+class AddTwoRandomDigitsAsPostfixOrPrefix(Rule):
 
     def __init__(self):
-        super(AddTwoRandomDigitsAsPrefix, self).__init__(0, 0)
+        super(AddTwoRandomDigitsAsPostfixOrPrefix, self).__init__(0, 0)
 
     def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password
         digits = str(randint(0, 9)) + str(randint(0, 9))
-        transformed_password = digits + passinfo.password
+
+        # If == 1, add string as prefix, else as postfix
+        if (randint(0, 1)):
+            transformed_password = digits + transformed_password
+        else:
+            transformed_password += digits
 
         # Postfix or prefix a random digit with zero
         if (digits[1] == '0'):
@@ -456,5 +463,25 @@ class ChangeRandomLetterToRandomLetter(Rule):
                 entropy_change = 4.5
             else:
                 entropy_change = 7.5
+
+        return [transformed_password, entropy_change]
+
+
+class AddRandomLetterAsPostfixOrPrefix(Rule):
+
+    def __init__(self):
+        super(AddRandomLetterAsPostfixOrPrefix, self).__init__(0, 0)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password
+        random_letter = choice(ascii_letters)
+
+        # If == 1, add string as prefix, else as postfix
+        if (randint(0, 1)):
+            transformed_password = random_letter + transformed_password
+        else:
+            transformed_password += random_letter
+
+        entropy_change = 4.5
 
         return [transformed_password, entropy_change]

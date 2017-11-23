@@ -79,9 +79,10 @@ class LoadFromStdin(Loader):
 
 class LoadFromFile(Loader):
 
-    def __init__(self, file_path=None):
+    def __init__(self, file_path=None, encoding='UTF-8'):
         super(LoadFromFile, self).__init__()
         self.file_path = file_path
+        self.encoding = encoding
 
     def load_data(self):
         """Load passwords from file
@@ -92,7 +93,7 @@ class LoadFromFile(Loader):
         """
         password_list = []
 
-        with open(self.file_path, 'r', encoding='latin1') as inputfile:
+        with open(self.file_path, 'r', encoding=self.encoding) as inputfile:
             for line in inputfile:
                 password = line.rstrip('\n')
                 password_list.append(password)

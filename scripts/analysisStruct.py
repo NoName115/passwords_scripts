@@ -17,7 +17,7 @@ class Analyzer():
         passinfo_list -- list of Password classes
         pcl_dic -- dictionary of password checking libraries output
 
-        Self:
+        self:
         data_set -- dictionary of 5 default analysis groups
         allPasswords -- contain every password
         origPass_Ok -- contain passwords which originalPassword
@@ -1099,57 +1099,6 @@ class AllRejectedOneAccepted(AnalysisTemplate):
                 filename='outputs/' + self.__class__.__name__
                 )
 
-'''
-class AtLeastOneRejectedAtLeastOneAccepted(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.AddNumberOfUsesToPassData(
-            'inputs/rockyou-withcount/data.txt'
-        ))
-        self.applyFilter()
-        unfiltered_data = self.getData()
-
-        self.clearFilter()
-        self.addFilter(data_filter.PCLOutputsAreNotAllSame())
-        self.applyFilter()
-        table = data_table.ComplexPasswordWithNumberOfUses(
-            self.getData()
-        ).getTable(
-            start=0,
-            end=200,
-        )
-        self.printToFile(
-            table,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
-            self.setData(unfiltered_data)
-            self.clearFilter()
-            self.addFilter(data_filter.AtLeastOneRejectedAtLeastOneAccepted(
-                pcl
-            ))
-            self.applyFilter()
-
-            table = data_table.ComplexPasswordWithNumberOfUses(
-                self.getData()
-            ).getTable(
-                start=0,
-                end=200
-            )
-            self.printToFile(
-                'PCL: ' + pcl +
-                    '. Number of passwords: ' + str(len(self.getData())),
-                filename='outputs/' + self.__class__.__name__
-            )
-            self.printToFile(
-                table,
-                filename='outputs/' + self.__class__.__name__
-            )
-'''
 
 class AllAccepted(AnalysisTemplate):
 
@@ -1205,7 +1154,8 @@ class LibrariesCrackLibTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        for pcl in ['PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
+        pcl_list = ['PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']
+        for pcl in pcl_list:
             self.clearFilter()
             self.setData(unfiltered_data)
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -1225,6 +1175,21 @@ class LibrariesCrackLibTopRejection(AnalysisTemplate):
                 table_2,
                 filename='outputs/' + self.__class__.__name__
             )
+        
+        self.setData(unfiltered_data)
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(pcl_list))
+        self.applyFilter()
+        table_3 = data_table.ComplexPasswordWithNumberOfUses(
+            self.getData()
+        ).getTable(
+            start=0,
+            end=200
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class LibrariesPassWDQCTopRejection(AnalysisTemplate):
@@ -1252,13 +1217,14 @@ class LibrariesPassWDQCTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        for pcl in ['CrackLib', 'Passfault', 'Pwscore', 'Zxcvbn']:
+        pcl_list = ['CrackLib', 'Passfault', 'Pwscore', 'Zxcvbn']
+        for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
             self.applyFilter()
 
-            table_1 = data_table.ComplexPasswordWithNumberOfUses(
+            table_2 = data_table.ComplexPasswordWithNumberOfUses(
                 self.getData()
             ).getTable(
                 start=0,
@@ -1270,9 +1236,24 @@ class LibrariesPassWDQCTopRejection(AnalysisTemplate):
                 filename="outputs/" + self.__class__.__name__
             )
             self.printToFile(
-                table_1,
+                table_2,
                 filename='outputs/' + self.__class__.__name__
             )
+
+        self.setData(unfiltered_data)
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(pcl_list))
+        self.applyFilter()
+        table_3 = data_table.ComplexPasswordWithNumberOfUses(
+            self.getData()
+        ).getTable(
+            start=0,
+            end=200
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class LibrariesPassfaulTopRejection(AnalysisTemplate):
@@ -1291,21 +1272,22 @@ class LibrariesPassfaulTopRejection(AnalysisTemplate):
 
         unfiltered_data = self.getData()
 
-        table = data_table.OverallSummary(self.getData()).getTable(
+        table_1 = data_table.OverallSummary(self.getData()).getTable(
             start=0,
             end=30
         )
         self.printToFile(
-            table,
+            table_1,
             filename='outputs/' + self.__class__.__name__
         )
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn']:
+        pcl_list = ['CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn']
+        for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
             self.applyFilter()
-            table_1 = data_table.ComplexPasswordWithNumberOfUses(
+            table_2 = data_table.ComplexPasswordWithNumberOfUses(
                 self.getData()
             ).getTable(
                 start=0,
@@ -1317,9 +1299,24 @@ class LibrariesPassfaulTopRejection(AnalysisTemplate):
                 filename="outputs/" + self.__class__.__name__
             )
             self.printToFile(
-                table_1,
+                table_2,
                 filename="outputs/" + self.__class__.__name__
             )
+
+        self.setData(unfiltered_data)
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(pcl_list))
+        self.applyFilter()
+        table_3 = data_table.ComplexPasswordWithNumberOfUses(
+            self.getData()
+        ).getTable(
+            start=0,
+            end=200
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class LibrariesPwscoreTopRejection(AnalysisTemplate):
@@ -1347,7 +1344,8 @@ class LibrariesPwscoreTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']:
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']
+        for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -1367,6 +1365,21 @@ class LibrariesPwscoreTopRejection(AnalysisTemplate):
                 table_1,
                 filename="outputs/" + self.__class__.__name__
             )
+
+        self.setData(unfiltered_data)
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(pcl_list))
+        self.applyFilter()
+        table_3 = data_table.ComplexPasswordWithNumberOfUses(
+            self.getData()
+        ).getTable(
+            start=0,
+            end=200
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class LibrariesZxcvbnTopRejection(AnalysisTemplate):
@@ -1394,7 +1407,8 @@ class LibrariesZxcvbnTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore']:
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore']
+        for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -1415,6 +1429,21 @@ class LibrariesZxcvbnTopRejection(AnalysisTemplate):
                 filename="outputs/" + self.__class__.__name__
             )
 
+        self.setData(unfiltered_data)
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(pcl_list))
+        self.applyFilter()
+        table_3 = data_table.ComplexPasswordWithNumberOfUses(
+            self.getData()
+        ).getTable(
+            start=0,
+            end=200
+        )
+        self.printToFile(
+            table_3,
+            filename='outputs/' + self.__class__.__name__
+        )
+
 
 class AllAcceptedOneRejected(AnalysisTemplate):
 
@@ -1432,10 +1461,10 @@ class AllAcceptedOneRejected(AnalysisTemplate):
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
-            self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
+            self.addFilter(data_filter.OriginalPCLOutputIsNotOk([pcl]))
             for pcl_2 in pcl_list:
                 if (pcl != pcl_2):
-                    self.addFilter(data_filter.OriginalPCLOutputIsNotOk([pcl_2]))
+                    self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl_2]))
 
             self.applyFilter()
             table = data_table.ComplexPasswordWithNumberOfUses(
@@ -1445,14 +1474,43 @@ class AllAcceptedOneRejected(AnalysisTemplate):
                 end=200
             )
             self.printToFile(
-                "PCL: " + pcl +
-                "\nNumber of passwords: " + str(len(self.getData())),
-                filename="outputs/" + self.__class__.__name__
+                'PCL: ' + pcl +
+                    '. Number of passwords: ' + str(len(self.getData())),
+                filename='outputs/' + self.__class__.__name__
             )
             self.printToFile(
                 table,
                 filename="outputs/" + self.__class__.__name__
             )
+
+
+class LibrariesSummaryNotOk(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['trans_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.applyFilter()
+
+        unfiltered_data = self.getData()
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        self.printToFile(table_1)
+
+        # Add 'Pwscore' TODO
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']
+        for pcl in pcl_list:
+            self.setData(unfiltered_data)
+            self.clearFilter()
+            self.addFilter(data_filter.TransformedPCLOutputIsNotOk([pcl]))
+            self.applyFilter()
+            table_2 = data_table.ComplexPassword(
+                self.getData()
+            ).getTable(
+                start=0,
+                end=200,
+            )
+            self.printToFile("PCL: " + pcl)
+            self.printToFile(table_2)
 
 
 class TestAnalysis(AnalysisTemplate):
