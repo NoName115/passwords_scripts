@@ -169,6 +169,11 @@ class AnalysisTemplate():
     def printToFile(self, text, filename=None):
         self.analyzer.printToFile(str(text), filename)
 
+    @staticmethod
+    def createFolder(folder_path):
+        if (not os.path.exists(folder_path)):
+            os.mkdir(folder_path)
+
     @abstractmethod
     def runAnalysis(self):
         pass
@@ -1018,8 +1023,8 @@ class LibrariesSummary(AnalysisTemplate):
         self.applyFilter()
 
         table_1 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=30
+            #start=0,
+            #end=30
         )
         self.printToFile(
             table_1,
@@ -1039,6 +1044,10 @@ class LibrariesTopOkPasswords(AnalysisTemplate):
         self.applyFilter()
         unfiltered_data = self.getData()
 
+        folder_path = 'outputs/' + self.__class__.__name__
+        self.createFolder(folder_path)
+        folder_path += "/"
+
         for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
             self.clearFilter()
             self.setData(unfiltered_data)
@@ -1046,22 +1055,22 @@ class LibrariesTopOkPasswords(AnalysisTemplate):
             self.applyFilter()
             self.printToFile(
                 'PCL: ' + pcl,
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
             self.printToFile(
                 data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
-                    start=0,
-                    end=200,
+                    #start=0,
+                    #end=200,
                     #fields=['NOUses', 'Password'] + [pcl, pcl + ' score']
                 ),
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
             self.printToFile(
                 data_table.OverallSummary(self.getData()).getTable(
                     start=0,
                     end=20,
                 ),
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
 
 
@@ -1077,6 +1086,10 @@ class AllRejectedOneAccepted(AnalysisTemplate):
         self.applyFilter()
         unfiltered_data = self.getData()
 
+        folder_path = 'outputs/' + self.__class__.__name__
+        self.createFolder(folder_path)
+        folder_path += "/"
+
         for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -1086,17 +1099,17 @@ class AllRejectedOneAccepted(AnalysisTemplate):
             table = data_table.ComplexPasswordWithNumberOfUses(
                 self.getData()
             ).getTable(
-                start=0,
-                end=200
+                #start=0,
+                #end=200
             )
             self.printToFile(
                 'PCL: ' + pcl +
                     '. Number of passwords: ' + str(len(self.getData())),
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
             self.printToFile(
                 table,
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
                 )
 
 
@@ -1116,8 +1129,8 @@ class AllAccepted(AnalysisTemplate):
         table = data_table.ComplexPasswordWithNumberOfUses(
             self.getData()
         ).getTable(
-            start=0,
-            end=500,
+            #start=0,
+            #end=500,
         )
         self.printToFile(
             "Number of password: " + str(len(self.getData())),
@@ -1448,15 +1461,22 @@ class LibrariesZxcvbnTopRejection(AnalysisTemplate):
 class AllAcceptedOneRejected(AnalysisTemplate):
 
     def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
+        '''
         self.addFilter(data_filter.AddNumberOfUsesToPassData(
             'inputs/rockyou-withcount/data.txt'
         ))
+        '''
         self.applyFilter()
 
         unfiltered_data = self.getData()
+
+        folder_path = "outputs/" + self.__class__.__name__
+        self.createFolder(folder_path)
+        folder_path += "/"
+
         pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
@@ -1467,24 +1487,24 @@ class AllAcceptedOneRejected(AnalysisTemplate):
                     self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl_2]))
 
             self.applyFilter()
-            table = data_table.ComplexPasswordWithNumberOfUses(
+            table = data_table.ComplexTransformedPassword(
                 self.getData()
             ).getTable(
-                start=0,
-                end=200
+                #start=0,
+                #end=200
             )
             self.printToFile(
                 'PCL: ' + pcl +
                     '. Number of passwords: ' + str(len(self.getData())),
-                filename='outputs/' + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
             self.printToFile(
                 table,
-                filename="outputs/" + self.__class__.__name__
+                filename=folder_path + pcl + "_" + self.__class__.__name__
             )
 
 
-class LibrariesSummaryNotOk(AnalysisTemplate):
+class LibrariesSummaryTransformedPass(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['trans_passwords'])
@@ -1493,10 +1513,17 @@ class LibrariesSummaryNotOk(AnalysisTemplate):
         self.applyFilter()
 
         unfiltered_data = self.getData()
-        table_1 = data_table.OverallSummary(self.getData()).getTable()
-        self.printToFile(table_1)
 
-        # Add 'Pwscore' TODO
+        folder_path = "outputs/" + self.__class__.__name__
+        self.createFolder(folder_path)
+        folder_path += "/"
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename=folder_path + "summary_" + self.__class__.__name__
+        )
+
         pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
@@ -1506,12 +1533,77 @@ class LibrariesSummaryNotOk(AnalysisTemplate):
             table_2 = data_table.ComplexPassword(
                 self.getData()
             ).getTable(
-                start=0,
-                end=200,
+                #start=0,
+                #end=200,
             )
-            self.printToFile("PCL: " + pcl)
-            self.printToFile(table_2)
+            self.printToFile(
+                'PCL: ' + pcl +
+                    '. Number of passwords: ' + str(len(self.getData())),
+                filename=folder_path + pcl + "_" + self.__class__.__name__
+            )
+            self.printToFile(
+                table_2,
+                filename=folder_path + pcl + "_" + self.__class__.__name__
+            )
 
+'''
+class PassfaultOriginalOverallSummary(AnalysisTemplate):
+
+    def runAnalysis(self):
+        for pass_threshold in [100000000000]: #[200000000000, 100000000000, 50000000000, 30000000000, 15000000000, 10000000000, 5000000000, 2500000000, 1500000000, 1000000000, 800000000, 500000000, 300000000, 200000000, 100000000, 10000000]:
+            self.setData(self.analyzer.data_set['all_passwords'])
+            self.clearFilter()
+            self.addFilter(data_filter.ChangePCLOutputByScore({
+                'Passfault': pass_threshold
+            }))
+            self.applyFilter()
+
+            table_1 = data_table.OverallSummary(self.getData()).getTable(
+                fields=[
+                    'Passfault accepted',
+                    'Passfault rejected',
+                    #'Passfault reasons of rejection'
+                ],
+                start=0,
+                #end=40
+                end=1
+            )
+            self.printToFile(
+                'Threshold: ' + str(pass_threshold)
+            )
+            self.printToFile(
+                table_1
+            )
+
+
+class PassfaultTransformedOverallSummary(AnalysisTemplate):
+
+    def runAnalysis(self):
+        for pass_threshold in [100000000000]: #[200000000000, 100000000000, 50000000000, 30000000000, 15000000000, 10000000000, 5000000000, 2500000000, 1500000000, 1000000000, 800000000, 500000000, 300000000, 200000000, 100000000, 10000000]:
+            self.setData(self.analyzer.data_set['trans_passwords'])
+            self.clearFilter()
+            self.addFilter(data_filter.ChangePCLOutputByScore({
+                'Passfault': pass_threshold
+            }))
+            self.applyFilter()
+
+            table_1 = data_table.OverallSummary(self.getData()).getTable(
+                fields=[
+                    'Passfault accepted',
+                    'Passfault rejected',
+                    #'Passfault reasons of rejection'
+                ],
+                start=0,
+                #end=40
+                end=1
+            )
+            self.printToFile(
+                'Threshold: ' + str(pass_threshold)
+            )
+            self.printToFile(
+                table_1
+            )
+'''
 
 class TestAnalysis(AnalysisTemplate):
 

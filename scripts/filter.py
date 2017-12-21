@@ -299,7 +299,7 @@ class ChangePCLOutputByScore(FilterTemplate):
             self.variable = {
                 'Pwscore': 40,
                 'Zxcvbn': 3,
-                'Passfault': 10000001
+                'Passfault': 100000000000
             }
 
         key_errors = []
