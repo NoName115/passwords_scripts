@@ -1,8 +1,10 @@
 # Example script to run a simple analysis
+from scripts.analysisBase import Analyzer
+
 import scripts.rules as rules
 import scripts.dataLoader as dataLoader
 import scripts.libCheck as libCheck
-import scripts.analysisStruct as analysisStruct
+import scripts.analyzes as analyzes
 
 
 # Load data
@@ -45,55 +47,35 @@ dataLoader.AppendDataToCSV(file_path='outputs/Transform_4pcl_advanced.csv').save
 '''
 
 # Run analyzes
-analyzer = analysisStruct.Analyzer(passinfo_list, pcl_data)
+analyzer = Analyzer(passinfo_list, pcl_data)
 
-#analyzer.addAnalysis(analysisStruct.PassfaultScoring())
-#analyzer.addAnalysis(analysisStruct.ZxcvbnPalindrom())
-#analyzer.addAnalysis(analysisStruct.ZxcvbnDictionary())
-#analyzer.addAnalysis(analysisStruct.PassfaultKeyboardSequence())
-#analyzer.addAnalysis(analysisStruct.PassWDQCPasswordPattern())
-#analyzer.addAnalysis(analysisStruct.ZxcvbnPasswordPattern())
-#analyzer.addAnalysis(analysisStruct.ZxcvbnPwscorePasswordPattern())
+#analyzer.addAnalysis(analyzes.PassfaultScoring())
+#analyzer.addAnalysis(analyzes.ZxcvbnPalindrom())
+#analyzer.addAnalysis(analyzes.ZxcvbnDictionary())
+#analyzer.addAnalysis(analyzes.PassfaultKeyboardSequence())
+#analyzer.addAnalysis(analyzes.PassWDQCPasswordPattern())
+#analyzer.addAnalysis(analyzes.ZxcvbnPasswordPattern())
+#analyzer.addAnalysis(analyzes.ZxcvbnPwscorePasswordPattern())
 
 # New analyzes
-#analyzer.addAnalysis(analysisStruct.PassfaultOneMatch())
-#analyzer.addAnalysis(analysisStruct.PassfaultMatchWorstPasswords())
-#analyzer.addAnalysis(analysisStruct.ZxcvbnCommonPasswords())
-#analyzer.addAnalysis(analysisStruct.EmailAddresses())
-#analyzer.addAnalysis(analysisStruct.CracklibPwscorePattern())
-#analyzer.addAnalysis(analysisStruct.PassWDQCPasswordLength())
+#analyzer.addAnalysis(analyzes.PassfaultOneMatch())
+#analyzer.addAnalysis(analyzes.PassfaultMatchWorstPasswords())
+#analyzer.addAnalysis(analyzes.ZxcvbnCommonPasswords())
+#analyzer.addAnalysis(analyzes.EmailAddresses())
+#analyzer.addAnalysis(analyzes.CracklibPwscorePattern())
+#analyzer.addAnalysis(analyzes.PassWDQCPasswordLength())
 
 # Analyzes for PCLs comparison
-#analyzer.addAnalysis(analysisStruct.LibrariesSummary())
-#analyzer.addAnalysis(analysisStruct.LibrariesTopOkPasswords())
-analyzer.addAnalysis(analysisStruct.AllRejectedOneAccepted())
-#analyzer.addAnalysis(analysisStruct.AllAccepted())
-
-#analyzer.addAnalysis(analysisStruct.LibrariesCrackLibTopRejection())
-#analyzer.addAnalysis(analysisStruct.LibrariesPassWDQCTopRejection())
-#analyzer.addAnalysis(analysisStruct.LibrariesPassfaulTopRejection())
-#analyzer.addAnalysis(analysisStruct.LibrariesPwscoreTopRejection())
-#analyzer.addAnalysis(analysisStruct.LibrariesZxcvbnTopRejection())
-
-#analyzer.addAnalysis(analysisStruct.PassfaultOriginalOverallSummary())
-
-#analyzer.addAnalysis(analysisStruct.TestAnalysis())
+analyzer.addAnalysis(analyzes.LibrariesSummary())
+#analyzer.addAnalysis(analyzes.LibrariesTopOkPasswords())
+#analyzer.addAnalysis(analyzes.AllRejectedOneAccepted())
+#analyzer.addAnalysis(analyzes.AllAccepted())
+#analyzer.addAnalysis(analyzes.LibrariesCrackLibTopRejection())
+#analyzer.addAnalysis(analyzes.LibrariesPassWDQCTopRejection())
+#analyzer.addAnalysis(analyzes.LibrariesPassfaulTopRejection())
+#analyzer.addAnalysis(analyzes.LibrariesPwscoreTopRejection())
+#analyzer.addAnalysis(analyzes.LibrariesZxcvbnTopRejection())
+#analyzer.addAnalysis(analyzes.PassfaultOriginalOverallSummary())
+#analyzer.addAnalysis(analyzes.TestAnalysis())
 
 analyzer.runAnalyzes()
-
-'''
-# Load data
-passinfo_list, pcl_data = dataLoader.LoadFromCSV(
-	'outputs/Transform_4pcl_advanced.csv', #'RockYou_3used_5pcl.csv',
-	).load()
-
-analyzer = analysisStruct.Analyzer(passinfo_list, pcl_data)
-
-# Analyzes for transformed passwords, for PCLs comparison
-analyzer.addAnalysis(analysisStruct.LibrariesSummaryTransformedPass())
-analyzer.addAnalysis(analysisStruct.AllAcceptedOneRejected())
-
-#analyzer.addAnalysis(analysisStruct.PassfaultTransformedOverallSummary())
-
-analyzer.runAnalyzes()
-'''
