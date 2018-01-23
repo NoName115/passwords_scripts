@@ -141,7 +141,11 @@ class PassData(PassInfo):
         Transformation errors
         """
         pcl_output = "    ".join(
-            '{0:1}: {1:10}'.format(key, value)
+            '{0:1}: {1:10}, {2:1}'.format(
+                key,
+                value[0],
+                value[1] if (value[1]) else 'None'
+            )
             for key, value in self.pcl_output.items()
             )
 
@@ -158,7 +162,7 @@ class PassData(PassInfo):
                             "  wasn\'t applied" + '\n'
                             )
 
-        return '{0:10} ({1:.1f})'.format(
+        return '{0:1} ({1:.1f})'.format(
             self.password,
             self.getEntropyChange()
         ) + '\n' + pcl_output + '\n' + transformations + '\n' + error_output

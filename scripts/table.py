@@ -62,6 +62,9 @@ class TableTemplate():
             )
             return "No data for \'" + self.__class__.__name__ + "\' table."
 
+    def getTableObject(self):
+        return self.table
+
     @abstractmethod
     def getHeader(self):
         pass
