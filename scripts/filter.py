@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from prettytable import PrettyTable
 
 import scripts.errorPrinter as errorPrinter
+import math
 import re
 
 
@@ -487,14 +488,7 @@ class PasswordRegex(FilterTemplate):
         )
 
     def apply(self, data):
-        try:
-            prog = re.compile(self.variable)
-        except Exception as err:
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                err
-            )
-            return data
+        prog = re.compile(self.variable)
 
         return list(filter(
             lambda passdata: prog.search(passdata.password),
@@ -510,15 +504,8 @@ class PCLOutputRegex(FilterTemplate):
         )
 
     def apply(self, data):
-        try:
-            for pcl, regex in self.variable.items():
-                self.variable[pcl] = re.compile(regex)
-        except Exception as err:
-            errorPrinter.printWarning(
-                self.__class__.__name__,
-                err
-            )
-            return data
+        for pcl, regex in self.variable.items():
+            self.variable[pcl] = re.compile(regex)
 
         key_errors = []
         filtered_data = []
@@ -553,25 +540,18 @@ class AddNumberOfUsesToPassData(FilterTemplate):
         )
 
     def apply(self, data):
-        try:
-            regex_object = re.compile(r" *(\d+) (.*)")
+        regex_object = re.compile(r" *(\d+) (.*)")
 
-            with open(self.variable, 'r', encoding='latin1') as inputfile:
-                for passdata in data:
-                    for line in inputfile:
-                        nous, password = regex_object.match(line.rstrip('\n')).groups()
+        with open(self.variable, 'r', encoding='latin1') as inputfile:
+            for passdata in data:
+                for line in inputfile:
+                    nous, password = regex_object.match(line.rstrip('\n')).groups()
 
-                        if (password == passdata.password):
-                            passdata.addAttribute({
-                                'numberOfUses': int(nous)
-                            })
-                            break
-
-        except IOError as err:
-            errorPrinter.printError(
-                self.__class__.__name__,
-                err
-                )
+                    if (password == passdata.password):
+                        passdata.addAttribute({
+                            'numberOfUses': int(nous)
+                        })
+                        break
 
         return data
 
@@ -640,3 +620,26 @@ class AtLeastOneRejectedAtLeastOneAccepted(FilterTemplate):
                 filtered_data.append(passdata)
         
         return filtered_data
+
+
+class ConvertPassfaultScoreByLogBase(FilterTemplate):
+
+    def __init__(self, variable=None):
+        super(ConvertPassfaultScoreByLogBase, self).__init__(None)
+
+    def apply(self, data):
+        for passdata in data:
+            try:
+                pcl = 'Passfault'
+                pcl_score = round(math.log(
+                    passdata.getPCLScore(pcl),
+                    2
+                ))
+                passdata.setPCLScore(pcl, pcl_score)
+            except KeyError:
+                errorPrinter.printWarning(
+                    self.__class__.__name__,
+                    "Input data does not contain output for Passfault PCL."
+                )
+
+        return data

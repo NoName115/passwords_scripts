@@ -5,6 +5,7 @@ import scripts.filter as data_filter
 import scripts.table as data_table
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 
 class ScoreHistogram(AnalysisTemplate):

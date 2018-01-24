@@ -177,3 +177,6 @@ class PassData(PassInfo):
     def addAttribute(self, attr_dict):
         for attr_name, attr_value in attr_dict.items():
             self.__setattr__(attr_name, attr_value)
+
+    def setPCLScore(self, pcl, score):
+        self.pcl_output[pcl] = (self.pcl_output[pcl][0], score)

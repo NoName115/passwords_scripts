@@ -157,7 +157,7 @@ class AnalysisTemplate():
 
     def setData(self, data):
         self.data = data
-        self.keys = self.data[0].pcl_output.keys()
+        self.keys = self.data[0].pcl_output.keys() if (self.data) else None
 
     def getData(self):
         return self.data

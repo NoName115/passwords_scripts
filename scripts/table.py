@@ -236,7 +236,8 @@ class SummaryScore(TableTemplate):
 
     def setContent(self):
         pcl_rows = []
-        first_row = []
+        first_row = []  # average row
+        second_row = [] # min/max row
 
         for pcl in self.pcl_list:
             score_dic = {}
@@ -265,10 +266,15 @@ class SummaryScore(TableTemplate):
                 scr * cnt if (scr) else cnt for scr, cnt in sorted_score_dic
                 ) / sum(cnt for _, cnt in sorted_score_dic), 2)
 
-            first_row.append(str(average) + " - average score\n")
+            first_row.append(str(average) + " - average score")
+            second_row.append(
+                'min score - ' + str(min(score_dic.keys())) +
+                '\nmax score - ' + str(max(score_dic.keys())) + '\n'
+            )
 
         # Write data to table
         self.table.add_row(first_row)
+        self.table.add_row(second_row)
 
         for i in range(0, max(len(row) for row in pcl_rows)):
             row = []
