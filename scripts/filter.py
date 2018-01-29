@@ -47,6 +47,7 @@ class FilterTemplate():
         try:
             return self.apply(data)
         except Exception as err:
+            raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err

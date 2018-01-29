@@ -53,220 +53,6 @@ class PassfaultScoring(AnalysisTemplate):
         )
 
 
-class ZxcvbnPalindrom(AnalysisTemplate):
-
-    def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.PCLOutputRegex({
-            'Pwscore': 'The password is a palindrome'
-        }))
-        self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.applyFilter()
-
-        table_1 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=40
-        )
-
-        self.printToFile(
-            table_1,
-            filename=None
-        )
-
-        self.clearFilter()
-        self.addFilter(data_filter.ScoreHigher({
-            'Zxcvbn': 3
-        }))
-        self.applyFilter()
-
-        table_2 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Zxcvbn score',
-            reversesort=True,
-            fields=[
-                'Password', 'Diff. char.', 'Char. classes', 'Length',
-                'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
-            ]
-        )
-
-        self.printToFile(
-            table_2,
-            filename=None
-        )
-
-
-class ZxcvbnDictionary(AnalysisTemplate):
-
-    def runAnalysis(self):
-        # Any dictionary word, especially Match in Zxcvbn
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Zxcvbn': 3,
-            'Pwscore': 40
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'CrackLib': 'dictionary word',
-            'PassWDQC': 'dictionary',
-            'Passfault': 'Match',
-            'Pwscore': 'dictionary word'
-        }))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
-        self.applyFilter()
-
-        table_1 = data_table.ComplexPassword(self.getData()).getTable(
-            fields=[
-                'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Passfault', 'Zxcvbn'
-            ],
-            start=0,
-            end=100
-        )
-        table_2 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=10
-        )
-        self.printToFile(
-            table_1,
-            filename='outputs/' + self.__class__.__name__
-        )
-        self.printToFile(
-            table_2,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-        # Dictionary word only in CrackLib, PassWDQC & Pwscore
-        self.setData(self.analyzer.data_set['all_passwords'])
-        self.clearFilter()
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Zxcvbn': 3,
-            'Pwscore': 40
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'CrackLib': 'dictionary word',
-            'PassWDQC': 'dictionary',
-            'Pwscore': 'dictionary word'
-        }))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
-        self.applyFilter()
-
-        table_1 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Zxcvbn score',
-            fields=[
-                'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn', 'Zxcvbn score'
-            ],
-            start=0,
-            end=100
-        )
-        table_2 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=10
-        )
-        self.printToFile(
-            table_1,
-            filename='outputs/' + self.__class__.__name__
-        )
-        self.printToFile(
-            table_2,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-        # PassWDQC - 'Dic. word', CrackLib - 'OK', Pwscore - 'OK'
-        self.setData(self.analyzer.data_set['all_passwords'])
-        self.clearFilter()
-
-        self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PCLOutputRegex({
-            'PassWDQC': 'dictionary'
-        }))
-        #self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
-        #self.addFilter(data_filter.OriginalPCLOutputIsOk(['Pwscore']))
-        self.applyFilter()
-
-        table_1 = data_table.OverallSummary(self.getData()).getTable(
-            fields=[
-                'CrackLib accepted', 'CrackLib rejected',
-                'CrackLib reasons of rejection',
-                'PassWDQC accepted', 'PassWDQC rejected',
-                'PassWDQC reasons of rejection',
-                'Pwscore accepted', 'Pwscore rejected',
-                'Pwscore reasons of rejection'
-                ],
-            start=0,
-            end=7
-        )
-        self.printToFile(
-            table_1,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-        # Dictionary word for every PCL
-        self.setData(self.analyzer.data_set['all_passwords'])
-        self.clearFilter()
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Zxcvbn': 3,
-            'Pwscore': 40
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'CrackLib': 'dictionary word'
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'PassWDQC': 'dictionary'
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'Passfault': 'Match'
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'Pwscore': 'dictionary word'
-        }))
-        self.applyFilter()
-
-        table_1 = data_table.ComplexPassword(self.getData()).getTable(
-            fields=[
-                'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Passfault',
-                'Zxcvbn', 'Zxcvbn score'
-            ],
-            start=0,
-            end=100
-        )
-
-        table_2 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=10
-        )
-
-        # Zxcvbn - OK passwords
-        self.clearFilter()
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
-        self.applyFilter()
-        table_3 = data_table.ComplexPassword(self.getData()).getTable(
-            fields=[
-                'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn', 'Passfault'
-            ],
-            start=0,
-            end=100
-        )
-
-        self.printToFile(
-            table_1,
-            filename='outputs/' + self.__class__.__name__
-        )
-        self.printToFile(
-            table_2,
-            filename='outputs/' + self.__class__.__name__
-        )
-        self.printToFile(
-            table_3,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-
 class PassfaultKeyboardSequence(AnalysisTemplate):
 
     def runAnalysis(self):
@@ -618,16 +404,29 @@ class CracklibPwScoreLowPasswordScore(AnalysisTemplate):
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
-        pass
-        '''
-        self.setData(self.analyzer.data_set['all_passwords'])
+        import copy
 
-        self.addFilter(data_filter.ConvertPassfaultScoreByLogBase())
-        self.applyFilter()
-
-        table = data_table.SummaryScore(self.getData()).getTable()
-        self.printToFile(
-            table,
-            filename='outputs/' + self.__class__.__name__
-        )
-        '''
+        for pass_threshold in range(5, 80, 5):
+            self.setData(copy.deepcopy(self.analyzer.data_set['all_passwords']))
+            self.clearFilter()
+            self.addFilter(data_filter.ConvertPassfaultScoreByLogBase())
+            self.addFilter(data_filter.ChangePCLOutputByScore({
+                'Passfault': pass_threshold
+            }))
+            self.applyFilter()
+            table_1 = data_table.OverallSummary(self.getData()).getTable(
+                fields=[
+                    'Passfault accepted',
+                    'Passfault rejected',
+                    #'Passfault reasons of rejection'
+                ],
+                start=0,
+                #end=40
+                end=1
+            )
+            self.printToFile(
+                'Threshold: ' + str(pass_threshold)
+            )
+            self.printToFile(
+                table_1
+            )
