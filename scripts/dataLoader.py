@@ -49,7 +49,7 @@ class Loader():
             errorPrinter.printError(
                 self.__class__.__name__,
                 'File \'{0:1}\' doesn\'t exist'.format(self.file_path)
-                )
+            )
 
         print('Loading DONE\n')
         return data

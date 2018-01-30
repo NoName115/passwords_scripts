@@ -53,85 +53,6 @@ class PassfaultScoring(AnalysisTemplate):
         )
 
 
-class PassfaultKeyboardSequence(AnalysisTemplate):
-
-    def runAnalysis(self):
-        # Passfault define passwords with keyboard sequences
-        # other libaries accept these passwords
-        # Remove Match from passfault
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Pwscore': 40,
-            'Zxcvbn': 3
-        }))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['PassWDQC']))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Pwscore']))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
-
-        self.addFilter(data_filter.PCLOutputDoesNotContainString({
-            'Passfault': 'Match'
-        }))
-        self.addFilter(data_filter.PCLOutputRegex({
-            'Passfault': 'Keyboard'
-        }))
-        self.applyFilter()
-
-        table_1 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Passfault score',
-            fields=[
-                'Password', 'CrackLib', 'PassWDQC',
-                'Passfault', 'Passfault score',
-                'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
-                ]
-        )
-
-        self.printToFile(
-            table_1,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-        # Second table, lower score by Passfault pcl, and OK by others pcls
-        self.setData(self.analyzer.data_set['all_passwords'])
-        self.clearFilter()
-
-        self.addFilter(data_filter.ChangePCLOutputByScore({
-            'Pwscore': 40,
-            'Zxcvbn': 3
-        }))
-        self.addFilter(data_filter.ScoreLower({
-            'Passfault': 2500000
-        }))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Pwscore']))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
-        self.addFilter(data_filter.PCLOutputDoesNotContainString({
-            'Passfault': 'Match'
-        }))
-        self.applyFilter()
-
-        table_2 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Pwscore score',
-            fields=[
-                'Password', 'CrackLib', 'PassWDQC',
-                'Passfault', 'Passfault score',
-                'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
-                ]
-        )
-        table_3 = data_table.OverallSummary(self.getData()).getTable()
-        
-        self.printToFile(
-            table_2,
-            filename='outputs/' + self.__class__.__name__
-        )
-        self.printToFile(
-            table_3,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-
 class PassfaultOneMatch(AnalysisTemplate):
 
     def runAnalysis(self):
@@ -143,17 +64,27 @@ class PassfaultOneMatch(AnalysisTemplate):
         self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Match'
         }))
-        self.addFilter(data_filter.ScoreHigher({
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'Pwscore': 40,
             'Zxcvbn': 3
         }))
         self.applyFilter()
 
-        table = data_table.ComplexPassword(self.getData()).getTable(
+        table_1 = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=30
+        )
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+        table_2 = data_table.ComplexPassword(self.getData()).getTable(
             sortby='Zxcvbn score',
             reversesort=True
         )
         self.printToFile(
-            table,
+            table_2,
             filename='outputs/' + self.__class__.__name__
         )
 
@@ -173,16 +104,23 @@ class PassfaultMatchWorstPasswords(AnalysisTemplate):
             'Pwscore': 40,
             'Zxcvbn': 3
         }))
-        self.addFilter(data_filter.OriginalPCLOutputIsOk([
-            'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn'
-        ]))
         self.applyFilter()
 
-        table = data_table.ComplexPassword(self.getData()).getTable()
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
         self.printToFile(
-            table,
+            table_1,
             filename='outputs/' + self.__class__.__name__
-            )
+        )
+
+        self.clearFilter()
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['CrackLib']))
+        self.applyFilter()
+
+        table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
 
 
 class ZxcvbnCommonPasswords(AnalysisTemplate):
@@ -368,7 +306,7 @@ class PassWDQCPasswordLength(AnalysisTemplate):
                 )
 
 
-class CracklibPwScoreLowPasswordScore(AnalysisTemplate):
+class CracklibPwscoreLowPasswordScore(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
@@ -404,29 +342,4 @@ class CracklibPwScoreLowPasswordScore(AnalysisTemplate):
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
-        import copy
-
-        for pass_threshold in range(5, 80, 5):
-            self.setData(copy.deepcopy(self.analyzer.data_set['all_passwords']))
-            self.clearFilter()
-            self.addFilter(data_filter.ConvertPassfaultScoreByLogBase())
-            self.addFilter(data_filter.ChangePCLOutputByScore({
-                'Passfault': pass_threshold
-            }))
-            self.applyFilter()
-            table_1 = data_table.OverallSummary(self.getData()).getTable(
-                fields=[
-                    'Passfault accepted',
-                    'Passfault rejected',
-                    #'Passfault reasons of rejection'
-                ],
-                start=0,
-                #end=40
-                end=1
-            )
-            self.printToFile(
-                'Threshold: ' + str(pass_threshold)
-            )
-            self.printToFile(
-                table_1
-            )
+        pass

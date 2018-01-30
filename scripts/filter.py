@@ -47,7 +47,6 @@ class FilterTemplate():
         try:
             return self.apply(data)
         except Exception as err:
-            raise
             errorPrinter.printWarning(
                 self.__class__.__name__,
                 err
@@ -569,12 +568,12 @@ class AllRejectedOneAccepted(FilterTemplate):
         pcl_list = data[0].pcl_output.keys()
 
         if (self.variable not in pcl_list):
-            errorPrinter.printError(
+            errorPrinter.printWarning(
                 self.__class__.__name__,
                 'Password checking library \'' +
                     self.variable + '\' does not exist'
             )
-            return data
+            return []
 
         for passdata in data:
             counter_ok = 0
@@ -601,12 +600,12 @@ class AtLeastOneRejectedAtLeastOneAccepted(FilterTemplate):
         pcl_list = data[0].pcl_output.keys()
 
         if (self.variable not in pcl_list):
-            errorPrinter.printError(
+            errorPrinter.printWarning(
                 self.__class__.__name__,
                 'Password checking library \'' +
                     self.variable + '\' does not exist'
             )
-            return data
+            return []
 
         for passdata in data:
             counter_ok = 0
