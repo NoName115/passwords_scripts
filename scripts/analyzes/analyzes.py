@@ -25,7 +25,7 @@ class PassfaultScoring(AnalysisTemplate):
             fields=[
                 'Password',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score',
+                'ZxcvbnPython', 'ZxcvbnPython score',
                 'Passfault', 'Passfault score',
             ],
             start=500,
@@ -33,7 +33,7 @@ class PassfaultScoring(AnalysisTemplate):
         )
         table_2 = data_table.SummaryScore(self.getData()).getTable(
             fields=[
-                'Passfault score', 'Pwscore score', 'Zxcvbn score'
+                'Passfault score', 'Pwscore score', 'ZxcvbnPython score'
             ],
             start=0,
             end=150
@@ -66,7 +66,7 @@ class PassfaultOneMatch(AnalysisTemplate):
         }))
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.applyFilter()
 
@@ -80,7 +80,7 @@ class PassfaultOneMatch(AnalysisTemplate):
         )
 
         table_2 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Zxcvbn score',
+            sortby='ZxcvbnPython score',
             reversesort=True
         )
         self.printToFile(
@@ -102,7 +102,7 @@ class PassfaultMatchWorstPasswords(AnalysisTemplate):
         }))
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.applyFilter()
 
@@ -123,15 +123,15 @@ class PassfaultMatchWorstPasswords(AnalysisTemplate):
         )
 
 
-class ZxcvbnCommonPasswords(AnalysisTemplate):
+class ZxcvbnPythonCommonPasswords(AnalysisTemplate):
 
     def runAnalysis(self):
-        # Passwords that only Zxcvbn recognize as 'commonly used password'
+        # Passwords that only ZxcvbnPython recognize as 'commonly used password'
         # and are accepteb by other libraries
         self.setData(self.analyzer.data_set['all_passwords'])
 
         self.addFilter(data_filter.PCLOutputRegex({
-            'Zxcvbn': 'commonly used password'
+            'ZxcvbnPython': 'commonly used password'
         }))
 
         self.addFilter(data_filter.PCLOutputDoesNotContainString({
@@ -182,7 +182,7 @@ class ZxcvbnCommonPasswords(AnalysisTemplate):
                 'CrackLib', 'PassWDQC',
                 'Passfault', 'Passfault score',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
             ]
         )
         self.printToFile(
@@ -206,7 +206,7 @@ class ZxcvbnCommonPasswords(AnalysisTemplate):
                 'CrackLib', 'PassWDQC',
                 'Passfault', 'Passfault score',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
             ]
         )
         self.printToFile(
@@ -246,7 +246,7 @@ class CracklibPwscorePattern(AnalysisTemplate):
         self.addFilter(data_filter.PasswordLengthHigher(10))
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.applyFilter()
 
@@ -269,7 +269,7 @@ class PassWDQCPasswordLength(AnalysisTemplate):
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.applyFilter()
 
@@ -297,7 +297,7 @@ class PassWDQCPasswordLength(AnalysisTemplate):
                         'CrackLib', 'PassWDQC',
                         'Passfault', 'Passfault score',
                         'Pwscore', 'Pwscore score',
-                        'Zxcvbn', 'Zxcvbn score'
+                        'ZxcvbnPython', 'ZxcvbnPython score'
                     ]
                 )
                 self.printToFile(
@@ -329,8 +329,8 @@ class CracklibPwscoreLowPasswordScore(AnalysisTemplate):
                 #'Passfault reasons of rejection',
                 'Pwscore accepted', 'Pwscore rejected',
                 'Pwscore reasons of rejection',
-                'Zxcvbn accepted', 'Zxcvbn rejected',
-                'Zxcvbn reasons of rejection'
+                'ZxcvbnPython accepted', 'ZxcvbnPython rejected',
+                'ZxcvbnPython reasons of rejection'
             ]
         )
         self.printToFile(
@@ -342,4 +342,10 @@ class CracklibPwscoreLowPasswordScore(AnalysisTemplate):
 class TestAnalysis(AnalysisTemplate):
 
     def runAnalysis(self):
-        pass
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        #table_1 = data_table.ComplexPassword(self.getData()).getTable()
+        table_2 = data_table.SummaryScore(self.getData()).getTable()
+
+        #self.printToFile(table_1)
+        self.printToFile(table_2)

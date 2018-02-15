@@ -38,7 +38,7 @@ class LibrariesTopOkPasswords(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
             self.clearFilter()
             self.setData(unfiltered_data)
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -80,7 +80,7 @@ class AllRejectedOneAccepted(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.AllRejectedOneAccepted(pcl))
@@ -111,7 +111,7 @@ class AllAccepted(AnalysisTemplate):
         self.addFilter(data_filter.AddNumberOfUsesToPassData(
             'inputs/rockyou-withcount/data.txt'
         ))
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
 
         self.applyFilter()
@@ -157,7 +157,7 @@ class LibrariesCrackLibTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        pcl_list = ['PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']
+        pcl_list = ['PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.clearFilter()
             self.setData(unfiltered_data)
@@ -220,7 +220,7 @@ class LibrariesPassWDQCTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        pcl_list = ['CrackLib', 'Passfault', 'Pwscore', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'Passfault', 'Pwscore', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -284,7 +284,7 @@ class LibrariesPassfaulTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -347,7 +347,7 @@ class LibrariesPwscoreTopRejection(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -385,7 +385,7 @@ class LibrariesPwscoreTopRejection(AnalysisTemplate):
         )
 
 
-class LibrariesZxcvbnTopRejection(AnalysisTemplate):
+class LibrariesZxcvbnPythonTopRejection(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
@@ -395,7 +395,7 @@ class LibrariesZxcvbnTopRejection(AnalysisTemplate):
             'inputs/rockyou-withcount/data.txt'
         ))
         self.addFilter(data_filter.PCLOutputRegex({
-            'Zxcvbn': 'top.*100.*password'
+            'ZxcvbnPython': 'top.*100.*password'
         }))
         self.applyFilter()
 
@@ -467,7 +467,7 @@ class AllAcceptedOneRejected(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -514,7 +514,7 @@ class LibrariesSummaryTransformedPass(AnalysisTemplate):
             filename=folder_path + "summary_" + self.__class__.__name__
         )
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()

@@ -22,7 +22,7 @@ class ScoreHistogram(AnalysisTemplate):
             'PassWDQC': {},
             'Passfault': {},
             'Pwscore': {},
-            'Zxcvbn': {},
+            'ZxcvbnPython': {},
         }
         pcl_to_remove = set()
         for passdata in self.getData():
@@ -62,7 +62,7 @@ class ScoreHistogram(AnalysisTemplate):
             'PassWDQC': 'PW',
             'Passfault': 'PF',
             'Pwscore': 'PS',
-            'Zxcvbn': 'ZX',
+            'ZxcvbnPython': 'ZX',
         }
         # the width of the bars
         width = 0.5

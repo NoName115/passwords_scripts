@@ -14,7 +14,7 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         #self.addFilter(data_filter.NumberOfPasswordCharacterClass(3))
         self.addFilter(data_filter.PasswordContainCharacterClass([
@@ -34,7 +34,7 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
             sortby='PassWDQC',
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
-                'PassWDQC', 'Passfault', 'Pwscore', 'Zxcvbn'
+                'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython'
             ]
         )
         table_2 = data_table.OverallSummary(self.getData()).getTable(
@@ -56,14 +56,14 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
         )
 
 
-class ZxcvbnPasswordPattern(AnalysisTemplate):
+class ZxcvbnPythonPasswordPattern(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.addFilter(data_filter.PasswordLengthHigher(10))
         self.addFilter(data_filter.PasswordRegex('^\d\d.*\d\d$'))
@@ -76,16 +76,16 @@ class ZxcvbnPasswordPattern(AnalysisTemplate):
                 'CrackLib reasons of rejection',
                 'PassWDQC reasons of rejection',
                 'Pwscore reasons of rejection',
-                'Zxcvbn accepted', 'Zxcvbn rejected',
-                'Zxcvbn reasons of rejection'
+                'ZxcvbnPython accepted', 'ZxcvbnPython rejected',
+                'ZxcvbnPython reasons of rejection'
             ]
         )
         table_2 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Zxcvbn score',
+            sortby='ZxcvbnPython score',
             fields=[
                 'Password', 'Char. classes', 'Length',
                 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
                 ]
         )
         self.printToFile(
@@ -98,7 +98,7 @@ class ZxcvbnPasswordPattern(AnalysisTemplate):
         )
 
 
-class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
+class ZxcvbnPythonPwscorePasswordPattern(AnalysisTemplate):
 
     def runAnalysis(self):
         def getFirstTable():
@@ -106,7 +106,7 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
                 fields=[
                     'Password', 'Char. classes', 'Length',
                     'Pwscore', 'Pwscore score',
-                    'Zxcvbn', 'Zxcvbn score'
+                    'ZxcvbnPython', 'ZxcvbnPython score'
                 ],
                 start=10,
                 end=100
@@ -119,8 +119,8 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
                 fields=[
                     'Pwscore accepted', 'Pwscore rejected',
                     'Pwscore reasons of rejection',
-                    'Zxcvbn accepted', 'Zxcvbn rejected',
-                    'Zxcvbn reasons of rejection'
+                    'ZxcvbnPython accepted', 'ZxcvbnPython rejected',
+                    'ZxcvbnPython reasons of rejection'
                 ]
             )
 
@@ -130,7 +130,7 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.addFilter(data_filter.PasswordRegex('^\d\d.*\d\d$'))
         self.addFilter(data_filter.PasswordContainCharacterClass([
@@ -186,7 +186,7 @@ class ZxcvbnPwscorePasswordPattern(AnalysisTemplate):
         )
 
 
-class ZxcvbnPalindrom(AnalysisTemplate):
+class ZxcvbnPythonPalindrom(AnalysisTemplate):
 
     def runAnalysis(self):
         self.setData(self.analyzer.data_set['all_passwords'])
@@ -210,17 +210,17 @@ class ZxcvbnPalindrom(AnalysisTemplate):
 
         self.clearFilter()
         self.addFilter(data_filter.PCLOutputRegex({
-            'Zxcvbn': 'OK'
+            'ZxcvbnPython': 'OK'
         }))
         self.applyFilter()
 
         table_2 = data_table.ComplexPassword(self.getData()).getTable(
-            sortby='Zxcvbn score',
+            sortby='ZxcvbnPython score',
             reversesort=True,
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
             ]
         )
 
@@ -232,7 +232,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
         self.setData(unfiltered_data)
         self.clearFilter()
         self.addFilter(data_filter.OriginalPCLOutputIsNotOk([
-            'Zxcvbn'
+            'ZxcvbnPython'
         ]))
         self.applyFilter()
 
@@ -242,7 +242,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
             ]
         )
         self.printToFile(
@@ -258,7 +258,7 @@ class ZxcvbnPalindrom(AnalysisTemplate):
             fields=[
                 'Password', 'Diff. char.', 'Char. classes', 'Length',
                 'Pwscore', 'Pwscore score',
-                'Zxcvbn', 'Zxcvbn score'
+                'ZxcvbnPython', 'ZxcvbnPython score'
             ]
         )
         self.printToFile(
@@ -280,7 +280,7 @@ class DictionaryWords(AnalysisTemplate):
         # Dictionary word only in CrackLib, PassWDQC & Pwscore
         self.printToFile(
             'CrackLib, PassWDQC or Pwscore consider passwords as dictionary words' +
-            ' and Zxcvbn accept these passwords',
+            ' and ZxcvbnPython accept these passwords',
             filename='outputs/' + self.__class__.__name__
         )
         self.setData(self.analyzer.data_set['all_passwords'])
@@ -311,7 +311,7 @@ class DictionaryWords(AnalysisTemplate):
         )
 
         self.clearFilter()
-        self.addFilter(data_filter.OriginalPCLOutputIsOk(['Zxcvbn']))
+        self.addFilter(data_filter.OriginalPCLOutputIsOk(['ZxcvbnPython']))
         self.applyFilter()
 
         table_2 = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
@@ -319,7 +319,7 @@ class DictionaryWords(AnalysisTemplate):
             reversesort=True,
             fields=[
                 'NOUses', 'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn', 'Zxcvbn score'
+                'CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython', 'ZxcvbnPython score'
             ],
             start=0,
             end=50
@@ -366,7 +366,7 @@ class DictionaryWords(AnalysisTemplate):
             reversesort=True,
             fields=[
                 'NOUses', 'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn'
+                'CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython'
             ],
             start=0,
             end=40
@@ -409,7 +409,7 @@ class DictionaryWords(AnalysisTemplate):
             reversesort=True,
             fields=[
                 'NOUses', 'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn'
+                'CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython'
             ],
             start=0,
             end=40
@@ -452,7 +452,7 @@ class DictionaryWords(AnalysisTemplate):
             reversesort=True,
             fields=[
                 'NOUses', 'Password',
-                'CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn'
+                'CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython'
             ],
             start=0,
             end=40
@@ -470,7 +470,7 @@ class PassfaultKeyboardSequence(AnalysisTemplate):
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
             'Pwscore': 40,
-            'Zxcvbn': 3
+            'ZxcvbnPython': 3
         }))
         self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Keyboard'
@@ -491,7 +491,7 @@ class PassfaultKeyboardSequence(AnalysisTemplate):
 
         unfiltered_data = self.getData()
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Pwscore', 'Zxcvbn']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Pwscore', 'ZxcvbnPython']:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -554,7 +554,7 @@ class Dictionary123Pattern(AnalysisTemplate):
 
 
         # Ok passwords for PCL from list
-        pcl_list = ['CrackLib', 'Pwscore', 'Zxcvbn']
+        pcl_list = ['CrackLib', 'Pwscore', 'ZxcvbnPython']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -566,7 +566,7 @@ class Dictionary123Pattern(AnalysisTemplate):
                 fields=[
                     'NOUses', 'Password',
                     'CrackLib', 'PassWDQC', 'Passfault',
-                    'Pwscore', 'Pwscore score', 'Zxcvbn', 'Zxcvbn score'
+                    'Pwscore', 'Pwscore score', 'ZxcvbnPython', 'ZxcvbnPython score'
                 ]
             )
             self.printToFile(

@@ -299,7 +299,8 @@ class ChangePCLOutputByScore(FilterTemplate):
         if (not self.variable):
             self.variable = {
                 'Pwscore': 40,
-                'Zxcvbn': 3,
+                'ZxcvbnPython': 3,
+                'ZxcvbnC': 50,
                 'Passfault': 100000000000
             }
 
