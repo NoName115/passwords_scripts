@@ -163,7 +163,7 @@ class Library():
             password_list.append(resolveOutput(
                 password_output,
                 delimiter
-                ))
+            ))
 
         return password_list
 
@@ -190,10 +190,10 @@ class PassWDQC(Library):
         )
 
 
-class Zxcvbn(Library):
+class ZxcvbnPython(Library):
 
     def __init__(self):
-        super(Zxcvbn, self).__init__()
+        super(ZxcvbnPython, self).__init__()
 
     def checkPassword(self, password, pcl_dic):
         result = zxcvbn(password)
@@ -211,6 +211,30 @@ class Zxcvbn(Library):
             password,
             (output, result['score'])
             )
+
+
+class ZxcvbnC(Library):
+
+    def __init__(self):
+        super(ZxcvbnC, self).__init__(
+            False,
+            " \tEntropy ",
+            1,
+            "./../zxcvbn-c/test-file", "-q"
+        )
+
+    def convertOutput(self, input_output):
+        output = []
+        for value in input_output:
+            if (value[0]):
+                output.append(
+                    ('', round(float(value[0])))
+                )
+            else:
+                output.append(
+                    ('', 0)
+                )
+        return output
 
 
 class Pwscore(Library):
