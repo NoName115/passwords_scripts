@@ -7,7 +7,8 @@ import scripts.table as data_table
 class LibrariesSummary(AnalysisTemplate):
 
     def runAnalysis(self):
-        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.applyFilter()
@@ -38,7 +39,7 @@ class LibrariesTopOkPasswords(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython', 'ZxcvbnC']:
             self.clearFilter()
             self.setData(unfiltered_data)
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
@@ -80,7 +81,7 @@ class AllRejectedOneAccepted(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython', 'ZxcvbnC']:
             self.setData(unfiltered_data)
             self.clearFilter()
             self.addFilter(data_filter.AllRejectedOneAccepted(pcl))
@@ -111,7 +112,7 @@ class AllAccepted(AnalysisTemplate):
         self.addFilter(data_filter.AddNumberOfUsesToPassData(
             'inputs/rockyou-withcount/data.txt'
         ))
-        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']:
+        for pcl in ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython', 'ZxcvbnC']:
             self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
 
         self.applyFilter()
@@ -467,7 +468,7 @@ class AllAcceptedOneRejected(AnalysisTemplate):
         self.createFolder(folder_path)
         folder_path += "/"
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'Pwscore', 'ZxcvbnPython', 'ZxcvbnC']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -514,7 +515,7 @@ class LibrariesSummaryTransformedPass(AnalysisTemplate):
             filename=folder_path + "summary_" + self.__class__.__name__
         )
 
-        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'ZxcvbnPython']
+        pcl_list = ['CrackLib', 'PassWDQC', 'Passfault', 'ZxcvbnPython', 'ZxcvbnC']
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
@@ -535,3 +536,39 @@ class LibrariesSummaryTransformedPass(AnalysisTemplate):
                 table_2,
                 filename=folder_path + pcl + "_" + self.__class__.__name__
             )
+
+
+class ZxcvbnImplementacionComparison(AnalysisTemplate):
+
+    def runAnalysis(self):
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore({
+            'ZxcvbnPython': 3,
+            'ZxcvbnC': 37
+        }))
+        '''
+        self.addFilter(data_filter.AddNumberOfUsesToPassData(
+            'inputs/rockyou-withcount/data.txt'
+        ))
+        '''
+        self.applyFilter()
+
+        '''
+        table = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
+            start=0,
+            end=5000
+        )
+        '''
+        table = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=40,
+            fields=[
+                'ZxcvbnC accepted', 'ZxcvbnC rejected',
+                'ZxcvbnC reasons of rejection',
+                'ZxcvbnPython accepted', 'ZxcvbnPython rejected',
+                'ZxcvbnPython reasons of rejection'
+            ]
+        )
+        self.printToFile(table)
