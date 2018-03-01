@@ -373,7 +373,7 @@ class PasswordLength(TableTemplate):
 class ComplexPasswordWithNumberOfUses(TableTemplate):
 
     def getHeader(self):
-        header = ['NOUses', 'Password']
+        header = ['NOUses', 'Password', 'Diff. char.', 'Char. classes', 'Length']
         for pcl in self.pcl_list:
             header += [pcl, pcl + ' score']
 
@@ -383,7 +383,10 @@ class ComplexPasswordWithNumberOfUses(TableTemplate):
         for passdata in self.data:
             row = [
                 passdata.numberOfUses,
-                passdata.password
+                passdata.password,
+                passdata.diff_char,
+                ', '.join(passdata.char_classes),
+                len(passdata.password)
             ]
             for pcl in self.pcl_list:
                 row += [
