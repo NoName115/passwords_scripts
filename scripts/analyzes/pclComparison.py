@@ -572,3 +572,26 @@ class ZxcvbnImplementacionComparison(AnalysisTemplate):
             ]
         )
         self.printToFile(table)
+
+
+class ZxcvbnCThresholdSummary(AnalysisTemplate):
+
+    def runAnalysis(self):
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
+
+        for threshold in list(range(100, 35, -5)) + list(range(36, 10, -2)) + [10, 5]:
+            self.clearFilter()
+            self.addFilter(data_filter.ChangePCLOutputByScore({
+                'ZxcvbnC': threshold
+            }))
+            self.applyFilter()
+
+            table = data_table.OverallSummary(self.getData()).getTable(
+                start=0,
+                end=2
+            )
+            self.printToFile(
+                'Threshold: ' + str(threshold)
+            )
+            self.printToFile(table)
