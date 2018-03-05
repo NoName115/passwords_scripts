@@ -396,8 +396,7 @@ class DictionaryWords(AnalysisTemplate):
 class PassfaultKeyboardSequence(AnalysisTemplate):
 
     def runAnalysis(self):
-        # Keyboard sequence detected by Passfault,
-        # but not only 'keyboard sequence' is the reason of rejection
+        # Only Keyboard sequence detected by Passfault,
         self.setData(self.analyzer.data_set['all_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore({
@@ -408,17 +407,17 @@ class PassfaultKeyboardSequence(AnalysisTemplate):
         self.addFilter(data_filter.PCLOutputRegex({
             'Passfault': 'Keyboard'
         }))
+        self.addFilter(data_filter.PCLOutputDoesNotContainString({
+            'Passfault': ','
+        }))
         self.addFilter(data_filter.AddNumberOfUsesToPassData(
             'inputs/rockyou-withcount/data.txt'
         ))
         self.applyFilter()
 
-        table_1 = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=20
-        )
+        table = data_table.OverallSummary(self.getData()).getTable()
         self.printToFile(
-            table_1,
+            table,
             filename='outputs/' + self.__class__.__name__
         )
 
@@ -450,9 +449,8 @@ class Dictionary123Pattern(AnalysisTemplate):
 
     def runAnalysis(self):
         # Passwords with pattern '[a-zA-Z]123'
-        # ~25% accepted by CrackLib, ~6% ZxcvbnPython
-        # with password length >=8
-        # ~40% accepted by CrackLib, ~10% ZxcvbnPython
+        # ~25% accepted by CrackLib, ~6% ZxcvbnPython - overall
+        # ~40% accepted by CrackLib, ~10% ZxcvbnPython - password length >=8
         self.setData(self.analyzer.data_set['all_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
@@ -514,3 +512,86 @@ class Dictionary123Pattern(AnalysisTemplate):
                 table_1,
                 filename='outputs/' + self.__class__.__name__
             )
+
+
+class EmailAddresses(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # email addresses accepted ~100% by every PCL
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.PasswordRegex('^.+\@.+\..+$'))
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.applyFilter()
+
+        table_1 = data_table.OverallSummary(self.getData()).getTable()
+        table_2 = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table_1,
+            filename='outputs/' + self.__class__.__name__
+        )
+        self.printToFile(
+            table_2,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+
+class ZxcvbnPythonNWordNPattern(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Password with pattern \d+[a-zA-Z]+\d+
+        # >60% accepted by ZxcvbnPython
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PasswordRegex(
+            '^\d+[a-zA-Z]+\d+$'
+        ))
+        self.addFilter(data_filter.PasswordLengthHigher(9))
+        self.applyFilter()
+
+        table = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=30
+        )
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+        )
+        table = data_table.ComplexPassword(self.getData()).getTable(
+            start=0,
+            end=1000
+        )
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+
+class CrackLibSpaceIncluded(AnalysisTemplate):
+
+    def runAnalysis(self):
+        # Passwords that contain space
+        # ~90% accepted by CrackLib
+        # >30% accepted by ZxcvbnPython
+        self.setData(self.analyzer.data_set['all_passwords'])
+
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.addFilter(data_filter.PasswordContainString(" "))
+        #self.addFilter(data_filter.NumberOfDifferentCharactersHigher(5))
+        self.applyFilter()
+
+        table = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=30
+        )
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+        )
+
+        table = data_table.ComplexPassword(self.getData()).getTable()
+        self.printToFile(
+            table,
+            filename='outputs/' + self.__class__.__name__
+        )
