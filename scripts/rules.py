@@ -485,3 +485,25 @@ class AddRandomLetterAsPostfixOrPrefix(Rule):
         entropy_change = 4.5
 
         return [transformed_password, entropy_change]
+
+
+class ReversePassword(Rule):
+
+    def __init__(self):
+        super(ReversePassword, self).__init__(0, 0)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password[::-1]
+        entropy_change = 0
+        return [transformed_password, entropy_change]
+
+
+class RepeatPassword(Rule):
+
+    def __init__(self):
+        super(RepeatPassword, self).__init__(0, 0)
+    
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password * 2
+        entropy_change = 0
+        return [transformed_password, entropy_change]

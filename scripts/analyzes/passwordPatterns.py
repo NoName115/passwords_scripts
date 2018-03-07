@@ -595,3 +595,32 @@ class CrackLibSpaceIncluded(AnalysisTemplate):
             table,
             filename='outputs/' + self.__class__.__name__
         )
+
+
+class ReversedPasswordSummary(AnalysisTemplate):
+
+    def runAnalysis(self):
+        self.setData(self.analyzer.data_set['orig_passwords'])
+        self.addFilter(data_filter.ChangePCLOutputByScore())
+        self.applyFilter()
+
+        table = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=20
+        )
+        self.printToFile(
+            table,
+            'outputs/' + self.__class__.__name__
+        )
+
+        self.setData(self.analyzer.data_set['trans_passwords'])
+        self.applyFilter()
+
+        table = data_table.OverallSummary(self.getData()).getTable(
+            start=0,
+            end=20
+        )
+        self.printToFile(
+            table,
+            'outputs/' + self.__class__.__name__
+        )

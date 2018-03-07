@@ -7,8 +7,8 @@ import scripts.table as data_table
 class LibrariesSummary(AnalysisTemplate):
 
     def runAnalysis(self):
-        #self.setData(self.analyzer.data_set['all_passwords'])
-        self.setData(self.analyzer.data_set['trans_passwords'])
+        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.applyFilter()
@@ -19,7 +19,7 @@ class LibrariesSummary(AnalysisTemplate):
         )
         self.printToFile(
             table_1,
-            filename='outputs/' + self.__class__.__name__
+            #filename='outputs/' + self.__class__.__name__
         )
 
 
