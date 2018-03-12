@@ -332,10 +332,12 @@ class LowerLastLetter(LowerFromIndexToIndex):
 
 class AddStringAsPostfixOrPrefix(Rule):
 
-    def __init__(self, string_to_add, entropy_change):
+    def __init__(self, string_to_add, entropy_change, set_postfix=False, set_prefix=False):
         super(AddStringAsPostfixOrPrefix, self).__init__(0, 0)
         self.string_to_add = string_to_add
         self.entropy_change = entropy_change
+        self.set_postfix = set_postfix
+        self.set_prefix = set_prefix
 
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
@@ -347,13 +349,34 @@ class AddStringAsPostfixOrPrefix(Rule):
                 len(self.string_to_add) - 1
                 )]
 
-        # If == 1, add string as prefix, else as postfix
-        if (randint(0, 1)):
+        if (self.set_prefix):
             transformed_password = postfix_or_prefix + transformed_password
-        else:
+        if (self.set_postfix):
             transformed_password += postfix_or_prefix
 
+        # If == 1, add string as prefix, else as postfix
+        if (not self.set_prefix and not self.set_postfix):
+            if (randint(0, 1)):
+                transformed_password = postfix_or_prefix + transformed_password
+            else:
+                transformed_password += postfix_or_prefix
+
         return [transformed_password, self.entropy_change]
+
+
+class AddSpaceAtRandomPosition(Rule):
+    
+    def __init__(self):
+        super(AddSpaceAtRandomPosition, self).__init__(0, 0)
+    
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password
+        rand_pos = randint(1, len(transformed_password))
+
+        transformed_password = transformed_password[:rand_pos] + ' ' + transformed_password[rand_pos:]
+        entropy_change = 2
+
+        return [transformed_password, entropy_change]
 
 
 class AddOneAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
@@ -379,18 +402,26 @@ class AddRandomTitleNameAsPostfixOrPrefix(AddStringAsPostfixOrPrefix):
 
 class AddTwoRandomDigitsAsPostfixOrPrefix(Rule):
 
-    def __init__(self):
+    def __init__(self, set_postfix=False, set_prefix=False):
         super(AddTwoRandomDigitsAsPostfixOrPrefix, self).__init__(0, 0)
+        self.set_postfix = set_postfix
+        self.set_prefix = set_prefix
 
     def uniqueTransform(self, passinfo, from_index, to_index):
         transformed_password = passinfo.password
         digits = str(randint(0, 9)) + str(randint(0, 9))
 
-        # If == 1, add string as prefix, else as postfix
-        if (randint(0, 1)):
+        if (self.set_prefix):
             transformed_password = digits + transformed_password
-        else:
+        if (self.set_postfix):
             transformed_password += digits
+
+        if (not self.set_postfix and not self.set_prefix):
+            # If == 1, add string as prefix, else as postfix
+            if (randint(0, 1)):
+                transformed_password = digits + transformed_password
+            else:
+                transformed_password += digits
 
         # Postfix or prefix a random digit with zero
         if (digits[1] == '0'):
@@ -408,6 +439,28 @@ class AddTwoRandomDigitsAsPostfixOrPrefix(Rule):
         else:
             entropy_change = 6.5
 
+        return [transformed_password, entropy_change]
+
+
+class AddRandomSymbolAsPostfixOrPrefix(Rule):
+
+    def __init__(self):
+        super(AddRandomSymbolAsPostfixOrPrefix, self).__init__(0, 0)
+
+    def uniqueTransform(self, passinfo, from_index, to_index):
+        transformed_password = passinfo.password
+        symbol_list = ['!', '?', '$', '#', '@', '%', '*', '&']
+
+        if (randint(0, 1)):
+            transformed_password = symbol_list[randint(
+                0, len(symbol_list) - 1
+            )] + transformed_password
+        else:
+            transformed_password += symbol_list[randint(
+                0, len(symbol_list) - 1
+            )]
+
+        entropy_change = 1
         return [transformed_password, entropy_change]
 
 

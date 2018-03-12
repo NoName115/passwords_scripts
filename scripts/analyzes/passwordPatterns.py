@@ -9,8 +9,9 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
     def runAnalysis(self):
         # Passwords contain letter, number & special char.
         # Are longer than 9 characters & have at least 7 diff. characters
-        # ~60% for almost every pcl
+        # ~50% for almost every pcl
         self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.addFilter(data_filter.PasswordContainCharacterClass([
@@ -34,6 +35,7 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
             end=15
         )
 
+        #'''
         table_2 = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
             fields=[
                 'NOUses', 'Password', 'Diff. char.', 'Char. classes', 'Length',
@@ -42,6 +44,16 @@ class PassWDQCPasswordPattern(AnalysisTemplate):
             start=0,
             end=200
         )
+        '''
+        table_2 = data_table.ComplexPassword(self.getData()).getTable(
+            fields=[
+                'Password', 'Diff. char.', 'Char. classes', 'Length',
+                'PassWDQC', 'Passfault', 'ZxcvbnC', 'ZxcvbnPython'
+            ],
+            start=0,
+            end=200
+        )
+        '''
 
         self.printToFile(
             table_1,
@@ -61,7 +73,8 @@ class ZxcvbnPythonPwscore2DigitsPattern(AnalysisTemplate):
         # >10 length - >80% ZxcvbnPython, ~70% Pwscore
         # >9 length  - ~70% ZxcvbnPython, ~50% Pwscore
         # >8 length  - ~50% ZxcvbnPython, >30% Pwscore
-        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.addFilter(data_filter.PasswordRegex('^\d\d.*\d\d$'))
@@ -83,22 +96,9 @@ class ZxcvbnPythonPwscore2DigitsPattern(AnalysisTemplate):
             table_1 = data_table.OverallSummary(self.getData()).getTable(
                 start=0,
                 end=13,
-                fields=[
-                    'Pwscore accepted', 'Pwscore rejected',
-                    'Pwscore reasons of rejection',
-                    'ZxcvbnC accepted', 'ZxcvbnC rejected',
-                    'ZxcvbnC reasons of rejection',
-                    'ZxcvbnPython accepted', 'ZxcvbnPython rejected',
-                    'ZxcvbnPython reasons of rejection'
-                ]
             )
 
             table_2 = data_table.ComplexPassword(self.getData()).getTable(
-                fields=[
-                    'Password', 'Char. classes', 'Length',
-                    'Pwscore', 'Pwscore score',
-                    'ZxcvbnPython', 'ZxcvbnPython score'
-                ],
                 start=10,
                 end=100
             )
@@ -451,13 +451,14 @@ class Dictionary123Pattern(AnalysisTemplate):
         # Passwords with pattern '[a-zA-Z]123'
         # ~25% accepted by CrackLib, ~6% ZxcvbnPython - overall
         # ~40% accepted by CrackLib, ~10% ZxcvbnPython - password length >=8
-        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.addFilter(data_filter.PasswordRegex('[a-zA-Z]+123$'))
-        self.addFilter(data_filter.AddNumberOfUsesToPassData(
-            'inputs/rockyou-withcount/data.txt'
-        ))
+        #self.addFilter(data_filter.AddNumberOfUsesToPassData(
+        #    'inputs/rockyou-withcount/data.txt'
+        #))
         self.applyFilter()
 
         # Overall summary
@@ -489,20 +490,19 @@ class Dictionary123Pattern(AnalysisTemplate):
 
 
         # Ok passwords for PCL from list
-        pcl_list = ['CrackLib', 'Pwscore', 'ZxcvbnPython']
+        pcl_list = [
+            'CrackLib', 'PassWDQC', 'Passfault',
+            'Pwscore', 'ZxcvbnC', 'ZxcvbnPython'
+        ]
         for pcl in pcl_list:
             self.setData(unfiltered_data)
             self.clearFilter()
-            self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
+            #self.addFilter(data_filter.OriginalPCLOutputIsOk([pcl]))
+            self.addFilter(data_filter.TransformedPCLOutputIsOk([pcl]))
             self.applyFilter()
-            table_1 = data_table.ComplexPasswordWithNumberOfUses(self.getData()).getTable(
+            table_1 = data_table.ComplexPassword(self.getData()).getTable(
                 start=0,
                 end=100,
-                fields=[
-                    'NOUses', 'Password',
-                    'CrackLib', 'PassWDQC', 'Passfault',
-                    'Pwscore', 'Pwscore score', 'ZxcvbnPython', 'ZxcvbnPython score'
-                ]
             )
             self.printToFile(
                 'PCL: ' + pcl + ' Number of passwords: ' + str(len(self.getData())),
@@ -518,7 +518,8 @@ class EmailAddresses(AnalysisTemplate):
 
     def runAnalysis(self):
         # email addresses accepted ~100% by every PCL
-        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.PasswordRegex('^.+\@.+\..+$'))
         self.addFilter(data_filter.ChangePCLOutputByScore())
@@ -536,45 +537,14 @@ class EmailAddresses(AnalysisTemplate):
         )
 
 
-class ZxcvbnPythonNWordNPattern(AnalysisTemplate):
-
-    def runAnalysis(self):
-        # Password with pattern \d+[a-zA-Z]+\d+
-        # >60% accepted by ZxcvbnPython
-        self.setData(self.analyzer.data_set['all_passwords'])
-
-        self.addFilter(data_filter.ChangePCLOutputByScore())
-        self.addFilter(data_filter.PasswordRegex(
-            '^\d+[a-zA-Z]+\d+$'
-        ))
-        self.addFilter(data_filter.PasswordLengthHigher(9))
-        self.applyFilter()
-
-        table = data_table.OverallSummary(self.getData()).getTable(
-            start=0,
-            end=30
-        )
-        self.printToFile(
-            table,
-            filename='outputs/' + self.__class__.__name__
-        )
-        table = data_table.ComplexPassword(self.getData()).getTable(
-            start=0,
-            end=1000
-        )
-        self.printToFile(
-            table,
-            filename='outputs/' + self.__class__.__name__
-        )
-
-
 class CrackLibSpaceIncluded(AnalysisTemplate):
 
     def runAnalysis(self):
         # Passwords that contain space
         # ~90% accepted by CrackLib
         # >30% accepted by ZxcvbnPython
-        self.setData(self.analyzer.data_set['all_passwords'])
+        #self.setData(self.analyzer.data_set['all_passwords'])
+        self.setData(self.analyzer.data_set['trans_passwords'])
 
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.addFilter(data_filter.PasswordContainString(" "))
@@ -590,7 +560,10 @@ class CrackLibSpaceIncluded(AnalysisTemplate):
             filename='outputs/' + self.__class__.__name__
         )
 
-        table = data_table.ComplexPassword(self.getData()).getTable()
+        table = data_table.ComplexPassword(self.getData()).getTable(
+            start=0,
+            end=1000
+        )
         self.printToFile(
             table,
             filename='outputs/' + self.__class__.__name__
@@ -600,6 +573,9 @@ class CrackLibSpaceIncluded(AnalysisTemplate):
 class ReversedPasswordSummary(AnalysisTemplate):
 
     def runAnalysis(self):
+        # Reversed RockYou passwords
+        # Passfault from ~2% to ~20%
+        # Other libraries have same results
         self.setData(self.analyzer.data_set['orig_passwords'])
         self.addFilter(data_filter.ChangePCLOutputByScore())
         self.applyFilter()
